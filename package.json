@@ -1,0 +1,24 @@
+{
+    "name": "com.david6.shootercore",
+    "version": "0.0.0",
+    "displayName": "ShooterCore",
+    "description": "ShooterCore is a Unity shooting framework that offers first- and third-person camera transitions, intuitive player controls, and essential weapon mechanics.",
+    "unity": "6.0",
+    "documentationUrl": "https://github.com/David-63/com.david6.shootercore/blob/main/README.md",
+    "changelogUrl": "https://github.com/David-63/com.david6.shootercore/releases",
+    "licensesUrl": "https://github.com/David-63/com.david6.shootercore/blob/main/LICENSE",
+    "dependencies": {
+      "com.unity.inputsystem": "1.13.0"
+    },    
+    "keywords": [
+      "shooter",
+      "fps",
+      "tps",
+      "framework"
+    ],
+    "author": {
+      "name": "David-63",
+      "email": "jiseop.63@gmail.com",
+      "url": "https://github.com/David-63"
+    }
+  }
