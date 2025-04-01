@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+//using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -23,9 +23,6 @@ namespace David6.ShooterFramework
             ServiceLocator.Initialize();
 
             //Addressables.LoadAssetAsync<PlayerManager>(AddressName).Completed += OnPlayerManagerLoaded;
-
-
-
 
             // Addressables 비동기 로드를 Task로 변환하여 await합니다.
             AsyncOperationHandle<PlayerManager> handle = Addressables.LoadAssetAsync<PlayerManager>(AddressName);

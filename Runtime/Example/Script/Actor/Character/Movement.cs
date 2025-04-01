@@ -21,7 +21,7 @@ namespace David6.ShooterFramework
         /// <summary>
         /// 다시 점프하는데 걸리는 시간.
         /// </summary>
-        private float _jumpTimeout = 0.20f;
+        private float _jumpTimeout = 0.30f;
         /// <summary>
         /// 낙하 상태에 진입하는 시간. 계단을 내려갈때 유용함.
         /// </summary>
