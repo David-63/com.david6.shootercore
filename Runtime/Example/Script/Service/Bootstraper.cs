@@ -45,25 +45,25 @@ namespace David6.ShooterFramework
             }
             else
             {
-                Debug.LogError("PlayerManager 에셋 로드 실패.");
+                Log.ErrorAlert("PlayerManager 에셋 로드 안됨.");
             }
 
 
         }
 
-        private static void OnPlayerManagerLoaded(AsyncOperationHandle<PlayerManager> handle)
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                // 만약 해당 라벨에 여러 에셋이 있다면, 필요에 따라 리스트 내부 모든 아이템을 처리할 수 있습니다.
-                PlayerManager playerManager = handle.Result;
-                ServiceLocator.Current.Register<IPlayerManager>(playerManager);
-                Log.WhatHappend("서비스 초기화 진행.");
-            }
-            else
-            {
-                Debug.LogError("PlayerManager 에셋 로드 실패.");
-            }
-        }
+        // private static void OnPlayerManagerLoaded(AsyncOperationHandle<PlayerManager> handle)
+        // {
+        //     if (handle.Status == AsyncOperationStatus.Succeeded)
+        //     {
+        //         // 만약 해당 라벨에 여러 에셋이 있다면, 필요에 따라 리스트 내부 모든 아이템을 처리할 수 있습니다.
+        //         PlayerManager playerManager = handle.Result;
+        //         ServiceLocator.Current.Register<IPlayerManager>(playerManager);
+        //         Log.WhatHappend("서비스 초기화 진행.");
+        //     }
+        //     else
+        //     {
+        //         Log.ErrorAlert("PlayerManager 에셋 로드 안됨.");
+        //     }
+        // }
     }
 }
