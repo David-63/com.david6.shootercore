@@ -76,6 +76,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Camera Switch",
+                    "type": "Button",
+                    "id": "7441070c-1b26-4a1b-aa63-30b5b175a708",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -150,7 +159,7 @@
                     "id": "d7306969-fc7f-44a0-ac90-2b96c6cb7f70",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
-                    "processors": "StickDeadzone,ScaleVector2(x=1.2,y=1.2)",
+                    "processors": "StickDeadzone,ScaleVector2(x=0.8,y=0.8)",
                     "groups": ";Controller",
                     "action": "Look",
                     "isComposite": false,
@@ -161,7 +170,7 @@
                     "id": "6fb5f1af-5666-4629-9762-897f06b0b428",
                     "path": "<Mouse>/delta",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "ScaleVector2(x=0.05,y=0.05)",
                     "groups": ";PC",
                     "action": "Look",
                     "isComposite": false,
@@ -296,6 +305,28 @@
                     "processors": "",
                     "groups": ";PC",
                     "action": "Cursor Lock",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b004dd99-6a6e-4288-bad7-90fa11a71ea6",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Controller",
+                    "action": "Camera Switch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1a71686e-a714-4150-9d39-8c19a57f9694",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Camera Switch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

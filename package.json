@@ -9,7 +9,8 @@
   "licensesUrl": "https://github.com/David-63/com.david6.shootercore/blob/main/LICENSE",
   "dependencies": {
     "com.unity.inputsystem": "1.13.0",
-    "com.unity.addressables": "2.2.2"
+    "com.unity.addressables": "2.2.2",
+    "com.unity.cinemachine": "3.1.3"
   },
   "keywords": [
     "shooter",

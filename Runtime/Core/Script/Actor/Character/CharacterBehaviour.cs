@@ -38,6 +38,12 @@ namespace David6.ShooterFramework
         /// <returns></returns>
 		public abstract bool IsCursorLocked();
 
+        /// <summary>
+        /// 카메라 시점 상태 반환
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool IsCameraSwitch();
+
 
         /// <summary>
         /// 이동 입력값 반환

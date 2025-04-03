@@ -38,8 +38,7 @@ namespace David6.ShooterFramework
             if (group == null)
             {
                 // BundledAssetGroupSchema 등 필요한 스키마를 추가해 그룹 생성
-                group = settings.CreateGroup(groupName, false, false, false, null, 
-                    typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
+                group = settings.CreateGroup(groupName, false, false, false, null, typeof(BundledAssetGroupSchema), typeof(ContentUpdateGroupSchema));
                 Debug.Log($"Addressable 그룹 '{groupName}'이 생성되었습니다.");
             }
             else

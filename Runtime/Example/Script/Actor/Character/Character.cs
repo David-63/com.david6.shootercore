@@ -9,7 +9,7 @@ namespace David6.ShooterFramework
     /// 캐릭터의 가장 중요한 기능을 처리하며, 거의 모든 부분의 에셋과 인터페이스를 모아주는 허브 역할을 합니다
     /// </summary>
     [RequireComponent(typeof(PlayerInput))]
-	[RequireComponent(typeof(Movement))]
+	[RequireComponent(typeof(PlayerController))]
     public sealed class Character : CharacterBehaviour
     {
         #region Fields Serialized
@@ -55,7 +55,7 @@ namespace David6.ShooterFramework
 		private bool _holdingButtonFire;
         
         private bool _cursorLocked;
-
+        private bool _cameraSwitch;
         #endregion
 
         #region 유니티 기본 함수
@@ -104,6 +104,7 @@ namespace David6.ShooterFramework
         public override bool IsJumping() => _jumping;
 
 		public override bool IsCursorLocked() => _cursorLocked;
+		public override bool IsCameraSwitch() => _cameraSwitch;
 
         public override Vector2 GetInputMovement() => _axisMovement;
 
@@ -267,6 +268,17 @@ namespace David6.ShooterFramework
 			{
 				case {phase: InputActionPhase.Performed}:
 					_cursorLocked = !_cursorLocked;
+					UpdateCursorState();
+                break;
+			}
+		}
+        
+        public void OnCameraSwitch(InputAction.CallbackContext context)
+		{
+			switch (context)
+			{
+				case {phase: InputActionPhase.Performed}:
+					_cameraSwitch = !_cameraSwitch;
 					UpdateCursorState();
                 break;
 			}
