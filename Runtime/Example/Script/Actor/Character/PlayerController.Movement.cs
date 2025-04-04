@@ -26,7 +26,6 @@ namespace David6.ShooterFramework
 		private float Gravity = -15.0f;
         [Tooltip("다시 점프하는데 걸리는 시간.")][SerializeField]
 		private float JumpTimeout = 0.50f;
-
 		[Tooltip("낙하 상태에 진입하는 시간. 계단을 내려갈때 유용함.")][SerializeField]
 		private float FallTimeout = 0.15f;
 
@@ -37,7 +36,6 @@ namespace David6.ShooterFramework
         // ======
         // player
         // ======
-        private float _applySpeed;
         private float _targetRotation;
         private float _rotationVelocity;
         private float _verticalVelocity;
@@ -48,7 +46,7 @@ namespace David6.ShooterFramework
         // =================
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
-        
+
         #endregion
 
         #region 주요 로직 함수
@@ -63,75 +61,69 @@ namespace David6.ShooterFramework
 
         private void HandleMovement()
         {
-            #region 입력 및 속력 계산
+            // 1. 입력 및 초기 변수 설정
             // 플레이어 입력 가져오기.
             Vector2 inputMovement = _playerCharacter.GetInputMovement();
             bool isInput = inputMovement != Vector2.zero;
-
-            // 속력 초기값.
             float targetSpeed = 0.0f;
 
-            
+            // 수평 속도 가져오기 (관성)
+            Vector3 currentHorizontalVelocity = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z);
+
+            // 카메라 방향을 반영하여 입력방향 계산
+            Vector3 inputDirection = Vector3.zero;
             if (isInput)
             {
-                targetSpeed = _playerCharacter.IsSprinting() ? _playerManager.GetSprintSpeed() : _playerManager.GetWalkSpeed();
+                inputDirection = new Vector3(inputMovement.x, 0.0f, inputMovement.y);
+                inputDirection = Quaternion.Euler(0.0f, _cameraTarget.eulerAngles.y, 0.0f) * inputDirection;
             }
 
-            #endregion
-
-            // 현재 수평 속도 가져오기.
-            float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
-            float speedOffset = 0.1f;
-
-            // // 속력 공중제어
-            // if (!Grounded)
-            // {
-            //     targetSpeed *= _playerManager.GetAirControlFactor();
-            // }
-
-            // 감속 혹은 가속하는 상황.
+            // 2. 수평 속도 업데이트 (지면 vs 공중)
             if (Grounded)
             {
-                if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+                if (isInput)
                 {
-                    // 속력 변환에 커브보간 적용 (소수점 3자리까지 적용).
-                    _applySpeed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed, Time.deltaTime * _playerManager.GetSpeedChangeRate());
-                    _applySpeed = Mathf.Round(_applySpeed* 1000.0f) / 1000.0f;
+                    targetSpeed = _playerCharacter.IsSprinting() ? _playerManager.GetSprintSpeed() : _playerManager.GetWalkSpeed();
                 }
-                else
-                {
-                    _applySpeed = targetSpeed;
-                }
+
+                // 원하는 방향의 최종 속도
+                Vector3 desiredVelocity = inputDirection * targetSpeed;
+
+                // 가속/감속: Lerp를 사용해 부드럽게 변화 (SpeedChangeRate는 가속률 조절)
+                currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, desiredVelocity, Time.deltaTime * _playerManager.GetSpeedChangeRate());
             }
             else
             {
-                _applySpeed = currentHorizontalSpeed;
+                // 공중: 기존에 유지되던 관성은 그대로 둔 채, 입력의 영향만 낮게 반영
+                if (isInput)
+                {
+                    // airDesiredVelocity: 공중에서 입력으로 인한 추가 가속도 (풀 스피드의 일정 비율)
+                    float baseSpeed = _playerCharacter.IsSprinting() ? _playerManager.GetSprintSpeed() : _playerManager.GetWalkSpeed();
+                    Vector3 airDesiredVelocity = inputDirection * baseSpeed * _playerManager.GetAirControlFactor();
+
+                    // 기존 관성에 입력 가속도를 부드럽게 반영 (여기서 Lerp 대신 직접 더해도 무방)
+                    currentHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, currentHorizontalVelocity + airDesiredVelocity, Time.deltaTime * _playerManager.GetSpeedChangeRate());
+                }
             }
 
-            // 이동 입력이 있으면, 움직일 때 캐릭터를 회전시킴.
+            // 3. 회전 처리: 입력이 있는 경우 입력 방향을 기준으로 회전
+
             if (isInput)
             {
                 _targetRotation = Mathf.Atan2(inputMovement.x, inputMovement.y) * Mathf.Rad2Deg + _cameraTarget.eulerAngles.y;
-
                 if (_firstPerson)
                 {
                     _bodyRotate = Mathf.SmoothDampAngle(_bodyRotate, _cameraTarget.eulerAngles.y, ref _rotationVelocity, RotationSmoothTime);
-                    transform.rotation = Quaternion.Euler(0.0f, _bodyRotate, 0.0f);
                 }
                 else
                 {
                     float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
-                    // 카메라의 위치에 따라 입력된 방향을 바라보도록 회전시킴.
                     transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
                 }
             }
 
-            Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
-
-            
-
-            // 캐릭터 이동시키기
-            _controller.Move(targetDirection.normalized * (_applySpeed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+            Vector3 totalMovement = currentHorizontalVelocity * Time.deltaTime + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime;
+            _controller.Move(totalMovement);
         }
 
         private void ApplyGravity()
