@@ -33,15 +33,13 @@ namespace David6.ShooterFramework
         {
             _playerManager = ServiceLocator.Current.Get<IPlayerManager>();
             _playerCharacter = _playerManager.GetPlayerCharacter();
+            _controller = GetComponent<CharacterController>();
+            _playerInput = GetComponent<PlayerInput>();
         }
         protected override void Start()
         {
-            _controller = GetComponent<CharacterController>();
-            _playerInput = GetComponent<PlayerInput>();
-
-            _jumpTimeoutDelta = JumpTimeout;
-			_fallTimeoutDelta = FallTimeout;
             InitializeCamera();
+            InitializeAnimations();
         }
         protected override void FixedUpdate()
         {

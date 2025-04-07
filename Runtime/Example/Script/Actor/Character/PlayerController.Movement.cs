@@ -57,6 +57,11 @@ namespace David6.ShooterFramework
 			var position = transform.position;
 			Vector3 spherePosition = new Vector3(position.x, position.y - GroundedOffset, position.z);
 			Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, _playerManager.GetGroundLayer(), QueryTriggerInteraction.Ignore);
+
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDGrounded, Grounded);
+            }
         }
 
         private void HandleMovement()
@@ -86,6 +91,10 @@ namespace David6.ShooterFramework
                     targetSpeed = _playerCharacter.IsSprinting() ? _playerManager.GetSprintSpeed() : _playerManager.GetWalkSpeed();
                 }
 
+                // 타겟 스피드에 맞춰서 애니메이션 블랜드 값 조정
+                _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * _playerManager.GetSpeedChangeRate());
+			    if (_animationBlend < 0.01f) _animationBlend = 0f;
+
                 // 원하는 방향의 최종 속도
                 Vector3 desiredVelocity = inputDirection * targetSpeed;
 
@@ -108,12 +117,17 @@ namespace David6.ShooterFramework
 
             // 3. 회전 처리: 입력이 있는 경우 입력 방향을 기준으로 회전
 
+            float inputMagnitude = 1f;
+
             if (isInput)
             {
                 _targetRotation = Mathf.Atan2(inputMovement.x, inputMovement.y) * Mathf.Rad2Deg + _cameraTarget.eulerAngles.y;
                 if (_firstPerson)
                 {
                     _bodyRotate = Mathf.SmoothDampAngle(_bodyRotate, _cameraTarget.eulerAngles.y, ref _rotationVelocity, RotationSmoothTime);
+
+                    inputMagnitude *= _playerCharacter.GetInputMovement().y;
+                    inputMagnitude += _playerCharacter.GetInputMovement().x * (1 - Mathf.Abs(inputMagnitude));
                 }
                 else
                 {
@@ -124,6 +138,12 @@ namespace David6.ShooterFramework
 
             Vector3 totalMovement = currentHorizontalVelocity * Time.deltaTime + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime;
             _controller.Move(totalMovement);
+
+            if (_hasAnimator)
+            {
+                _animator.SetFloat(_animIDSpeed, _animationBlend);
+                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+            }
         }
 
         private void ApplyGravity()
@@ -134,7 +154,11 @@ namespace David6.ShooterFramework
 				_fallTimeoutDelta = FallTimeout;
 
 				// update animator if using character
-
+                if (_hasAnimator)
+                {
+                    _animator.SetBool(_animIDJump, false);
+                    _animator.SetBool(_animIDFreeFall, false);
+                }
 
 				// 지면에 있을 때 수직속도 멈춤
 				if (_verticalVelocity < 0.0f)
@@ -149,7 +173,10 @@ namespace David6.ShooterFramework
 					_verticalVelocity = Mathf.Sqrt(_playerManager.GetJumpHeight() * -2f * Gravity);
 
 					// update animator if using character
-
+                    if (_hasAnimator)
+                    {
+                        _animator.SetBool(_animIDJump, true);
+                    }
 				}
 
 				// jump timeout
@@ -171,7 +198,10 @@ namespace David6.ShooterFramework
 				else
 				{
 					// update animator if using character
-
+                    if (_hasAnimator)
+                    {
+                        _animator.SetBool(_animIDFreeFall, true);
+                    }
 				}
 			}
 

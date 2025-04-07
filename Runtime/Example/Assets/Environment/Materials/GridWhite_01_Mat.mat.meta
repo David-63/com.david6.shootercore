@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dbf898c9f9c4a2d46aa6336e23caeb61
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 259143
+  packageName: Multiplayer FPS Template
+  packageVersion: 1.1.1
+  assetPath: Assets/AlterunaFPS/Materials/GridWhite_01_Mat.mat
+  uploadId: 637707

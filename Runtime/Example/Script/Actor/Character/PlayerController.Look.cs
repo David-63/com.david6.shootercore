@@ -41,6 +41,14 @@ namespace David6.ShooterFramework
 			}
 		}
 
+		private Vector3 NormalizeEulerAnglesXY(Vector3 eulerAngles)
+		{
+			eulerAngles.x = NormalizeAngle(eulerAngles.x);
+			eulerAngles.y = NormalizeAngle(eulerAngles.y);
+			//eulerAngles.z = NormalizeAngle(eulerAngles.z);
+			return eulerAngles;
+		}
+
         private static float NormalizeAngle(float angle)
 		{
 			while (angle > 180f)
@@ -99,12 +107,12 @@ namespace David6.ShooterFramework
 		private void CameraRotation(bool lockInput = false)
 		{
 			// smooths POV hands
-			//if (_firstPerson)
+			if (_firstPerson)
+			{
+				_animator.Update(0);
+			}
 
 			bool AllowInput = !lockInput;
-
-			var oldYaw = _cinemachineTargetYaw;
-			var oldPitch = _cinemachineTargetPitch;
 
 			FirstPerson = _defaultCamera ? !_playerCharacter.IsCameraSwitch() : _playerCharacter.IsCameraSwitch();
 			//float deltaTimeMultiplier = IsCurrentDeviceMouse ? Time.deltaTime : 1.0f;
@@ -166,7 +174,14 @@ namespace David6.ShooterFramework
 			}
 
 			// update animator if using character
-			
+			if (_hasAnimator)
+			{
+				Vector3 eulerDifference = new Vector3(_cinemachineTargetPitch, _cinemachineTargetYaw, 0.0f) - transform.localRotation.eulerAngles;
+
+				eulerDifference = NormalizeEulerAnglesXY(eulerDifference);
+				_animator.SetFloat(_animIDHeadLookY, Mathf.Clamp(eulerDifference.y, -90.0f, 90.0f));
+				_animator.SetFloat(_animIDHeadLookY, Mathf.Clamp(eulerDifference.x, -90.0f, 90.0f));
+			}
 		}
     }
 }
