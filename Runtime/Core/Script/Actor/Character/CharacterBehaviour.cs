@@ -56,6 +56,12 @@ namespace David6.ShooterFramework
         /// </summary>
         /// <returns> Vector2 </returns>
         public abstract Vector2 GetInputLook();
+        /// <summary>
+        /// 시점 입력값의 프레임 평균 반환
+        /// </summary>
+        /// <returns></returns>
+        public abstract Vector2 GetAverageLook();
+
 
         /// <summary>
         /// 조준점이 표시되어야 하는지 여부를 반환.

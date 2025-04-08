@@ -117,7 +117,7 @@ namespace David6.ShooterFramework
 			FirstPerson = _defaultCamera ? !_playerCharacter.IsCameraSwitch() : _playerCharacter.IsCameraSwitch();
 			//float deltaTimeMultiplier = IsCurrentDeviceMouse ? Time.deltaTime : 1.0f;
 
-			Vector2 playerInput = _playerCharacter.GetInputLook();
+			Vector2 playerInput = _playerCharacter.GetAverageLook();
 			//playerInput *= deltaTimeMultiplier;
 			// 좌우 회전 입력
 			if (AllowInput)

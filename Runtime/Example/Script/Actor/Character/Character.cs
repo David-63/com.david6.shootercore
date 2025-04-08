@@ -34,8 +34,15 @@ namespace David6.ShooterFramework
         /// 공격을 제어하는 변수. 마지막 시간을 기록하여 쿨다운 확인
         /// </summary>
         private float _lastShotTime;
-        private Vector2 _axisLook;
-        private Vector2 _axisMovement;
+        public Vector2 _axisMovement;
+        public Vector2 _axisLook;
+
+        public Vector2 _averagedLook;
+
+
+        private const int _maxLookIndex = 3;
+        private int _lookCacheIndex = 0;
+        private Vector2[] _axisLookArray = new Vector2[_maxLookIndex];
 
         /// <summary>
         /// 달리기 키 입력 확인
@@ -76,6 +83,10 @@ namespace David6.ShooterFramework
             _aiming = _holdingButtonAim && CanAim();
             _jumping = _holdingButtonJump;
 
+            _averagedLook = CalcAverageLook(_axisLook);
+            // Look 캐시 인덱스 증가
+            IncreaseLookCacheIndex();
+
             if (_holdingButtonFire)
             {
                 if (CanFire())
@@ -109,6 +120,7 @@ namespace David6.ShooterFramework
         public override Vector2 GetInputMovement() => _axisMovement;
 
         public override Vector2 GetInputLook() => _axisLook;
+        public override Vector2 GetAverageLook() => _averagedLook;
 
         #endregion
 
@@ -122,7 +134,6 @@ namespace David6.ShooterFramework
         {
             _lastShotTime = Time.time;
         }
-
         private void FireEmpty()
         {
             _lastShotTime = Time.time;
@@ -132,6 +143,23 @@ namespace David6.ShooterFramework
         {
             Cursor.visible = !_cursorLocked;
             Cursor.lockState = _cursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
+        }
+
+        private Vector2 CalcAverageLook(Vector2 axisLook)
+        {
+            _axisLookArray[_lookCacheIndex] = axisLook;
+            Vector2 result = Vector2.zero;
+            for (int idx = 0; idx < _axisLookArray.Length; ++idx)
+            {
+                result += _axisLookArray[idx];
+            }
+            return result / _axisLookArray.Length;
+        }
+
+        private void IncreaseLookCacheIndex()
+        {
+            ++_lookCacheIndex;
+            _lookCacheIndex %= _maxLookIndex;
         }
 
         #region 액션 상태 체크
