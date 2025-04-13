@@ -9,18 +9,17 @@ ShooterCore is a Unity shooting framework that offers first- and third-person ca
 - Input Control
 - Camera Rotation
 - Cinemachine Camera Setup
+- Kinematic Character Controller
 
 ### Current Goal
-- Kinematic Character Controller
+- Full-Body System
 
 ### Next Goals
 - Animation Layers
 - Modular Weapon System
-- RPG Stats and State Management
 
 ### Long-Term Goals
-- First-Person Arms
-- Full-Body System
+- RPG Stats and State Management
 
 ---
 
