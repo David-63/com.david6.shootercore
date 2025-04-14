@@ -19,6 +19,7 @@ namespace David6.ShooterFramework
     {
         public Vector2 MoveAxis { get; }
         public Quaternion CameraRotation { get; }
+        public bool Sprint { get; }
         public bool Jump { get; }
         public bool JumpHeld { get; }
 
@@ -28,9 +29,9 @@ namespace David6.ShooterFramework
         public bool Charge { get; }
         public bool NoClip { get; }
 
-        public PlayerCharacterInputs(Vector2 move, Quaternion rotation, bool jump, bool jumpHeld, bool crouch, bool crouchHeld, bool charge, bool noClip)
+        public PlayerCharacterInputs(Vector2 move, Quaternion rotation, bool sprint, bool jump, bool jumpHeld, bool crouch, bool crouchHeld, bool charge, bool noClip)
         {
-            MoveAxis = move; CameraRotation = rotation;
+            MoveAxis = move; CameraRotation = rotation; Sprint = sprint;
             Jump = jump; JumpHeld = jumpHeld; Crouch = crouch;  CrouchHeld = crouchHeld;
             Charge = charge; NoClip = noClip;
         }
@@ -45,7 +46,9 @@ namespace David6.ShooterFramework
 
         [Header("Stable Movement")]
         [SerializeField]
-        private float MaxStableMoveSpeed = 6f;
+        private float MaxStableWalkSpeed = 2f;
+        [SerializeField]
+        private float MaxStableSprintSpeed = 6f;
         [SerializeField]
         private float StableMovementSharpness = 15;
         [SerializeField]
@@ -89,6 +92,10 @@ namespace David6.ShooterFramework
         public float NoClipMoveSpeed = 10f;
         public float NoClipSharpness = 15;
 
+        [Header("Animator")]
+        [SerializeField]
+        private Animator PlayerAnimator;
+
         [Header("Miscellaneous")]
         [Tooltip("기울기 값 중력 방향 적용"), SerializeField]
         private bool OrientTowardsGravity = true;
@@ -103,7 +110,14 @@ namespace David6.ShooterFramework
 
         private Vector3 _moveInputVector;
         private Vector3 _lookInputVector;
+
+        /// <summary>
+        /// 충돌 무시 변수
+        /// </summary>
         private List<Collider> _ignoredColliders = new List<Collider>();
+        private bool _sprinting = false;
+
+        // 점프 기능
         private bool _jumpInputIsHeld = false;
         private bool _jumpRequested = false;
         private bool _jumpConsumed = false;
@@ -114,18 +128,27 @@ namespace David6.ShooterFramework
         private bool _canWallJump = false;
         private Vector3 _wallJumpNormal;
 
+        // 대시 기능(혹은 힘 가하기)
         private Vector3 _internalVelocityAdd = Vector3.zero;
 
+        // 웅크리기 기능
         private bool _crouchInputIsHeld = false;
         private bool _shouldBeCrouching = false;
         private bool _isCrouching = false;
         private Collider[] _probedColliders = new Collider[8];
 
+        // 돌진 기능
         private Vector3 _currentChargeVelocity;
         private bool _isStopped;
         private bool _mustStopVelocity = false;
         private float _timeSinceStartedCharge = 0;
         private float _timeSinceStopped = 0;
+
+        // 애니메이션
+        private bool _hasAnimator = false;
+        private int _xVelocityHash;
+        private int _yVelocityHash;
+        public Vector2 AnimVelocity;
 
         #endregion
 
@@ -134,6 +157,21 @@ namespace David6.ShooterFramework
             // motor 등록
             Motor.CharacterController = this;
             TransitionToState(CharacterState.Default);
+
+            if (PlayerAnimator)
+            {
+                _hasAnimator = true;
+            }
+            else
+            {
+                Log.AttentionPlease("애니메이터가 연결 안됬음.");
+            }
+
+            if (_hasAnimator)
+            {
+                _xVelocityHash = Animator.StringToHash("x_Velocity");
+                _yVelocityHash = Animator.StringToHash("y_Velocity");
+            }
         }
 
 
@@ -213,10 +251,11 @@ namespace David6.ShooterFramework
 
             _jumpInputIsHeld = inputs.JumpHeld;
             _crouchInputIsHeld = inputs.CrouchHeld;
+            _sprinting = inputs.Sprint;
 
             // 입력 크기 제한.
             Vector3 moveInputVector = Vector3.ClampMagnitude(new Vector3(inputs.MoveAxis.x, 0f, inputs.MoveAxis.y), 1f);
-
+            AnimVelocity = new Vector2(moveInputVector.x, moveInputVector.z);
             // 캐릭터의 수평에 맞춰 카메라 방향과 회전을 계산.
             Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.CameraRotation * Vector3.forward, Motor.CharacterUp).normalized;
             if (cameraPlanarDirection.sqrMagnitude == 0f)
@@ -349,10 +388,14 @@ namespace David6.ShooterFramework
                         // 목표 속도 계산.
                         Vector3 inputRight = Vector3.Cross(_moveInputVector, Motor.CharacterUp);
                         Vector3 reorientedInput = Vector3.Cross(Motor.GroundingStatus.GroundNormal, inputRight).normalized * _moveInputVector.magnitude;
-                        targetMovementVelocity = reorientedInput * MaxStableMoveSpeed;
+                        float applyMaxMoveSpeed = _sprinting ? MaxStableSprintSpeed : MaxStableWalkSpeed;
+                        targetMovementVelocity = reorientedInput * applyMaxMoveSpeed;
 
                         // 이동속도 스무딩 처리.
                         currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
+                        AnimVelocity *= applyMaxMoveSpeed;
+                        PlayerAnimator.SetFloat(_xVelocityHash, AnimVelocity.x);
+                        PlayerAnimator.SetFloat(_yVelocityHash, AnimVelocity.y);
                     }
                     else
                     {
@@ -379,6 +422,8 @@ namespace David6.ShooterFramework
                         // 저항 적용.
                         currentVelocity *= (1f / (1f + (Drag * deltaTime)));
                     }
+
+                    
 
                     HandleJumpVelocity(ref currentVelocity, deltaTime);
 

@@ -1,6 +1,6 @@
 {
   "name": "com.david6.shootercore",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "displayName": "ShooterCore",
   "description": "ShooterCore is a Unity shooting framework that offers first- and third-person camera transitions, intuitive player controls, and essential weapon mechanics.",
   "unity": "6000.0",

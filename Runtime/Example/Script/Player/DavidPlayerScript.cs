@@ -24,7 +24,6 @@ namespace David6.ShooterFramework
         private Transform CameraFollowPoint;
         [Tooltip("플레이어가 제어할 캐릭터 컨트롤러"), SerializeField]
         private DavidCharacterController Character;
-
         [Tooltip("플레이어가 제어할 캐릭터 컨트롤러"), SerializeField]
         private List<Collider> IgnoredColliders = new List<Collider>();
 
@@ -84,6 +83,7 @@ namespace David6.ShooterFramework
             Character.SetIgnoredColliders(IgnoredColliders);
             List<Collider> combinedColliders = IgnoredColliders.Concat(Character.GetComponentsInChildren<Collider>()).ToList();
             OrbitCamera.SetIgnoredColliders(combinedColliders);
+
         }
 
         private void Update()
@@ -159,7 +159,7 @@ namespace David6.ShooterFramework
         /// </summary>
         private void HandleCharacterInput()
         {            
-            PlayerCharacterInputs characterInputs = new PlayerCharacterInputs(_axisMovement, OrbitCamera.Transform.rotation, _jump, _holdingButtonJump, _crouch, _holdingButtonCrouch, _charge, _noClip);
+            PlayerCharacterInputs characterInputs = new PlayerCharacterInputs(_axisMovement, OrbitCamera.Transform.rotation, _sprint, _jump, _holdingButtonJump, _crouch, _holdingButtonCrouch, _charge, _noClip);
             Character.SetInputs(ref characterInputs);
             _jump = false;
             _charge = false;
@@ -198,8 +198,9 @@ namespace David6.ShooterFramework
         {
             if (_crouch) return false;
             if (_aim) return false;
-            if (_holdingButtonFire) return false;            
-            if (_axisMovement.y <= 0 || Math.Abs(Mathf.Abs(_axisMovement.x) - 1) < 0.01f) return false;
+            if (_holdingButtonFire) return false;
+            // || Math.Abs(Mathf.Abs(_axisMovement.x) - 1) < 0.01f
+            if (_axisMovement.y <= 0) return false;
 
             return true;
         }
