@@ -11,6 +11,13 @@ namespace David6.ShooterFramework
         Charging,
         NoClip,
     }
+    public enum CharacterDirection
+    {
+        N,
+        E,
+        S,
+        W,
+    }
 
     /// <summary>
     /// 인풋 데이터 전달 구조체
@@ -148,7 +155,12 @@ namespace David6.ShooterFramework
         private bool _hasAnimator = false;
         private int _xVelocityHash;
         private int _yVelocityHash;
-        public Vector2 AnimVelocity;
+        public Vector2 AnimDirection;
+        private int _xDirectionHash;
+        private int _yDirectionHash;
+        private int _moveSpeedHash;
+        public float _animMoveSpeed;
+        private CharacterDirection _animDirection;
 
         #endregion
 
@@ -171,6 +183,9 @@ namespace David6.ShooterFramework
             {
                 _xVelocityHash = Animator.StringToHash("x_Velocity");
                 _yVelocityHash = Animator.StringToHash("y_Velocity");
+                _xDirectionHash = Animator.StringToHash("x_Direction");
+                _yDirectionHash = Animator.StringToHash("y_Direction");
+                _moveSpeedHash = Animator.StringToHash("MoveSpeed");
             }
         }
 
@@ -255,7 +270,7 @@ namespace David6.ShooterFramework
 
             // 입력 크기 제한.
             Vector3 moveInputVector = Vector3.ClampMagnitude(new Vector3(inputs.MoveAxis.x, 0f, inputs.MoveAxis.y), 1f);
-            AnimVelocity = new Vector2(moveInputVector.x, moveInputVector.z);
+
             // 캐릭터의 수평에 맞춰 카메라 방향과 회전을 계산.
             Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.CameraRotation * Vector3.forward, Motor.CharacterUp).normalized;
             if (cameraPlanarDirection.sqrMagnitude == 0f)
@@ -303,7 +318,20 @@ namespace David6.ShooterFramework
                 break;
             }
 
+
+            // 입력 방향을 애니메이터로 전달
+
+            Vector3 currentDirection = new Vector3(AnimDirection.x, 0f, AnimDirection.y);
             
+            Vector3 slerpedDirection = Vector3.Slerp(currentDirection, moveInputVector, OrientationSharpness * Time.deltaTime);
+
+            AnimDirection = new Vector2(slerpedDirection.x, slerpedDirection.z);
+
+            //Vector2 rawAnimDirection = new Vector2(moveInputVector.x, moveInputVector.z);
+            //AnimDirection = Vector2.Lerp(AnimDirection, rawAnimDirection, OrientationSharpness * Time.deltaTime);
+
+            PlayerAnimator.SetFloat(_xDirectionHash, AnimDirection.x);
+            PlayerAnimator.SetFloat(_yDirectionHash, AnimDirection.y);
         }
         public void SetIgnoredColliders(List<Collider> colliders)
         {
@@ -376,12 +404,13 @@ namespace David6.ShooterFramework
         public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             // This is called when the motor wants to know what its velocity should be right now
-            Vector3 targetMovementVelocity = Vector3.zero;
+            Vector3 targetMovementVelocity = Vector3.zero;            
+
             switch (CurrentCharacterState)
             {
                 case CharacterState.Default:
                     if (Motor.GroundingStatus.IsStableOnGround)
-                    {                
+                    {
                         // 지면 경사로에서 원본 속도 재조정 (경사로 변화에 의한 속도 손실을 예방).
                         currentVelocity = Motor.GetDirectionTangentToSurface(currentVelocity, Motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
 
@@ -393,9 +422,11 @@ namespace David6.ShooterFramework
 
                         // 이동속도 스무딩 처리.
                         currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
-                        AnimVelocity *= applyMaxMoveSpeed;
-                        PlayerAnimator.SetFloat(_xVelocityHash, AnimVelocity.x);
-                        PlayerAnimator.SetFloat(_yVelocityHash, AnimVelocity.y);
+
+                        // 애니메이터에 이동속력 전달
+                        float desiredAnimSpeed = AnimDirection.sqrMagnitude <= 0.1f ? 0 : applyMaxMoveSpeed;
+                        _animMoveSpeed = Mathf.Lerp(_animMoveSpeed, desiredAnimSpeed, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
+                        PlayerAnimator.SetFloat(_moveSpeedHash, _animMoveSpeed);
                     }
                     else
                     {
@@ -423,10 +454,7 @@ namespace David6.ShooterFramework
                         currentVelocity *= (1f / (1f + (Drag * deltaTime)));
                     }
 
-                    
-
                     HandleJumpVelocity(ref currentVelocity, deltaTime);
-
 
                     // 마지막에 더하기.
                     if (_internalVelocityAdd.sqrMagnitude > 0f)

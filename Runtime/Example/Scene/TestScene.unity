@@ -2727,8 +2727,8 @@ MonoBehaviour:
   Motor: {fileID: 2787855021357620367}
   MaxStableWalkSpeed: 2
   MaxStableSprintSpeed: 6
-  StableMovementSharpness: 15
-  OrientationSharpness: 10
+  StableMovementSharpness: 5
+  OrientationSharpness: 5
   MaxAirMoveSpeed: 4
   AirAccelerationSpeed: 5
   Drag: 0.1
@@ -2748,7 +2748,8 @@ MonoBehaviour:
   OrientTowardsGravity: 1
   Gravity: {x: 0, y: -30, z: 0}
   MeshRoot: {fileID: 8292162872430844380}
-  AnimVelocity: {x: 0, y: 0}
+  AnimDirection: {x: 0, y: 0}
+  _animMoveSpeed: 0
 --- !u!4 &8292162872430844380
 Transform:
   m_ObjectHideFlags: 0
