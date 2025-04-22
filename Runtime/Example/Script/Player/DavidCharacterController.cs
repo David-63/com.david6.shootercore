@@ -50,6 +50,11 @@ namespace David6.ShooterFramework
 
         [Header("필수")]
         public KinematicCharacterMotor Motor;
+        
+        [Header("Animator")]
+        [SerializeField]
+        private Animator PlayerAnimator;
+
 
         [Header("Stable Movement")]
         [SerializeField]
@@ -99,9 +104,7 @@ namespace David6.ShooterFramework
         public float NoClipMoveSpeed = 10f;
         public float NoClipSharpness = 15;
 
-        [Header("Animator")]
-        [SerializeField]
-        private Animator PlayerAnimator;
+        
 
         [Header("Miscellaneous")]
         [Tooltip("기울기 값 중력 방향 적용"), SerializeField]
@@ -187,6 +190,11 @@ namespace David6.ShooterFramework
                 _yDirectionHash = Animator.StringToHash("y_Direction");
                 _moveSpeedHash = Animator.StringToHash("MoveSpeed");
             }
+        }
+        private void Update()
+        {
+            // TODO
+            // 카메라 타겟 포지션 전달?
         }
 
 

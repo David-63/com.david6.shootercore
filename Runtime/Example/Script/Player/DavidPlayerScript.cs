@@ -6,10 +6,14 @@ using System.Collections.Generic;
 
 namespace David6.ShooterFramework
 {
-    public enum CameraMode
+    public enum CameraMode { FirstPerson, ThirdPerson }
+    public enum BodyPart { Head, Body, Arm }
+
+    [Serializable]
+    public class PartMaterialMap
     {
-        FirstPerson,
-        ThirdPerson
+        public BodyPart part;       // 파트 구분 enum 드롭다운
+        public int[] materialIndices; // 해당 파트가 차지하는 SubMesh(Material) 인덱스들
     }
 
     [RequireComponent(typeof(PlayerInput))]
@@ -18,34 +22,54 @@ namespace David6.ShooterFramework
         #region Serialize fields
 
         [Header("제어할 오브젝트 및 트렌스폼")]
-        [Tooltip("플레이어가 제어하는 카메라 스크립트"), SerializeField]
-        private DavidCharacterCamera OrbitCamera;
-        [Tooltip("카메라의 타겟을 설정할 트랜스폼"), SerializeField]
-        private Transform CameraFollowPoint;
-        [Tooltip("플레이어가 제어할 캐릭터 컨트롤러"), SerializeField]
-        private DavidCharacterController Character;
-        [Tooltip("플레이어가 제어할 캐릭터 컨트롤러"), SerializeField]
-        private List<Collider> IgnoredColliders = new List<Collider>();
+        [Tooltip("플레이어가 제어하는 카메라 스크립트")]
+        [SerializeField] private DavidCharacterCamera OrbitCamera;
+        [Tooltip("카메라의 타겟을 설정할 트랜스폼")]
+        [SerializeField] private Transform CameraFollowPoint;
+        [Tooltip("플레이어가 제어할 캐릭터 컨트롤러")]
+        [SerializeField] private DavidCharacterController Character;
+        [Tooltip("캐릭터와 카메라가 무시할 충돌체")]
+        [SerializeField] private List<Collider> IgnoredColliders = new List<Collider>();
+
+
+        [Header("카메라 컨트롤")]
+        [Tooltip("1인칭: 투명효과 머티리얼")]
+        [SerializeField] private Material InvisibleMaterial;
+        [Tooltip("1인칭: 타겟 메쉬 머티리얼")]
+        [SerializeField] private List<PartMaterialMap> TargetMaterialMap = new List<PartMaterialMap>();
+        [Tooltip("1인칭: 머티리얼을 변경하는 메쉬 렌더러")]
+        [SerializeField] private SkinnedMeshRenderer BodyRenderer;
+
+        [Tooltip("1인칭: 전용 팔 오브젝트")]
+        [SerializeField] private GameObject FPSArm;
+
+        [Tooltip("3인칭: 카메라 거리")]
+        [SerializeField] private float CameraTargetDistance = 0.750f;
+        [Tooltip("3인칭: 카메라 오프셋")]
+        [SerializeField] private Vector2 FollowPointFraming = new Vector2(0.4f, 0.0f);
+        
 
 
         #endregion
 
         #region Fields
 
-        [Header("디버깅용 입력 값")]
+        private Material[] _originMaterials;
+        private MaterialPropertyBlock _materialPropertyBlock;
+        
         /// <summary>
         /// 이동키 입력 값.
         /// </summary>
-        public Vector2 _axisMovement;
+        private Vector2 _axisMovement;
         /// <summary>
         /// 시점 입력 값.
         /// </summary>
-        public Vector2 _axisLook;
+        private Vector2 _axisLook;
 
         /// <summary>
         /// 시점 입력의 보간값.
         /// </summary>
-        public Vector2 _averagedLook;
+        private Vector2 _averagedLook;
         private CameraMode _currentCameraMode = CameraMode.FirstPerson;
         /// <summary>
         /// 카메라에 전달하는 시점 입력값.
@@ -83,101 +107,24 @@ namespace David6.ShooterFramework
             Character.SetIgnoredColliders(IgnoredColliders);
             List<Collider> combinedColliders = IgnoredColliders.Concat(Character.GetComponentsInChildren<Collider>()).ToList();
             OrbitCamera.SetIgnoredColliders(combinedColliders);
+            _originMaterials = BodyRenderer.materials;
+            UpdateCameraMode();
 
         }
 
         private void Update()
         {
-            _crouch = _holdingButtonCrouch;
-            _sprint = _holdingButtonSprint && CanSprint();
-            _aim = _holdingButtonAim && CanAim();
-
-            _averagedLook = CalcAverageLook(_axisLook);
-            // Look 캐시 인덱스 증가
-            IncreaseLookCacheIndex();
-
+            ConditionUpdate();
+            CalcAverageLook();
             HandleCharacterInput();
         }
+
+        
 
         private void LateUpdate()
         {
             HandleCameraInput();
         }
-
-        #region 카메라 제어
-
-        /// <summary>
-        /// 게임 포커스 제어
-        /// </summary>
-        private void UpdateCursorState()
-        {
-            Cursor.visible = !_cursorLocked;
-            Cursor.lockState = _cursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
-        }
-
-        /// <summary>
-        /// LateUpdate에서 카메라 제어
-        /// </summary>
-        private void HandleCameraInput()
-        {
-            // Create the look input vector for the camera
-            _lookInputVector = new Vector3(_averagedLook.x, _averagedLook.y, 0f);
-
-            // Prevent moving the camera while the cursor isn't locked
-            if (Cursor.lockState != CursorLockMode.Locked)
-            {
-                _lookInputVector = Vector3.zero;
-            }
-
-            // 카메라 입력처리
-            OrbitCamera.UpdateWithInput(Time.deltaTime, _lookInputVector);
-        }
-
-        private Vector2 CalcAverageLook(Vector2 axisLook)
-        {
-            _axisLookArray[_lookCacheIndex] = axisLook;
-            Vector2 result = Vector2.zero;
-            for (int idx = 0; idx < _axisLookArray.Length; ++idx)
-            {
-                result += _axisLookArray[idx];
-            }
-            return result / _axisLookArray.Length;
-        }
-
-        private void IncreaseLookCacheIndex()
-        {
-            ++_lookCacheIndex;
-            _lookCacheIndex %= _maxLookIndex;
-        }
-
-        #endregion
-
-        #region 캐릭터 제어
-
-        /// <summary>
-        /// Update 에서 이동 입력 제어
-        /// </summary>
-        private void HandleCharacterInput()
-        {            
-            PlayerCharacterInputs characterInputs = new PlayerCharacterInputs(_axisMovement, OrbitCamera.Transform.rotation, _sprint, _jump, _holdingButtonJump, _crouch, _holdingButtonCrouch, _charge, _noClip);
-            Character.SetInputs(ref characterInputs);
-            _jump = false;
-            _charge = false;
-            _noClip = false;
-
-            if (_dash)
-            {
-                Character.Motor.ForceUnground(0.1f);
-                Vector3 direction = OrbitCamera.Transform.rotation * Vector3.forward;
-
-                direction = direction.normalized + -Character.Gravity.normalized; // 0.2f는 강도 조절
-                Character.Dash(direction.normalized);
-
-                _dash = false;
-            }            
-        }
-
-        #endregion
 
         #region 액션 상태 체크
 
@@ -359,7 +306,8 @@ namespace David6.ShooterFramework
                 break;
 			}
 
-            OrbitCamera.TargetDistance = _currentCameraMode == CameraMode.FirstPerson ? OrbitCamera.DefaultDistance : 0f;
+            UpdateCameraMode();
+
 		}
         public void OnLockCursor(InputAction.CallbackContext context)
 		{
@@ -369,6 +317,7 @@ namespace David6.ShooterFramework
 					_cursorLocked = !_cursorLocked;
                 break;
 			}
+            UpdateCursorState();
 		}
         
 
@@ -388,6 +337,144 @@ namespace David6.ShooterFramework
         {
             _axisLook = _cursorLocked ? context.ReadValue<Vector2>() : default;
         }
+
+        #endregion
+
+        #region 카메라 제어
+
+        /// <summary>
+        /// 게임 포커스 제어.
+        /// </summary>
+        private void UpdateCursorState()
+        {
+            Cursor.visible = !_cursorLocked;
+            Cursor.lockState = _cursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
+        }
+
+        /// <summary>
+        /// LateUpdate에서 카메라 제어.
+        /// </summary>
+        private void HandleCameraInput()
+        {
+            // Create the look input vector for the camera
+            _lookInputVector = new Vector3(_averagedLook.x, _averagedLook.y, 0f);
+
+            // Prevent moving the camera while the cursor isn't locked
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                _lookInputVector = Vector3.zero;
+            }
+
+            // 카메라 입력처리.
+            OrbitCamera.UpdateWithInput(Time.deltaTime, _lookInputVector);
+        }
+        /// <summary>
+        /// 마우스 입력을 배열에 담아 평균을 구한다.
+        /// </summary>
+        private void CalcAverageLook()
+        {
+            // 마우스 인풋 인덱싱.
+            _axisLookArray[_lookCacheIndex] = _axisLook;
+
+            // 전체 마우스 인풋값 가져오기.
+            Vector2 result = Vector2.zero;
+            for (int idx = 0; idx < _axisLookArray.Length; ++idx)
+            {
+                result += _axisLookArray[idx];
+            }
+
+            // 평균값 저장.
+            _averagedLook = result / _axisLookArray.Length;
+            
+            // 인덱스 업데이트.
+            ++_lookCacheIndex;
+            _lookCacheIndex %= _maxLookIndex;            
+        }
+
+        #endregion
+
+        #region 캐릭터 제어
+
+        private void ConditionUpdate()
+        {
+            _crouch = _holdingButtonCrouch;
+            _sprint = _holdingButtonSprint && CanSprint();
+            _aim = _holdingButtonAim && CanAim();
+        }
+
+        /// <summary>
+        /// Update 에서 이동 입력 제어
+        /// </summary>
+        private void HandleCharacterInput()
+        {
+            // 플레이어의 입력을 캐릭터에 전달
+            PlayerCharacterInputs characterInputs = new PlayerCharacterInputs(_axisMovement, OrbitCamera.Transform.rotation, _sprint, _jump, _holdingButtonJump, _crouch, _holdingButtonCrouch, _charge, _noClip);
+            Character.SetInputs(ref characterInputs);
+
+            // 조건 초기화
+            _jump = false;
+            _charge = false;
+            _noClip = false;
+
+            if (_dash)
+            {
+                Character.Motor.ForceUnground(0.1f);
+                Vector3 direction = OrbitCamera.Transform.rotation * Vector3.forward;
+
+                direction = direction.normalized + -Character.Gravity.normalized;
+                Character.Dash(direction.normalized);
+
+                _dash = false;
+            }
+        }
+
+        /// <summary>
+        /// 현재 카메라 모드에 맞춰 시각적인 부분 세팅
+        /// </summary>
+        private void UpdateCameraMode()
+        {
+            switch (_currentCameraMode)
+            {
+                case CameraMode.FirstPerson:
+                OrbitCamera.TargetDistance = 0;
+                OrbitCamera.FollowPointFraming = Vector2.zero;
+                MakeTransparent(BodyPart.Head, BodyPart.Arm);
+                FPSArm.SetActive(true);
+                break;
+
+                case CameraMode.ThirdPerson:
+                OrbitCamera.TargetDistance = CameraTargetDistance;
+                OrbitCamera.FollowPointFraming = this.FollowPointFraming;
+                RestoreAll();
+                FPSArm.SetActive(false);
+                break;
+            }
+        }
+
+        public void MakeTransparent(params BodyPart[] partsToHide)
+        {
+            var mats = new List<Material>(_originMaterials);
+            if (null == mats)
+            {
+                Log.AttentionPlease("비여있는데?");
+                return;
+            }
+
+            foreach (var part in partsToHide)
+            {
+                var map = TargetMaterialMap.Find(m => m.part == part);
+                if (map == null) continue;
+
+                foreach (var idx in map.materialIndices)
+                {
+                    mats[idx] = InvisibleMaterial;
+                }
+            }
+
+            BodyRenderer.materials = mats.ToArray();
+        }
+
+        public void RestoreAll() => BodyRenderer.materials = _originMaterials;
 
         #endregion
 
