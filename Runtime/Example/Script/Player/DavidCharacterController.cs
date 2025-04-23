@@ -680,10 +680,14 @@ namespace David6.ShooterFramework
                 {
                     // 점프 방향 설정.
                     Vector3 jumpDirection = Motor.CharacterUp;
+                    // 점프 위력 설정.
+                    float jumpForce = JumpSpeed;
                     // 점프 방향을 벽 노말로 변경.
                     if (_canWallJump)
                     {
-                        jumpDirection = (_wallJumpNormal + -Gravity.normalized).normalized;
+                        jumpForce *= 1.2f;
+                        jumpDirection = (_wallJumpNormal + (-Gravity.normalized * 1.5f)).normalized;
+                        // 벽점프는 소모 안한 취급
                     }
                     // 경사면인 경우 지면의 노말로 변경.
                     else if (Motor.GroundingStatus.FoundAnyGround && !Motor.GroundingStatus.IsStableOnGround)
@@ -695,11 +699,13 @@ namespace David6.ShooterFramework
                     Motor.ForceUnground(0.1f);
 
                     // 기존 속도의 수직 성분을 제거하고 계산된 점프 방향으로 힘을 적용.
-                    currentVelocity += (jumpDirection * JumpSpeed * 1.2f) - Vector3.Project(currentVelocity, Motor.CharacterUp);
+                    currentVelocity += (jumpDirection * jumpForce * 1.2f) - Vector3.Project(currentVelocity, Motor.CharacterUp);
+
                     // 점프 상태 업데이트
                     _jumpRequested = false;
                     _jumpConsumed = true;
                     _jumpedThisFrame = true;
+                    
                 }
             }
 

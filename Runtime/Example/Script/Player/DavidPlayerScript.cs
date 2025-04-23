@@ -24,8 +24,10 @@ namespace David6.ShooterFramework
         [Header("제어할 오브젝트 및 트렌스폼")]
         [Tooltip("플레이어가 제어하는 카메라 스크립트")]
         [SerializeField] private DavidCharacterCamera OrbitCamera;
-        [Tooltip("카메라의 타겟을 설정할 트랜스폼")]
-        [SerializeField] private Transform CameraFollowPoint;
+        [Tooltip("카메라 회전을 결정하는 트랜스폼")]
+        [SerializeField] private Transform CameraFollowRoot;
+        [Tooltip("카메라 위치를 결정하는 트랜스폼")]
+        [SerializeField] private Transform CameraFollowHead;
         [Tooltip("플레이어가 제어할 캐릭터 컨트롤러")]
         [SerializeField] private DavidCharacterController Character;
         [Tooltip("캐릭터와 카메라가 무시할 충돌체")]
@@ -102,7 +104,7 @@ namespace David6.ShooterFramework
         private void Start()
         {
             UpdateCursorState();
-            OrbitCamera.SetFollowTransform(CameraFollowPoint);
+            OrbitCamera.SetFollowTransform(CameraFollowRoot, CameraFollowHead);
 
             Character.SetIgnoredColliders(IgnoredColliders);
             List<Collider> combinedColliders = IgnoredColliders.Concat(Character.GetComponentsInChildren<Collider>()).ToList();

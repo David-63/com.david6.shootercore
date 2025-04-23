@@ -36,7 +36,8 @@ namespace David6.ShooterFramework
         public float ObstructionSharpness = 10000f;
 
         public Transform Transform { get; private set; }
-        public Transform FollowTransform { get; private set; }
+        public Transform FollowRootTransform { get; private set; }
+        public Transform FollowHeadTransform { get; private set; }
 
         public Vector3 PlanarDirection { get; set; }
         public float TargetDistance { get; set; }
@@ -72,11 +73,13 @@ namespace David6.ShooterFramework
         }
 
         // Set the transform that the camera will orbit around
-        public void SetFollowTransform(Transform t)
+        public void SetFollowTransform(Transform root, Transform head)
         {
-            FollowTransform = t;
-            PlanarDirection = FollowTransform.forward;
-            _currentFollowPosition = FollowTransform.position;
+            FollowRootTransform = root;
+            FollowHeadTransform = head;
+            PlanarDirection = FollowRootTransform.forward;
+
+            _currentFollowPosition = FollowHeadTransform.position;
         }
         public void SetIgnoredColliders(List<Collider> colliders)
         {
@@ -86,7 +89,7 @@ namespace David6.ShooterFramework
 
         public void UpdateWithInput(float deltaTime, Vector3 rotationInput)
         {
-            if (FollowTransform)
+            if (FollowRootTransform)
             {
                 if (InvertX)
                 {
@@ -101,7 +104,7 @@ namespace David6.ShooterFramework
                 Quaternion targetRotation = UpdateRotation(deltaTime, rotationInput);                
 
                 // 카메라 목표 위치를 보간해서 가져옴
-                _currentFollowPosition = Vector3.Lerp(_currentFollowPosition, FollowTransform.position, 1f - Mathf.Exp(-FollowingSharpness * deltaTime));
+                _currentFollowPosition = Vector3.Lerp(_currentFollowPosition, FollowHeadTransform.position, 1f - Mathf.Exp(-FollowingSharpness * deltaTime));
 
                 HandleObstructions(deltaTime);
 
@@ -174,11 +177,36 @@ namespace David6.ShooterFramework
         /// <returns></returns>
         private Quaternion UpdateRotation(float deltaTime, Vector3 rotationInput)
         {
+            // // 수평(yaw) 회전 업데이트
+            // float yawDegree = rotationInput.x * RotationSpeed * deltaTime;
+            // Quaternion yawDelta = Quaternion.Euler(yawDegree * FollowTransform.up);
+            // PlanarDirection = yawDelta * PlanarDirection;
+            // // 추가 보정
+            // PlanarDirection = Vector3.ProjectOnPlane(PlanarDirection, FollowTransform.up).normalized;
+            // Quaternion planarRotation = Quaternion.LookRotation(PlanarDirection, FollowTransform.up);
+
+            // // 수직(pitch) 회전 업데이트
+            // _targetVerticalAngle -= rotationInput.x * RotationSpeed * deltaTime;
+            // _targetVerticalAngle = Mathf.Clamp(_targetVerticalAngle, MinVerticalAngle, MaxVerticalAngle);
+            // Quaternion pitchRotation = Quaternion.Euler(_targetVerticalAngle, 0f, 0f);
+
+            // // 두 회전을 합친 목표 회전과 현재 회전의 보간
+            // Quaternion targetRotation = planarRotation * pitchRotation;
+            // Quaternion smoothRotation = Quaternion.Slerp(transform.rotation, targetRotation, 1f - Mathf.Exp(-RotationSharpness * deltaTime));
+
+            // // 적용
+            // transform.rotation = smoothRotation;
+            // return smoothRotation;
+
+
+
+
+            //============================================================================
             // 수평 회전
-            Quaternion rotationFromInput = Quaternion.Euler(FollowTransform.up * (rotationInput.x * RotationSpeed));
+            Quaternion rotationFromInput = Quaternion.Euler(FollowRootTransform.up * (rotationInput.x * RotationSpeed));
             PlanarDirection = rotationFromInput * PlanarDirection;  // 입력 업데이트
-            PlanarDirection = Vector3.Cross(FollowTransform.up, Vector3.Cross(PlanarDirection, FollowTransform.up)); // 수평 평면으로 투영, 이중 외적을 통해 Follow.Up 벡터에 수직인 평면에 투영하여 수평 회전에 집중함
-            Quaternion planarRot = Quaternion.LookRotation(PlanarDirection, FollowTransform.up); // 수평 회전의 쿼터니언 생성
+            PlanarDirection = Vector3.Cross(FollowRootTransform.up, Vector3.Cross(PlanarDirection, FollowRootTransform.up)); // 수평 평면으로 투영, 이중 외적을 통해 Follow.Up 벡터에 수직인 평면에 투영하여 수평 회전에 집중함
+            Quaternion planarRot = Quaternion.LookRotation(PlanarDirection, FollowRootTransform.up); // 수평 회전의 쿼터니언 생성
 
             // 수직 회전
             _targetVerticalAngle -= (rotationInput.y * RotationSpeed); // 회전 누적
