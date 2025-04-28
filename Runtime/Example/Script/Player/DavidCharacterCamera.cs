@@ -35,6 +35,18 @@ namespace David6.ShooterFramework
         public LayerMask ObstructionLayers = -1;
         public float ObstructionSharpness = 10000f;
 
+
+        [Header("Crosshair")]
+        public RectTransform CrosshairRT;
+        public LayerMask HitMask;
+        public float MaxRange = 25f;
+        [Range(0.1f, 1.0f)]
+        public float MinScale;
+        [Range(0.5f, 2.0f)]
+        public float MaxScale;
+
+
+
         public Transform Transform { get; private set; }
         public Transform FollowRootTransform { get; private set; }
         public Transform FollowHeadTransform { get; private set; }
@@ -70,6 +82,11 @@ namespace David6.ShooterFramework
             _targetVerticalAngle = 0f;
 
             PlanarDirection = Vector3.forward;
+        }
+
+        void Update()
+        {
+            UpdateCrosshairScale();
         }
 
         // Set the transform that the camera will orbit around
@@ -220,7 +237,27 @@ namespace David6.ShooterFramework
             return targetRotation;
         }
 
-    }
+        void UpdateCrosshairScale()
+        {
+            Ray ray = Camera.ScreenPointToRay(new Vector3(Screen.width/2f, Screen.height/2f, 0f));
+            if (Physics.Raycast(ray, out RaycastHit hit, MaxRange, HitMask))
+            {
+                float distance = hit.distance;
+
+                float tween = Mathf.Clamp01(MaxDistance / distance);
+                float scale = Mathf.Lerp(MinScale, MaxScale, tween);
+
+                CrosshairRT.localScale = Vector3.one * scale;
+            }
+            else
+            {
+                CrosshairRT.localScale = Vector3.zero;
+            }
+        }
+
+
+
+    }    
 }
 
 

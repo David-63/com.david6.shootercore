@@ -22,28 +22,28 @@ namespace David6.ShooterFramework
         #region Serialize fields
 
         [Header("제어할 오브젝트 및 트렌스폼")]
+        [Tooltip("플레이어가 제어할 캐릭터 컨트롤러")]
+        [SerializeField] private DavidCharacterController Character;
         [Tooltip("플레이어가 제어하는 카메라 스크립트")]
         [SerializeField] private DavidCharacterCamera OrbitCamera;
         [Tooltip("카메라 회전을 결정하는 트랜스폼")]
         [SerializeField] private Transform CameraFollowRoot;
         [Tooltip("카메라 위치를 결정하는 트랜스폼")]
         [SerializeField] private Transform CameraFollowHead;
-        [Tooltip("플레이어가 제어할 캐릭터 컨트롤러")]
-        [SerializeField] private DavidCharacterController Character;
         [Tooltip("캐릭터와 카메라가 무시할 충돌체")]
         [SerializeField] private List<Collider> IgnoredColliders = new List<Collider>();
 
 
         [Header("카메라 컨트롤")]
-        [Tooltip("1인칭: 투명효과 머티리얼")]
-        [SerializeField] private Material InvisibleMaterial;
-        [Tooltip("1인칭: 타겟 메쉬 머티리얼")]
-        [SerializeField] private List<PartMaterialMap> TargetMaterialMap = new List<PartMaterialMap>();
-        [Tooltip("1인칭: 머티리얼을 변경하는 메쉬 렌더러")]
-        [SerializeField] private SkinnedMeshRenderer BodyRenderer;
+        // [Tooltip("1인칭: 투명 제질")]
+        // [SerializeField] private Material InvisibleMaterial;
+        // [Tooltip("1인칭: 투명 처리할 타겟 머티리얼")]
+        // [SerializeField] private List<PartMaterialMap> TargetMaterialMap = new List<PartMaterialMap>();
+        // [Tooltip("1인칭: 타겟 메쉬 렌더러")]
+        // [SerializeField] private SkinnedMeshRenderer BodyRenderer;
 
-        [Tooltip("1인칭: 전용 팔 오브젝트")]
-        [SerializeField] private GameObject FPSArm;
+        // [Tooltip("1인칭: 전용 팔 오브젝트")]
+        // [SerializeField] private GameObject FPSArm;
 
         [Tooltip("3인칭: 카메라 거리")]
         [SerializeField] private float CameraTargetDistance = 0.750f;
@@ -103,13 +103,17 @@ namespace David6.ShooterFramework
 
         private void Start()
         {
+            // 마우스 커서 업데이트
             UpdateCursorState();
+            // 카메라 타겟 설정
             OrbitCamera.SetFollowTransform(CameraFollowRoot, CameraFollowHead);
-
+            // 충돌 무시 콜라이더
             Character.SetIgnoredColliders(IgnoredColliders);
             List<Collider> combinedColliders = IgnoredColliders.Concat(Character.GetComponentsInChildren<Collider>()).ToList();
             OrbitCamera.SetIgnoredColliders(combinedColliders);
-            _originMaterials = BodyRenderer.materials;
+            
+            // 카메라 전환 효과를 위한 렌더러 세팅
+            //_originMaterials = BodyRenderer.materials;
             UpdateCameraMode();
 
         }
@@ -435,48 +439,52 @@ namespace David6.ShooterFramework
         /// </summary>
         private void UpdateCameraMode()
         {
+            // if (FPSArm == null)
+            // {
+            //     Log.AttentionPlease("FPS Arm 없음.");
+            // }
             switch (_currentCameraMode)
             {
                 case CameraMode.FirstPerson:
                 OrbitCamera.TargetDistance = 0;
                 OrbitCamera.FollowPointFraming = Vector2.zero;
-                MakeTransparent(BodyPart.Head, BodyPart.Arm);
-                FPSArm.SetActive(true);
+                //MakeTransparent(BodyPart.Head, BodyPart.Arm);
+                //FPSArm.SetActive(true);
                 break;
 
                 case CameraMode.ThirdPerson:
                 OrbitCamera.TargetDistance = CameraTargetDistance;
                 OrbitCamera.FollowPointFraming = this.FollowPointFraming;
-                RestoreAll();
-                FPSArm.SetActive(false);
+                //RestoreAll();
+                //FPSArm.SetActive(false);
                 break;
             }
         }
 
-        public void MakeTransparent(params BodyPart[] partsToHide)
-        {
-            var mats = new List<Material>(_originMaterials);
-            if (null == mats)
-            {
-                Log.AttentionPlease("비여있는데?");
-                return;
-            }
+        // public void MakeTransparent(params BodyPart[] partsToHide)
+        // {
+        //     var mats = new List<Material>(_originMaterials);
+        //     if (null == mats)
+        //     {
+        //         Log.AttentionPlease("비여있는데?");
+        //         return;
+        //     }
 
-            foreach (var part in partsToHide)
-            {
-                var map = TargetMaterialMap.Find(m => m.part == part);
-                if (map == null) continue;
+        //     foreach (var part in partsToHide)
+        //     {
+        //         var map = TargetMaterialMap.Find(m => m.part == part);
+        //         if (map == null) continue;
 
-                foreach (var idx in map.materialIndices)
-                {
-                    mats[idx] = InvisibleMaterial;
-                }
-            }
+        //         foreach (var idx in map.materialIndices)
+        //         {
+        //             mats[idx] = InvisibleMaterial;
+        //         }
+        //     }
 
-            BodyRenderer.materials = mats.ToArray();
-        }
+        //     BodyRenderer.materials = mats.ToArray();
+        // }
 
-        public void RestoreAll() => BodyRenderer.materials = _originMaterials;
+        // public void RestoreAll() => BodyRenderer.materials = _originMaterials;
 
         #endregion
 
