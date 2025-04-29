@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Rendering.Universal;
+
 
 namespace David6.ShooterFramework
 {
@@ -11,11 +13,11 @@ namespace David6.ShooterFramework
         public float FollowingSharpness = 10000f;
 
         [Header("Distance")]
-        public float DefaultDistance = 6f;
-        public float MinDistance = 0f;
-        public float MaxDistance = 10f;
-        public float DistanceMovementSpeed = 5f;
-        public float DistanceMovementSharpness = 10f;
+        public float CameraDefaultDistance = 6f;
+        public float CameraMinDistance = 0f;
+        public float CameraMaxDistance = 10f;
+        public float CameraDistanceMovementSpeed = 5f;
+        public float CameraDistanceMovementSharpness = 10f;
 
         [Header("Rotation")]
         public bool InvertX = false;
@@ -37,16 +39,10 @@ namespace David6.ShooterFramework
 
 
         [Header("Crosshair")]
-        public RectTransform CrosshairRT;
+        public DecalProjector CrosshairProjector;
         public LayerMask HitMask;
-        public float MaxRange = 25f;
-        [Range(0.1f, 1.0f)]
-        public float MinScale;
-        [Range(0.5f, 2.0f)]
-        public float MaxScale;
-
-
-
+        public float MaxRange = 75f;
+        
         public Transform Transform { get; private set; }
         public Transform FollowRootTransform { get; private set; }
         public Transform FollowHeadTransform { get; private set; }
@@ -68,7 +64,7 @@ namespace David6.ShooterFramework
 
         void OnValidate()
         {
-            DefaultDistance = Mathf.Clamp(DefaultDistance, MinDistance, MaxDistance);
+            CameraDefaultDistance = Mathf.Clamp(CameraDefaultDistance, CameraMinDistance, CameraMaxDistance);
             DefaultVerticalAngle = Mathf.Clamp(DefaultVerticalAngle, MinVerticalAngle, MaxVerticalAngle);
         }
 
@@ -76,7 +72,7 @@ namespace David6.ShooterFramework
         {
             Transform = this.transform;
 
-            _currentDistance = DefaultDistance;
+            _currentDistance = CameraDefaultDistance;
             TargetDistance = _currentDistance;
 
             _targetVerticalAngle = 0f;
@@ -182,7 +178,7 @@ namespace David6.ShooterFramework
             // 장애물 없는 경우: 목표 거리로 보간
             else
             {
-                _currentDistance = Mathf.Lerp(_currentDistance, TargetDistance, 1 - Mathf.Exp(-DistanceMovementSharpness * deltaTime));
+                _currentDistance = Mathf.Lerp(_currentDistance, TargetDistance, 1 - Mathf.Exp(-CameraDistanceMovementSharpness * deltaTime));
             }
         }
 
@@ -242,21 +238,15 @@ namespace David6.ShooterFramework
             Ray ray = Camera.ScreenPointToRay(new Vector3(Screen.width/2f, Screen.height/2f, 0f));
             if (Physics.Raycast(ray, out RaycastHit hit, MaxRange, HitMask))
             {
-                float distance = hit.distance;
-
-                float tween = Mathf.Clamp01(MaxDistance / distance);
-                float scale = Mathf.Lerp(MinScale, MaxScale, tween);
-
-                CrosshairRT.localScale = Vector3.one * scale;
+                CrosshairProjector.gameObject.SetActive(true);
+                CrosshairProjector.transform.SetPositionAndRotation(hit.point, transform.rotation);
             }
             else
             {
-                CrosshairRT.localScale = Vector3.zero;
+                CrosshairProjector.gameObject.SetActive(false);
+                
             }
         }
-
-
-
     }    
 }
 
