@@ -285,6 +285,15 @@ namespace David6.ShooterFramework
                 currentVelocity += _internalVelocityAdd;
                 _internalVelocityAdd = Vector3.zero;
             }
+
+            if (!Motor.GroundingStatus.IsStableOnGround)
+            {
+                SetFreeFall(true);
+            }
+            else
+            {
+                SetFreeFall(false);
+            }
         }
 
         private void UpdateChargingVelocity(ref Vector3 currentVelocity, float dt)

@@ -344,6 +344,8 @@ namespace David6.ShooterFramework
                         _jumpRequested = false;
                         _doubleJumpConsumed = true;
                         _jumpedThisFrame = true;
+
+                        SetAnimJump(true);
                     }
                 }
 
@@ -378,6 +380,8 @@ namespace David6.ShooterFramework
                     _jumpRequested = false;
                     _jumpConsumed = true;
                     _jumpedThisFrame = true;
+
+                    SetAnimJump(true);
                     
                 }
             }
@@ -388,12 +392,13 @@ namespace David6.ShooterFramework
 
         protected void OnLanded()
         {
-            
+            SetGrounded(true);
+            SetAnimJump(false);
         }
 
         protected void OnLeaveStableGround()
         {
-            
+            SetGrounded(false);            
         }
 
         public void AddVelocity(Vector3 velocity)
