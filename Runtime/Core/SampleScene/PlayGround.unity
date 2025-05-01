@@ -232,6 +232,38 @@ BoxCollider:
   m_CorrespondingSourceObject: {fileID: 471536341440263989, guid: 7bcb0687f2990c94d83cf88432cc2658, type: 3}
   m_PrefabInstance: {fileID: 715732948006162592}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1511310826 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9108139610125435629, guid: 7bcb0687f2990c94d83cf88432cc2658, type: 3}
+  m_PrefabInstance: {fileID: 715732948006162592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &1511310831
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511310826}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1816060141
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Weight: 0.8
   m_Data:
-    m_ConstrainedObject: {fileID: 571070863094992476}
+    m_ConstrainedObject: {fileID: 4831980241316397160}
     m_SourceObjects:
       m_Length: 1
       m_Item0:
@@ -305,7 +337,7 @@ MonoBehaviour:
       m_Item7:
         transform: {fileID: 0}
         weight: 0
-    m_Offset: {x: 0, y: 0, z: 0}
+    m_Offset: {x: 10, y: 30, z: 0}
     m_MinLimit: -90
     m_MaxLimit: 90
     m_AimAxis: 4
@@ -831,7 +863,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9108139610125435629, guid: 7bcb0687f2990c94d83cf88432cc2658, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1511310831}
   m_SourcePrefab: {fileID: 100100000, guid: 7bcb0687f2990c94d83cf88432cc2658, type: 3}
 --- !u!4 &749859805979047228
 Transform:
@@ -1701,7 +1736,7 @@ Transform:
   m_GameObject: {fileID: 5166648047296664706}
   serializedVersion: 2
   m_LocalRotation: {x: -4.960441e-10, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.42358184, z: 0.14011416}
+  m_LocalPosition: {x: 0, y: 0.42358184, z: 0.065}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3080,8 +3115,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 360495ca6befe004291f52e16becac78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerAnimator: {fileID: 0}
+  AnimDirection: {x: 0, y: 0}
+  _animMoveSpeed: 0
   Motor: {fileID: 2787855021357620367}
-  PlayerAnimator: {fileID: 5866666020849763082}
   MaxStableWalkSpeed: 2
   MaxStableSprintSpeed: 6
   StableMovementSharpness: 8
@@ -3104,8 +3141,6 @@ MonoBehaviour:
   OrientTowardsGravity: 1
   Gravity: {x: 0, y: -30, z: 0}
   MeshRoot: {fileID: 8292162872430844380}
-  AnimDirection: {x: 0, y: 0}
-  _animMoveSpeed: 0
 --- !u!4 &8292162872430844380
 Transform:
   m_ObjectHideFlags: 0
