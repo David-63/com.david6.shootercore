@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6231094618838849809
+--- !u!1 &2931564551709006527
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,9 +8,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1061099664511864319}
-  - component: {fileID: 4773015978225829305}
-  - component: {fileID: 2438440752318123713}
+  - component: {fileID: 8873022250885895796}
+  - component: {fileID: 314155715872396067}
+  - component: {fileID: 7569515281905461800}
   m_Layer: 0
   m_Name: ----Player----
   m_TagString: Untagged
@@ -18,13 +18,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1061099664511864319
+--- !u!4 &8873022250885895796
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6231094618838849809}
+  m_GameObject: {fileID: 2931564551709006527}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,20 +33,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4773015978225829305
+--- !u!114 &314155715872396067
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6231094618838849809}
+  m_GameObject: {fileID: 2931564551709006527}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 30813d087c2bceb40b8367794618fdc4, type: 3}
-  m_NotificationBehavior: 2
+  m_Actions: {fileID: -944628639613478452, guid: 39274c871469e1041b365f7af270a120, type: 3}
+  m_NotificationBehavior: 3
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
     m_PersistentCalls:
@@ -57,201 +57,21 @@ MonoBehaviour:
   m_ControlsChangedEvent:
     m_PersistentCalls:
       m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnMove
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: a64be77a-dbc9-4839-ae4b-c80cec19ceef
-    m_ActionName: 'Basic/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnLook
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: a9488442-e268-4a2f-a7d1-58adccaffea2
-    m_ActionName: 'Basic/Look[/Mouse/delta]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTrySprinting
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: e88e453e-2721-4c76-8934-24a1d6c21884
-    m_ActionName: 'Basic/Sprint[/Keyboard/leftShift]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTryJump
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 272d5010-f6eb-4c5d-bc33-60abe6c2e1a7
-    m_ActionName: 'Basic/Jump[/Keyboard/space]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d1b6023c-b1c9-4b74-89f0-3a5713c0b9bc
-    m_ActionName: 'Basic/Fire[/Mouse/leftButton]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: ca10982c-fe53-4e67-b6b9-f58b4303a8de
-    m_ActionName: 'Basic/Aim[/Mouse/rightButton]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 16b9a4c0-51b7-484e-97dd-54e85c5f23ee
-    m_ActionName: 'Basic/Reload[/Keyboard/r]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnLockCursor
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 5e5f7e26-e50e-43dd-b810-71090f389da8
-    m_ActionName: 'Basic/Cursor Lock[/Keyboard/escape]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnCameraModeSwitch
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 7441070c-1b26-4a1b-aa63-30b5b175a708
-    m_ActionName: 'Basic/Camera Switch[/Keyboard/h]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTryDash
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: ed9505d5-06b8-4a71-9a3d-528dc825ea5f
-    m_ActionName: 'Basic/Dash[/Keyboard/leftAlt]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTryCrouch
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 93f66a6c-8cf5-48bc-b086-fae819c7225b
-    m_ActionName: 'Basic/Crouch[/Keyboard/leftCtrl]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTryCharge
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 4da2da50-c869-45d0-8d5f-c2f72ecb63a5
-    m_ActionName: 'Basic/Charge[/Keyboard/q]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2438440752318123713}
-        m_TargetAssemblyTypeName: David6.ShooterFramework.DavidPlayerScript, Assembly-CSharp
-        m_MethodName: OnTryNoClip
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 57423958-c3f6-4e60-9f8d-44879fc6452d
-    m_ActionName: 'Basic/NoClip[/Keyboard/p]'
+  m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Basic
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &2438440752318123713
+--- !u!114 &7569515281905461800
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6231094618838849809}
+  m_GameObject: {fileID: 2931564551709006527}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17c91f17862d0e94685d765c01ff63d9, type: 3}
+  m_Script: {fileID: 11500000, guid: 944646a4e96501a41b47ef53efdf70a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OrbitCamera: {fileID: 0}
-  CameraFollowPoint: {fileID: 0}
-  Character: {fileID: 0}
-  IgnoredColliders:
-  - {fileID: 0}
-  _axisMovement: {x: 0, y: 0}
-  _axisLook: {x: 0, y: 0}
-  _averagedLook: {x: 0, y: 0}

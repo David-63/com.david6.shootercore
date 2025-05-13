@@ -8,8 +8,8 @@ NativeFormatImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 259143
-  packageName: Multiplayer FPS Template
-  packageVersion: 1.1.1
-  assetPath: Assets/AlterunaFPS/Materials/GreyBlue_Mat.mat
-  uploadId: 637707
+  productId: 267961
+  packageName: 'Starter Assets: Character Controllers | URP'
+  packageVersion: 2.0.2
+  assetPath: Packages/com.david6.shootercore/Runtime/Assets/Environment/Materials/GreyBlue_Mat.mat
+  uploadId: 721456

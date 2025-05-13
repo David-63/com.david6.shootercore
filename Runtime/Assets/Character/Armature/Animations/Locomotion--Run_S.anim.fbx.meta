@@ -933,9 +933,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 196526
-  packageName: Starter Assets - ThirdPerson | Updates in new CharacterController
-    package
-  packageVersion: 1.1.5
-  assetPath: Assets/StarterAssets/ThirdPersonController/Character/Animations/Locomotion--Run_S.anim.fbx
-  uploadId: 691128
+  productId: 267961
+  packageName: 'Starter Assets: Character Controllers | URP'
+  packageVersion: 2.0.2
+  assetPath: Packages/com.david6.shootercore/Runtime/Assets/Character/Armature/Animations/Locomotion--Run_S.anim.fbx
+  uploadId: 721456
