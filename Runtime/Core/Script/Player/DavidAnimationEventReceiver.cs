@@ -30,7 +30,6 @@ namespace David6.ShooterFramework
 
         private void OnLand(AnimationEvent animationEvent)
         {
-            Log.WhatHappend("Land Call");
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(Controller.center), FootstepAudioVolume);

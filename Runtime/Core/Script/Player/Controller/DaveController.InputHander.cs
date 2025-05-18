@@ -8,18 +8,9 @@ namespace David6.ShooterFramework
         private bool _aimDownSight = false;
         private bool _fire = false;
 
-        public const float _equipDelayTime = 0.2f;
-        public const float _fireDelayTime = 0.02f;
-
-        private float _lastEquipedInput = 0.0f;
-        private float _lastFireLastInput = 0.0f;
-
-
-
-
         private void ReadInputs()
         {
-			_inputDirection = new Vector3(InputProvider.Move.x, 0.0f, InputProvider.Move.y).normalized;
+            _inputDirection = new Vector3(InputProvider.Move.x, 0.0f, InputProvider.Move.y).normalized;
             if (_inputDirection != Vector3.zero)
             {
                 _targetSpeed = InputProvider.Sprint ? MovementAsset.SprintSpeed : MovementAsset.MoveSpeed;
@@ -28,10 +19,8 @@ namespace David6.ShooterFramework
             {
                 _targetSpeed = 0.0f;
             }
-            
-            _inputMagnitude = InputProvider.IsCurrentDeviceMouse ? InputProvider.Move.magnitude : 1f;
 
-            // 인풋 TimeoutDelta 구현하기?
+            _inputMagnitude = InputProvider.IsCurrentDeviceMouse() ? InputProvider.Move.magnitude : 1f;
 
             ToggleEquip();
             HoldADS();
@@ -39,19 +28,31 @@ namespace David6.ShooterFramework
 
         private void ToggleEquip()
         {
-            if (!InputProvider.Equip) return;
-            if (Time.time >= _lastEquipedInput + _equipDelayTime)
+            if (UpperbodyStateChanged())
             {
-                _lastEquipedInput = Time.time;
-                _equiped = !_equiped;
+                _equiped = InputProvider.Equip;
+                SetUpperbodyCamera();
                 UpdateAnimEquip(_equiped);
             }
         }
 
         private void HoldADS()
         {
-            _aimDownSight = InputProvider.Aim;            
-            UpdateAnimAimDownSight(_aimDownSight);
+            _aimDownSight = InputProvider.Aim;
+
+            if (_aimDownSight)
+            {
+                if (_equiped)
+                {
+                    FollowCamera.CameraSetup(AimCameraSetup);
+                    UpdateAnimAimDownSight(_aimDownSight);
+                }
+            }
+            else
+            {
+
+                SetUpperbodyCamera();
+            }
         }
     }
 }

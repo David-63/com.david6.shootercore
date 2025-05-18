@@ -26,6 +26,8 @@ namespace David6.ShooterFramework
             {
                 PerformJump();
             }
+
+
         }
         
         private void CalculateSpeed()
@@ -90,6 +92,23 @@ namespace David6.ShooterFramework
             _verticalVelocity = Mathf.Sqrt(MovementAsset.JumpHeight * -2f * MovementAsset.Gravity);
             // update animator if using character
             UpdateAnimJump(true);
+        }
+
+        private void EquipAction()
+        {
+            
+        }
+
+        public void SetUpperbodyCamera()
+        {
+            if (_equiped)
+            {
+                FollowCamera.CameraSetup(EquipCameraSetup);
+            }
+            else
+            {
+                FollowCamera.CameraSetup(UnEquipCameraSetup);
+            }
         }
     }
 }

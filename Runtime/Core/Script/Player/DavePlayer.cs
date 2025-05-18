@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace David6.ShooterFramework
 {
-    public enum CameraMode { FirstPerson, ThirdPerson }
-    public enum BodyPart { Head, Body, Arm }
+    public enum eCameraMode { FirstPerson, ThirdPerson }
+    public enum eBodyPart { Head, Body, Arm }
 
     public partial class DavePlayer : MonoBehaviour
     {
@@ -19,22 +19,32 @@ namespace David6.ShooterFramework
 
         #region Fields
 
-        private CameraMode _currentCameraMode = CameraMode.FirstPerson;
+        private eCameraMode _currentCameraMode = eCameraMode.FirstPerson;
 
         #endregion
 
 
         #region Mono 기본 함수
 
+        private void Awake()
+        {
+            InputSetup();
+        }
+
+        private void OnDestroy()
+        {
+            InputDisable();
+        }
+
         private void Start()
         {
-            //UpdateCursorState();
+            UpdateCursorState();
             UpdateCameraMode();
         }
 
         private void Update()
         {
-            InputConditionUpdate();
+            PressReset();
         }
 
         #endregion
@@ -59,14 +69,14 @@ namespace David6.ShooterFramework
             // }
             switch (_currentCameraMode)
             {
-                case CameraMode.FirstPerson:
+                case eCameraMode.FirstPerson:
                 //OrbitCamera.TargetDistance = 0;
                 //OrbitCamera.FollowPointFraming = Vector2.zero;
                 //MakeTransparent(BodyPart.Head, BodyPart.Arm);
                 //FPSArm.SetActive(true);
                 break;
 
-                case CameraMode.ThirdPerson:
+                case eCameraMode.ThirdPerson:
                 //OrbitCamera.TargetDistance = CameraTargetDistance;
                 //OrbitCamera.FollowPointFraming = this.FollowPointFraming;
                 //RestoreAll();

@@ -12,6 +12,11 @@ namespace David6.ShooterFramework
         [SerializeField] private MovementSO MovementAsset;
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
 		[SerializeField] private GameObject CinemachineCameraTarget;
+		[SerializeField] private DaveCamera FollowCamera;
+
+		[SerializeField] private CameraSetupSO UnEquipCameraSetup;
+		[SerializeField] private CameraSetupSO EquipCameraSetup;
+		[SerializeField] private CameraSetupSO AimCameraSetup;
 
 
 
@@ -37,6 +42,14 @@ namespace David6.ShooterFramework
 			_jumpTimeoutDelta = MovementAsset.JumpTimeout;
 			_fallTimeoutDelta = MovementAsset.FallTimeout;
 		}
+
+        private void FixedUpdate()
+        {
+            // if (_aimDownSight)
+			// {
+			// 	Ray aimRay = Camera.main.ScreenPointToRay()
+			// }
+        }
 
         private void Update()
 		{

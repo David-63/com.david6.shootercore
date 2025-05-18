@@ -1,30 +1,21 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace David6.ShooterFramework
 {
-    public interface IInputProvider
-    {
-        Vector2 Move { get; }
-        Vector2 Look { get; }
-        bool Jump { get; }
-        bool Sprint { get; }
-    }
-
-	[RequireComponent(typeof(PlayerInput))]
-    public partial class DavePlayer : MonoBehaviour, IInputProvider
+    public partial class DavePlayer : MonoBehaviour
     {
         #region Input
+
+        [SerializeField] private InputManager _inputManager;
 
         // PlayerInput 컴포넌트 자동 참조
         private PlayerInput _playerInput;
 
         // 내부에서 사용할 입력 값들
-        private Vector2 _axisMove = Vector3.zero;
-        private Vector2 _axisLook = Vector3.zero;
-        // private bool _inputSprint = false;
-        // private bool _inputCrouch = false;
-        // private bool _inputJump = false;
+        public Vector2 _axisMove, _axisLook;
 
         private bool _sprint = false;
         private bool _crouch = false;
@@ -33,24 +24,10 @@ namespace David6.ShooterFramework
         private bool _equip = false;
         private bool _interact = false;
         private bool _reload = false;
-        
+
         private bool _aim = false;
         private bool _fire = false;
 
-        private bool _holdingButtonSprint = false;
-        private bool _holdingButtonCrouch = false;
-        
-        private bool _holdingButtonJump = false;
-        private bool _holdingButtonEquip = false;
-        private bool _holdingButtonInteract = false;
-        private bool _holdingButtonReload = false;
-        
-        private bool _holdingButtonAim = false;
-        private bool _holdingButtonFire = false;
-
-
-        
-        
         private bool _cursorLocked = true;
 
         #endregion
@@ -70,145 +47,90 @@ namespace David6.ShooterFramework
         public bool Fire => _fire;
 
 
-        public bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "PC";
+        public bool IsCurrentDeviceMouse() => _inputManager.IsCurrentDeviceMouse;
 
-        private void Awake()
-        {
-            _playerInput = GetComponent<PlayerInput>();
-        }
 
-        private void OnEnable()
+        private void InputSetup()
         {
-            // C# Events 방식으로 액션 트리거를 구독
-            _playerInput.onActionTriggered += OnActionTriggered;
+            // 버튼 액션 구독
+            _inputManager.OnActionTriggered += OnInputTriggered;
+            _inputManager.OnActionCanceled += OnInputCanceled;
+            // 축 액션 구독
+            _inputManager.OnMove += v => _axisMove = v;
+            _inputManager.OnLook += v => _axisLook = v;
         }
-        private void OnDisable()
+        private void InputDisable()
         {
-            _playerInput.onActionTriggered -= OnActionTriggered;
+            _inputManager.OnActionTriggered -= OnInputTriggered;
+            _inputManager.OnActionCanceled -= OnInputCanceled;
+
+            _inputManager.OnMove -= v => _axisMove = v;
+            _inputManager.OnLook -= v => _axisLook = v;
         }
+        
 
         #region Input Handler
 
-        private void OnActionTriggered(InputAction.CallbackContext ctx)
+        private void OnInputTriggered(string actionName)
         {
-            switch (ctx.action.name)
+            switch (actionName)
             {
-                case "Move":
-                _axisMove = ctx.ReadValue<Vector2>();
-                break;
-                case "Look":
-                _axisLook = ctx.ReadValue<Vector2>();
-                break;
-
-                case "Crouch":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonCrouch = true;
-                    break;
-                    case InputActionPhase.Canceled:
-                    _holdingButtonCrouch = false;
-                    break;
-                }
-                break;
-                case "Sprint":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonSprint = true;
-                    break;
-                    case InputActionPhase.Canceled:
-                    _holdingButtonSprint = false;
-                    break;
-                }
-                break;
-
                 case "Jump":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonJump = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonJump = false;
+                    ActiveAction(ref _jump);
                     break;
-                }
-                break;
+                case "Sprint":
+                    ActiveAction(ref _sprint);
+                    break;
                 case "Equip":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonEquip = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonEquip = false;
+                    ToggleAction(ref _equip);
                     break;
-                }
-                break;
-                case "Interact":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonInteract = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonInteract = false;
-                    break;
-                }
-                break;
-                case "Reload":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonReload = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonReload = false;
-                    break;
-                }
-                break;
-
                 case "Aim":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonAim = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonAim = false;
+                    ActiveAction(ref _aim);
                     break;
-                }
-                break;
-                case "Fire":
-                switch (ctx.phase)
-                {
-                    case InputActionPhase.Started:
-                    _holdingButtonFire = true;
-                    break;                    
-                    case InputActionPhase.Canceled:
-                    _holdingButtonFire = false;
-                    break;
-                }
-                break;
+
+                    // …나머지 매핑…
             }
         }
 
-        #endregion
-
-        private void InputConditionUpdate()
+        private void OnInputCanceled(string actionName)
         {
-            _crouch = _holdingButtonCrouch;
-            _sprint = _holdingButtonSprint && CanSprint();
-
-            _jump = _holdingButtonJump;
-            _equip = _holdingButtonEquip;
-            _interact = _holdingButtonInteract;
-            _reload = _holdingButtonReload;
-
-            _aim = _holdingButtonAim && CanAim();
-            _fire = _holdingButtonFire && CanFire();
+            switch (actionName)
+            {
+                case "Jump":
+                    ReleaseAction(ref _jump);
+                    break;
+                case "Sprint":
+                    ReleaseAction(ref _sprint);
+                    break;
+                case "Aim":
+                    ReleaseAction(ref _aim);
+                    break;
+                // case "Equip":
+                    // ToggleAction(ref _equip);
+                    // break;
+                    // …나머지 매핑…
+            }
         }
 
+        private void ActiveAction(ref bool input)
+        {
+            input = true;
+        }
+        private void ReleaseAction(ref bool input)
+        {
+            input = false;
+        }
+        private void ToggleAction(ref bool input)
+        {
+            input = !input;
+        }
+
+        private void PressReset()
+        {
+            ReleaseAction(ref _jump);
+        }
+
+        #endregion
 
         private bool CanSprint()
         {
