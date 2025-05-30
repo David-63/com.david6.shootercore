@@ -3,7 +3,6 @@ using UnityEngine;
 namespace David6.ShooterFramework
 {
 	[RequireComponent(typeof(Rigidbody))]
-	[RequireComponent(typeof(MeshCollider))]
     public class ItemPickup : MonoBehaviour
     {
         public ItemDataSO ItemData;

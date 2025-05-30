@@ -53,7 +53,7 @@ namespace David6.ShooterFramework
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             UpdateAnimSpeed(_inputMagnitude);
-            UpdateAnimDirection(InputProvider.Move);
+            UpdateAnimDirection(_axisMove);
         }
 
         private void PerformMovement()
@@ -71,11 +71,16 @@ namespace David6.ShooterFramework
 
         private void CameraRotation()
 		{
-			// if there is an input and camera position is not fixed
-            if (InputProvider.Look.sqrMagnitude >= _threshold && !MovementAsset.LockCameraPosition)
+            if (!_cursorLocked)
             {
-                _cinemachineTargetYaw += InputProvider.Look.x * Time.deltaTime;
-                _cinemachineTargetPitch += InputProvider.Look.y * Time.deltaTime;
+                _axisLook = Vector3.zero;
+            }
+
+			// if there is an input and camera position is not fixed
+            if (_axisLook.sqrMagnitude >= _threshold && !MovementAsset.LockCameraPosition)
+            {
+                _cinemachineTargetYaw += _axisLook.x * Time.deltaTime;
+                _cinemachineTargetPitch += _axisLook.y * Time.deltaTime;
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -97,18 +102,6 @@ namespace David6.ShooterFramework
         private void EquipAction()
         {
             
-        }
-
-        public void SetUpperbodyCamera()
-        {
-            if (_equiped)
-            {
-                FollowCamera.CameraSetup(EquipCameraSetup);
-            }
-            else
-            {
-                FollowCamera.CameraSetup(UnEquipCameraSetup);
-            }
         }
     }
 }

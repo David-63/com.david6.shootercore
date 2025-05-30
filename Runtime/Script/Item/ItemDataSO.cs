@@ -21,6 +21,7 @@ namespace David6.ShooterFramework
 
         public GameObject Prefab;
         public bool GroupedPrefab;
+        public string Description;
 
 
     }

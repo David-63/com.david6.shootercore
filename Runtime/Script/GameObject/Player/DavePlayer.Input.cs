@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,11 +9,6 @@ namespace David6.ShooterFramework
     public partial class DavePlayer : MonoBehaviour
     {
         #region Input
-
-        [SerializeField] private InputManager _inputManager;
-
-        // PlayerInput 컴포넌트 자동 참조
-        private PlayerInput _playerInput;
 
         // 내부에서 사용할 입력 값들
         public Vector2 _axisMove, _axisLook;
@@ -29,6 +25,8 @@ namespace David6.ShooterFramework
         private bool _fire = false;
 
         private bool _drop = false;
+
+        private bool _inventory = false;
 
         private bool _cursorLocked = true;
 
@@ -50,28 +48,33 @@ namespace David6.ShooterFramework
 
 
         public bool Drop => _drop;
+        public bool Inventory => _inventory;
 
 
+        public bool IsCurrentDeviceMouse() => InputManager.Instance.IsCurrentDeviceMouse;
 
-        public bool IsCurrentDeviceMouse() => _inputManager.IsCurrentDeviceMouse;
+
+        public event Action<string> OnActionCall;
+
+
 
 
         private void InputSetup()
         {
             // 버튼 액션 구독
-            _inputManager.OnActionTriggered += OnInputTriggered;
-            _inputManager.OnActionCanceled += OnInputCanceled;
+            InputManager.Instance.OnActionTriggered += OnInputTriggered;
+            InputManager.Instance.OnActionCanceled += OnInputCanceled;
             // 축 액션 구독
-            _inputManager.OnMove += v => _axisMove = v;
-            _inputManager.OnLook += v => _axisLook = v;
+            InputManager.Instance.OnMove += v => _axisMove = v;
+            InputManager.Instance.OnLook += v => _axisLook = v;
         }
         private void InputDisable()
         {
-            _inputManager.OnActionTriggered -= OnInputTriggered;
-            _inputManager.OnActionCanceled -= OnInputCanceled;
+            InputManager.Instance.OnActionTriggered -= OnInputTriggered;
+            InputManager.Instance.OnActionCanceled -= OnInputCanceled;
 
-            _inputManager.OnMove -= v => _axisMove = v;
-            _inputManager.OnLook -= v => _axisLook = v;
+            InputManager.Instance.OnMove -= v => _axisMove = v;
+            InputManager.Instance.OnLook -= v => _axisLook = v;
         }
         
 
@@ -79,28 +82,33 @@ namespace David6.ShooterFramework
 
         private void OnInputTriggered(string actionName)
         {
+            OnActionCall?.Invoke(actionName);
             switch (actionName)
             {
                 case "Jump":
-                    Log.WhatHappend("점프 Trigger");
+                    Log.WhatHappend("점프 Press");
                     ActiveAction(ref _jump);
                     break;
                 case "Sprint":
-                    Log.WhatHappend("달리기 Trigger");
+                    Log.WhatHappend("달리기 Hold");
                     ActiveAction(ref _sprint);
                     break;
                 case "Equip":
-                    Log.WhatHappend("무장 Trigger");
                     ToggleAction(ref _equip);
+                    Log.WhatHappend("무장 Toggle" + _equip);
                     break;
                 case "Aim":
-                    Log.WhatHappend("조준 Trigger");
+                    Log.WhatHappend("조준 Hold");
                     ActiveAction(ref _aim);
                     break;
-                    // …나머지 매핑…
+                // …나머지 매핑…
                 case "Drop":
-                    Log.WhatHappend("드랍 Trigger");
+                    Log.WhatHappend("드랍 Press");
                     ActiveAction(ref _drop);
+                    break;
+                case "Inventory":
+                    ToggleAction(ref _inventory);
+                    Log.WhatHappend("인벤토리 Toggle " + _inventory);
                     break;
             }
         }
@@ -109,10 +117,6 @@ namespace David6.ShooterFramework
         {
             switch (actionName)
             {
-                case "Jump":
-                    Log.WhatHappend("점프 Release");
-                    ReleaseAction(ref _jump);
-                    break;
                 case "Sprint":
                     Log.WhatHappend("달리기 Release");
                     ReleaseAction(ref _sprint);
@@ -125,10 +129,6 @@ namespace David6.ShooterFramework
                     // ToggleAction(ref _equip);
                     // break;
                     // …나머지 매핑…
-                case "Drop":
-                    Log.WhatHappend("드랍 Trigger");
-                    ReleaseAction(ref _drop);
-                    break;
 
             }
         }

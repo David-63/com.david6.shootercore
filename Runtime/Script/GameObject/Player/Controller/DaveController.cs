@@ -7,8 +7,6 @@ namespace David6.ShooterFramework
     {
 		[Header("핵심")]
 		[Tooltip("플레이어")]
-        [SerializeField] private DavePlayer InputProvider;
-
         [SerializeField] private MovementSO MovementAsset;
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
 		[SerializeField] private GameObject CinemachineCameraTarget;
@@ -22,23 +20,29 @@ namespace David6.ShooterFramework
 
         private CharacterController _controller;
         private GameObject _mainCamera;
-		private PlayerInventorySystem _inventory;
+		private PlayerInventorySystem _inventorySystem;
 
 
-        private void Awake()
+		private void Awake()
+		{
+			if (_mainCamera == null)
+			{
+				_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+			}
+			UpdateCursorState();
+        }
+        private void OnDestroy()
         {
-            if (_mainCamera == null)
-            {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-            }
+			InputDisable();
         }
 
         private void Start()
 		{
+			InputSetup();
 			_controller = GetComponent<CharacterController>();
-			_inventory = GetComponent<PlayerInventorySystem>();
-            InitializeAnimator();
-			
+			_inventorySystem = GetComponent<PlayerInventorySystem>();
+			InitializeAnimator();
+
 
 			// reset our timeouts on start
 			_jumpTimeoutDelta = MovementAsset.JumpTimeout;
@@ -53,19 +57,19 @@ namespace David6.ShooterFramework
 			// }
         }
 
-        private void Update()
+		private void Update()
 		{
-			if (InputProvider == null) return;
-
 			UpdateGravity();
 			GroundedCheck();
 			Movement();
+
+			UpdateUpperBody();
+			
+			PressReset();
 		}
 
         private void LateUpdate()
 		{
-			if (InputProvider == null) return;
-			
 			CameraRotation();
 		}
 

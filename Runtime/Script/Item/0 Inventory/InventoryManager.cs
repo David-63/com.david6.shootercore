@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace David6.ShooterFramework
 {
+    // 안씀
     public class InventoryManager : MonoBehaviour
     {
         public InventorySystem Inventory;

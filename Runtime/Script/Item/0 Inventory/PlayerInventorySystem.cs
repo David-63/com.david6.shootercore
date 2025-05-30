@@ -7,6 +7,19 @@ namespace David6.ShooterFramework
         public InventorySystem Inventory;
         public ItemDataSO itemToDrop;
 
+        [SerializeField] private InventoryPanelManager InventoryPanelUI;
+
+        private void Start()
+        {
+            ToggleInventoryPanelUI(false);
+            Inventory.Player = this;
+        }
+
+        public void ToggleInventoryPanelUI(bool enable)
+        {
+            InventoryPanelUI.SetPanelVisibility(enable);
+        }
+
         public int PickupItem(ItemDataSO itemData, int quantity)
         {
             if (!Inventory.IsFull() || itemData.MaxStackSize > 0)
@@ -19,7 +32,6 @@ namespace David6.ShooterFramework
 
         public void DropItemFromSlot(int slotNumber)
         {
-            Log.WhatHappend("드랍 호출");
             Inventory.RemoveItemsFromSlot(slotNumber);
         }
 
@@ -45,7 +57,7 @@ namespace David6.ShooterFramework
             }
         }
 
-        private Vector3 GetDropPosition()
+        public Vector3 GetDropPosition()
         {
             Vector3 playerPosition = transform.position;
             Vector3 forwardDirection = transform.forward;

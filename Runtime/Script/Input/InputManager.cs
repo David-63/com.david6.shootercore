@@ -18,8 +18,10 @@ namespace David6.ShooterFramework
     [RequireComponent(typeof(PlayerInput))]
     public class InputManager : MonoBehaviour
     {
+        public static InputManager Instance { get; private set; }
+
         // 에디터에서 드래그할 SO 리스트
-        [SerializeField] private List<ActionSetupSO> ActionSetups;
+        [SerializeField] private List<ActionSetupSO> ActionSetups;      // 이걸 그냥 public으로 한 다음에 컨트롤러에서 참조로 복사해서 함수에 foreach 돌리면 내부에 변수를 둘 필요가 없어보이는데
 
         // 내부 데이터
         private PlayerInput                         _playerInput;
@@ -38,6 +40,15 @@ namespace David6.ShooterFramework
 
         void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+            }
+
             // PlayerInput 바인딩
             _playerInput = GetComponent<PlayerInput>();
 

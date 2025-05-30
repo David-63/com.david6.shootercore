@@ -16,6 +16,7 @@ MonoBehaviour:
   ItemName: Apple
   ItemIcon: {fileID: 21300000, guid: 4bbde90880df2fb4785029efc8f6c60e, type: 3}
   ItemType: 1
-  MaxStackSize: 20
+  MaxStackSize: 5
   Prefab: {fileID: 4135147550964121477, guid: 1645ad7ef52687c489150acfe891452b, type: 3}
   GroupedPrefab: 0
+  Description: consumable item

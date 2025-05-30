@@ -4,42 +4,142 @@ namespace David6.ShooterFramework
 {
     public partial class DaveController : MonoBehaviour
     {
-		private bool _equiped = false;
-        private bool _aimDownSight = false;
-        private bool _fire = false;
+        private Vector2 _axisMove, _axisLook;
+
+        private bool _inputSprint = false;
+        private bool _inputCrouch = false;
+
+        private bool _inputJump = false;
+        private bool _inputEquip = false;
+        private bool _inputInteract = false;
+        private bool _inputReload = false;
+
+        private bool _inputAim = false;
+        private bool _inputFire = false;
+
+        private bool _inputDrop = false;
+
+        private bool _inputInventory = false;
+
+        private bool _cursorLocked = true;
 
         public ItemDataSO dropItem;
 
-        private void ReadInputs()
+
+        private void InputSetup()
         {
-            _inputDirection = new Vector3(InputProvider.Move.x, 0.0f, InputProvider.Move.y).normalized;
-            if (_inputDirection != Vector3.zero)
-            {
-                _targetSpeed = InputProvider.Sprint ? MovementAsset.SprintSpeed : MovementAsset.MoveSpeed;
-            }
-            else
-            {
-                _targetSpeed = 0.0f;
-            }
+            // 버튼 액션 구독
+            InputManager.Instance.OnActionTriggered += OnInputTriggered;
+            InputManager.Instance.OnActionCanceled += OnInputCanceled;
+            // 축 액션 구독
+            InputManager.Instance.OnMove += v => _axisMove = v;
+            InputManager.Instance.OnLook += v => _axisLook = v;
+        }
+        private void InputDisable()
+        {
+            InputManager.Instance.OnActionTriggered -= OnInputTriggered;
+            InputManager.Instance.OnActionCanceled -= OnInputCanceled;
 
-            _inputMagnitude = InputProvider.IsCurrentDeviceMouse() ? InputProvider.Move.magnitude : 1f;
-
-            ToggleEquip();
-            HoldADS();
-
-            if (CanDrop())
-            {
-                _inventory.DropItem(dropItem, 7);
-            }
-
+            InputManager.Instance.OnMove -= v => _axisMove = v;
+            InputManager.Instance.OnLook -= v => _axisLook = v;
         }
 
-        private void ToggleEquip()
+        private void OnInputTriggered(string actionName)
         {
-            if (UpperbodyStateChanged())
+            switch (actionName)
             {
-                _equiped = InputProvider.Equip;
-                if (_equiped)
+                case "Jump":
+                    ActiveAction(ref _inputJump);
+                    break;
+                case "Sprint":
+                    ActiveAction(ref _inputSprint);
+                    break;
+                case "Equip":
+                    ToggleAction(ref _inputEquip);
+                    break;
+                case "Aim":
+                    ActiveAction(ref _inputAim);
+                    break;
+                case "Drop":
+                    ActiveAction(ref _inputDrop);
+                    break;
+                case "Inventory":
+                    ToggleAction(ref _inputInventory);
+                    break;
+            }
+            DoInputTriggerAction(actionName);
+        }
+
+        private void OnInputCanceled(string actionName)
+        {
+            switch (actionName)
+            {
+                case "Sprint":
+                    ReleaseAction(ref _inputSprint);
+                    break;
+                case "Aim":
+                    ReleaseAction(ref _inputAim);
+                    break;
+            }
+            DoInputReleaseAction(actionName);
+        }
+
+        private void ActiveAction(ref bool input)
+        {
+            input = true;
+        }
+        private void ReleaseAction(ref bool input)
+        {
+            input = false;
+        }
+        private void ToggleAction(ref bool input)
+        {
+            input = !input;
+        }
+
+        private void PressReset()
+        {
+            ReleaseAction(ref _inputJump);
+            ReleaseAction(ref _inputDrop);
+        }
+
+        private void ReadInputs()
+        {
+            _inputDirection = new Vector3(_axisMove.x, 0.0f, _axisMove.y).normalized;
+
+
+            if (_inputDirection != Vector3.zero)
+                {
+                    _targetSpeed = _inputSprint ? MovementAsset.SprintSpeed : MovementAsset.MoveSpeed;
+                }
+                else
+                {
+                    _targetSpeed = 0.0f;
+                }
+
+            _inputMagnitude = IsCurrentDeviceMouse() ? _axisMove.magnitude : 1f;
+
+            // ToggleEquip();
+            // HoldADS();
+
+            // if (CanDrop())
+            // {
+            //     _inventorySystem.DropItem(dropItem, 7);
+            // }
+
+            // _inventorySystem.ToggleInventoryPanelUI(Inventory);
+        }
+
+        /// <summary>
+        /// 각 액션 기능들을 예외처리
+        /// </summary>
+        private void DoInputTriggerAction(string actionName)
+        {
+            // Toggle 방식
+
+            if (actionName == "Equip")
+            {
+                if (_inputEquip)
                 {
                     FollowCamera.CameraSetup(EquipCameraSetup);
                 }
@@ -47,29 +147,58 @@ namespace David6.ShooterFramework
                 {
                     FollowCamera.CameraSetup(UnEquipCameraSetup);
                 }
-                UpdateAnimEquip(_equiped);
+                UpdateAnimEquip(_inputEquip);
+            }
+
+            if (actionName == "Inventory")
+            {
+                _inventorySystem.ToggleInventoryPanelUI(_inputInventory);
+                _cursorLocked = !_inputInventory;
+                UpdateCursorState();
+            }
+
+
+            // Press 방식
+            if (actionName == "Drop")
+            {
+                _inventorySystem.DropItem(dropItem, 7);
             }
         }
 
-        private void HoldADS()
+        private void DoInputReleaseAction(string actionName)
         {
-            _aimDownSight = InputProvider.Aim;
 
-            if (!_equiped)
-            {
-                FollowCamera.CameraSetup(UnEquipCameraSetup);
-                return;
-            }
+        }
 
-            if (_aimDownSight)
+        /// <summary>
+        /// Update에서 호출
+        /// </summary>
+        private void UpdateUpperBody()
+        {
+            if (_inputEquip)
             {
-                FollowCamera.CameraSetup(AimCameraSetup);
+                if (_inputAim)
+                {
+                    FollowCamera.CameraSetup(AimCameraSetup);
+                }
+                else
+                {
+                    FollowCamera.CameraSetup(EquipCameraSetup);
+                }
+                UpdateAnimAimDownSight(_inputAim);
             }
             else
             {
-                FollowCamera.CameraSetup(EquipCameraSetup);
+                FollowCamera.CameraSetup(UnEquipCameraSetup);
             }
-            UpdateAnimAimDownSight(_aimDownSight);
+        }
+        
+
+
+        private void UpdateCursorState()
+        {
+            Cursor.visible = !_cursorLocked;
+            Cursor.lockState = _cursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
         }
     }
 }

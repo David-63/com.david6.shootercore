@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,9 @@ namespace David6.ShooterFramework
     {
         public static InventoryPanelManager Instance { get; private set; }
 
+        [SerializeField] private CanvasGroup ItemDetailPanel;
+
+
         [Tooltip("UI의 Hierarchy 상에서 아이템 버튼이 배치될 컨테이너 오브젝트")]
         [SerializeField] private GameObject ItemContainer;
         [Tooltip("컨테이너에 배치할 아이템 버튼 프리팹")]
@@ -15,6 +19,23 @@ namespace David6.ShooterFramework
 
         [Tooltip("아이템(SO) 목록에 추가할 에셋들")]
         [SerializeField] private List<ItemDataSO> ItemList;
+        [SerializeField] private InventorySystem Inventory;
+
+        [SerializeField] private TMP_InputField NumberToDrop;
+        [SerializeField] private Button DropButton;
+        [SerializeField] private Button DropAllButton;
+
+        [SerializeField] private TextMeshProUGUI ItemNameText;
+        [SerializeField] private TextMeshProUGUI ItemCountText;
+        [SerializeField] private TextMeshProUGUI ItemDescriptionText;
+
+        private GameObject _itemToShow;
+
+
+
+        private eItemType _activeItemType;
+
+
         /// <summary>
         /// 인벤토리 맵
         /// </summary>
@@ -48,33 +69,44 @@ namespace David6.ShooterFramework
                 }
             }
 
-            // 임시로 아이템 데이터 등록 및 초기화
-            for (int idx = 0; idx < 24; ++idx)
-            {
-                GameObject itemButton = Instantiate(ItemButtonPrefab, ItemContainer.transform);
-                ItemDataSO itemData;
-                if (idx % 3 == 1)
-                {
-                    itemData = ItemList[0];
-                }
-                else if (idx % 3 == 2)
-                {
-                    itemData = ItemList[1];
-                }
-                else
-                {
-                    itemData = ItemList[2];
-                }
-                itemButton.GetComponent<ItemButtonSetting>().Init(itemData, Random.Range(1, 10));
-                _inventoryItemMap.Add(itemButton, itemData.ItemType);
-
-                itemButton.GetComponent<Button>().onClick.AddListener(() => ShowItemPreview(itemData.ItemID));
-            }
+            ItemDetailPanel.alpha = 0.0f;
         }
 
         void Start()
         {
-            
+            ItemDetailPanel = GetComponent<CanvasGroup>();            
+        }
+        public void SetPanelVisibility(bool visible)
+        {
+            ItemDetailPanel.alpha = visible ? 1 : 0;
+            ItemDetailPanel.interactable = visible;
+            ItemDetailPanel.blocksRaycasts = visible;
+        }
+
+        public ItemButtonSetting CreateInventoryButton(ItemDataSO itemData, InventorySlot slot, int quantity)
+        {
+            GameObject itemButton = Instantiate(ItemButtonPrefab, ItemContainer.transform);
+
+            ItemButtonSetting itemButtonSetting = itemButton.GetComponent<ItemButtonSetting>();
+            itemButtonSetting.Init(itemData, quantity);
+            _inventoryItemMap.Add(itemButton, itemData.ItemType);
+
+            itemButton.GetComponent<Button>().onClick.AddListener(() => ShowItemPreview(itemData.ItemID, slot));
+
+            if (itemData.ItemType != _activeItemType)
+            {
+                itemButton.gameObject.SetActive(false);
+            }
+
+            return itemButtonSetting;
+        }
+
+        public void DestroyInventoryButton(GameObject button)
+        {
+            _inventoryItemMap.Remove(button);
+            //ItemDetailPanel.alpha = 0.0f;
+            _itemToShow.SetActive(false);
+            Destroy(button);
         }
 
         /// <summary>
@@ -83,6 +115,7 @@ namespace David6.ShooterFramework
         /// <param name="type"></param>
         public void FilterItemsByType(eItemType type)
         {
+            _activeItemType = type;
             // key value pair를 순회하여 타입에 일치하는 아이콘(버튼)만 활성화
             foreach (var kvp in _inventoryItemMap)
             {
@@ -93,8 +126,18 @@ namespace David6.ShooterFramework
             }
         }
 
-        public void ShowItemPreview(int itemID)
+        public void ShowItemPreview(int itemID, InventorySlot slot)
         {
+            if (!int.TryParse(NumberToDrop.text, out int toDrop) || toDrop < 1)
+            {
+                NumberToDrop.text = 1 + "";
+                toDrop = 1;
+            }
+            DropButton.onClick.RemoveAllListeners();
+            DropButton.onClick.AddListener(() => Inventory.RemoveItemFromSlot(slot, toDrop));
+            DropAllButton.onClick.RemoveAllListeners();
+            DropAllButton.onClick.AddListener(() => Inventory.RemoveItemFromSlot(slot, slot.Quantity));
+            
             // 프리뷰 아이탬 리스트를 순회하며 전부 비활성화 시킴
             foreach (var previewItemObject in _previewItemMap.Values)
             {
@@ -102,9 +145,13 @@ namespace David6.ShooterFramework
             }
 
             // ID 입력값에 해당하는 대상만 활성화
-            if (_previewItemMap.TryGetValue(itemID, out GameObject itemToShow))
+            if (_previewItemMap.TryGetValue(itemID, out _itemToShow))
             {
-                itemToShow.SetActive(true);
+                _itemToShow.SetActive(true);
+
+                ItemNameText.text = slot.ItemData.ItemName;
+                ItemCountText.text = slot.Quantity + "";
+                ItemDescriptionText.text = slot.ItemData.Description;
             }
         }
     }

@@ -36,8 +36,6 @@ namespace David6.ShooterFramework
                 GUILayout.EndVertical();
             }
 
-            
-
             serializedObject.ApplyModifiedProperties();
         }
         private void DrawRowHeader()

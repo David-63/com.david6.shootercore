@@ -19,3 +19,4 @@ MonoBehaviour:
   MaxStackSize: 2
   Prefab: {fileID: 128222060083575067, guid: dc33509f201b3b1448af84a309e68f1b, type: 3}
   GroupedPrefab: 0
+  Description: melee weapon

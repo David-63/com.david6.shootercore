@@ -8,6 +8,7 @@ namespace David6.ShooterFramework
     {
         public List<InventorySlot> Slots = new List<InventorySlot>();
         public int MaxSlot = 20;
+        public PlayerInventorySystem Player;
 
         public int AddItem(ItemDataSO itemData, int quantity)
         {
@@ -39,7 +40,6 @@ namespace David6.ShooterFramework
             while (remainingItems > 0 && Slots.Count < MaxSlot)
             {
                 int itemsToAdd = Mathf.Min(remainingItems, itemData.MaxStackSize > 0 ? itemData.MaxStackSize : 1);
-
                 Slots.Add(new InventorySlot(itemData, itemsToAdd));
                 remainingItems -= itemsToAdd;
             }
@@ -78,6 +78,53 @@ namespace David6.ShooterFramework
 
             return remainingItems;
         }
+
+        public int RemoveItemFromSlot(InventorySlot slot, int quantity)
+        {
+            if (slot.Quantity >= quantity)
+            {
+                slot.Quantity -= quantity;
+                DropItem(slot.ItemData, quantity);
+
+                if (slot.Quantity == 0)
+                {
+                    slot.ClearSlot();
+                    Slots.Remove(slot);
+                }
+
+                return 0;
+            }
+            else
+            {
+                int remainingQuantity = quantity - slot.Quantity;
+
+                DropItem(slot.ItemData, slot.Quantity);
+
+                slot.ClearSlot();
+                Slots.Remove(slot);
+
+                return remainingQuantity;
+            }
+        }
+
+        public void DropItem(ItemDataSO itemData, int numberDropped)
+        {
+            if (numberDropped > 0)
+            {
+                if (itemData.GroupedPrefab)
+                {
+                    Instantiate(itemData.Prefab, Player.GetDropPosition(), Quaternion.identity).GetComponent<ItemPickup>().Quantity = numberDropped;
+                }
+                else
+                {
+                    for (int idx = 0; idx < numberDropped; ++idx)
+                    {
+                        Instantiate(itemData.Prefab, Player.GetDropPosition(), Quaternion.identity);
+                    }
+                }
+            }
+        }
+
 
         public void RemoveItemsFromSlot(int slotNumber)
         {
