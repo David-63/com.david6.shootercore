@@ -11,25 +11,32 @@ namespace Dave6.ShooterFramework.Movement.StateMachine.State
         public override void OnEnter()
         {
             _context.TargetSpeed = _context.MovementProfile.MoveSpeed;
-            Log.WhatHappend("Walk Enter");
         }
         public override void OnUpdate()
         {
-            if (_context.Sprint)
+            if (_context.CanJump())
             {
-                _stateMachine.ChangeState("Run");
+                _stateMachine.ChangeState("Jump");
             }
-            if (_context.InputDirection.sqrMagnitude < 0.1f)
+            else if (_context.IsAirborne())
+            {
+                _stateMachine.ChangeState("Airborne");
+            }
+            else if (_context.InputDirection.sqrMagnitude < 0.1f)
             {
                 _stateMachine.ChangeState("Idle");
             }
+            else if (_context.Sprint)
+            {
+                _stateMachine.ChangeState("Run");
+            }
 
-            _context.CalculateMoveSpeed();
-            _context.MoveWithRotation();
+            _context.CalculateGroundSpeed();
+            _context.LastDirection = _context.InputDirection;
+            _context.CalculateMoveDirection();
         }
         public override void OnExit()
         {
-            Log.WhatHappend("Walk Exit");
         }
 
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dave6.ShooterFramework.Movement.StateMachine.State;
+using David6.ShooterFramework;
 using UnityEngine;
 
 
@@ -34,7 +35,9 @@ namespace Dave6.ShooterFramework.Movement.StateMachine
             {
                 { "Idle", new DaveIdleState(_context, this) },
                 { "Walk", new DaveWalkState(_context, this) },
-                { "Run", new DaveRunState(_context, this) }
+                { "Run", new DaveRunState(_context, this) },
+                { "Jump", new DaveJumpState(_context, this) },
+                { "Airborne", new DaveAirborneState(_context, this) }
             };
 
             ChangeState("Idle");
@@ -51,6 +54,7 @@ namespace Dave6.ShooterFramework.Movement.StateMachine
                 _currentState?.OnExit();
                 _currentState = newState;
                 _currentState.OnEnter();
+                Log.WhatHappend(key);
             }
         }
 

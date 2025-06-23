@@ -11,11 +11,18 @@ namespace Dave6.ShooterFramework.Movement.StateMachine.State
         public override void OnEnter()
         {
             _context.TargetSpeed = 0f;
-            Log.WhatHappend("Idle Enter");
         }
         public override void OnUpdate()
         {
-            if (_context.InputDirection.sqrMagnitude > 0.01f)
+            if (_context.CanJump())
+            {
+                _stateMachine.ChangeState("Jump");
+            }
+            else if (!_context.Grounded)
+            {
+                _stateMachine.ChangeState("Airborne");
+            }
+            else if (_context.InputDirection.sqrMagnitude > 0.01f)
             {
                 if (_context.Sprint)
                 {
@@ -26,11 +33,12 @@ namespace Dave6.ShooterFramework.Movement.StateMachine.State
                     _stateMachine.ChangeState("Walk");
                 }
             }
+            _context.CalculateGroundSpeed();
+            _context.LastDirection = _context.InputDirection;
+
         }
         public override void OnExit()
         {
-            Log.WhatHappend("Idle Exit");
         }
-
     }
 }

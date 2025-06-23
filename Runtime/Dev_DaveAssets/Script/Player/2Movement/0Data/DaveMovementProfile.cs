@@ -11,8 +11,11 @@ namespace Dave6.ShooterFramework.Data
         public float MoveSpeed = 2.0f;
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 6.0f;
+        public float JumpBoostMultiplier = 1.4f;
         [Tooltip("Acceleration and deceleration")]
         public float SpeedChangeRate = 10.0f;
+        [Tooltip("Deceleration In Air")]
+        public float AirDeceleration = 2.0f;        // 천천히 감속되는걸 목표로
         [Tooltip("How fast the character turns to face movement direction")]
         [Range(0.0f, 0.3f)]
         public float RotationSmoothTime = 0.12f;

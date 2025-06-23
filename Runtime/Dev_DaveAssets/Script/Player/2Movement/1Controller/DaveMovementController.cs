@@ -2,13 +2,14 @@ using System;
 using Dave6.ShooterFramework.Data;
 using Dave6.ShooterFramework.Movement.StateMachine;
 using Dave6.ShooterFramework.Provider;
+using David6.ShooterFramework;
 using UnityEngine;
 
 
 namespace Dave6.ShooterFramework.Movement
 {
     [RequireComponent(typeof(CharacterController))]
-    public class DaveMovementController : MonoBehaviour, ICharacterControllerProvider
+    public partial class DaveMovementController : MonoBehaviour, ICharacterControllerProvider
     {
         #region 외부 변수
         public DaveMovementProfile MovementProfile;
@@ -21,9 +22,11 @@ namespace Dave6.ShooterFramework.Movement
         private ICameraInfoProvider _cameraInfo;
 
         // [속력 변수]
-        private float _currentSpeed;
+        public float _currentSpeed;
         // [회전 변수]
         private float _rotationSpeed;
+        private float _targetRotation;
+        private float _characterRotation;
         // [카메라 회전 변수]
         private float _cinemachineTargetYaw;
         private float _cinemachineTargetPitch;
@@ -40,7 +43,7 @@ namespace Dave6.ShooterFramework.Movement
         #endregion
 
         #region 인풋 캐싱
-        public Vector2 Move;
+        //public Vector2 Move;
         public Vector2 Look;
 
         public bool Sprint;
@@ -51,9 +54,10 @@ namespace Dave6.ShooterFramework.Movement
         #region 외부 전달 함수
         public CharacterController GetController() => _characterController;
         public bool Grounded { get; private set; }
-        public float CurrentSpeed => _currentSpeed;
         public float TargetSpeed { get; set; }  // State에서 설정
         public Vector3 InputDirection { get; private set; }
+        public Vector3 LastDirection;
+        public Vector3 MoveDirection;
         #endregion
 
         #region FSM
@@ -82,38 +86,26 @@ namespace Dave6.ShooterFramework.Movement
 
         private void Update()
         {
-            ReadInput();
-
             ApplyGravity();
             GroundCheck();
 
             _motionStateMachine.Update();
 
-            ClearInput();
+            ApplyCharacterRotation();
+            ApplyMovement();
         }
 
-
-        private void ReadInput()
-        {
-            InputDirection = new Vector3(Move.x, 0.0f, Move.y).normalized;
-        }
         private void ApplyGravity()
         {
             if (Grounded)
             {
-                // reset the fall timeout timer
                 _fallTimeoutDelta = MovementProfile.FallTimeout;
 
-                // _isJump = false;
-                // _isFreeFall = false;
-
-                // stop our velocity dropping infinitely when grounded
                 if (_verticalSpeed < 0.0f)
                 {
                     _verticalSpeed = -2f;
                 }
 
-                // jump timeout
                 if (_jumpTimeoutDelta >= 0.0f)
                 {
                     _jumpTimeoutDelta -= Time.deltaTime;
@@ -121,21 +113,14 @@ namespace Dave6.ShooterFramework.Movement
             }
             else
             {
-                // reset the jump timeout timer
                 _jumpTimeoutDelta = MovementProfile.JumpTimeout;
 
-                // fall timeout
                 if (_fallTimeoutDelta >= 0.0f)
                 {
                     _fallTimeoutDelta -= Time.deltaTime;
                 }
-                else
-                {
-                    //_isFreeFall = true;
-                }
             }
 
-            // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
             if (_verticalSpeed < _terminalVelocity)
             {
                 _verticalSpeed += MovementProfile.Gravity * Time.deltaTime;
@@ -146,74 +131,52 @@ namespace Dave6.ShooterFramework.Movement
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - MovementProfile.GroundedOffset, transform.position.z);
             Grounded = Physics.CheckSphere(spherePosition, MovementProfile.GroundedRadius, MovementProfile.GroundLayers, QueryTriggerInteraction.Ignore);
         }
+        
 
-        public void CalculateMoveSpeed()
+        private void ApplyCharacterRotation()
         {
-            float currentHorizontalSpeed = new Vector3(_characterController.velocity.x, 0.0f, _characterController.velocity.z).magnitude;
-
-            if (Mathf.Abs(currentHorizontalSpeed - TargetSpeed) > _speedOffset)
+            if (HasMovementInput())
             {
-                float desired = TargetSpeed;
+                _targetRotation = Mathf.Atan2(LastDirection.x, LastDirection.z) * Mathf.Rad2Deg + _cameraInfo.YawAngle;
+                if (!IsForward()) _targetRotation += 180f;
 
-                // creates curved result rather than a linear one giving a more organic speed change
-                // note T in Lerp is clamped, so we don't need to clamp our speed
-                _currentSpeed = Mathf.Lerp(currentHorizontalSpeed, desired, Time.deltaTime * MovementProfile.SpeedChangeRate);
-                // round speed to 3 decimal places
-                _currentSpeed = Mathf.Round(_currentSpeed * 1000f) / 1000f;
+                _characterRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationSpeed, MovementProfile.RotationSmoothTime);
             }
-            else
-            {
-                _currentSpeed = TargetSpeed;
-            }
+
+            transform.rotation = Quaternion.Euler(0f, _characterRotation, 0f);
         }
-        public void MoveWithRotation()
+
+        private void ApplyMovement()
         {
-            if (InputDirection.sqrMagnitude == 0f) return;
-
-            // 회전
-            float targetRotation = Mathf.Atan2(InputDirection.x, InputDirection.z) * Mathf.Rad2Deg + _cameraInfo.YawAngle;
-            float smoothed = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref _rotationSpeed, MovementProfile.RotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, smoothed, 0f);
-
-            // 이동
-            Vector3 moveDir = Quaternion.Euler(0f, _cameraInfo.YawAngle, 0f) * InputDirection;
-            Vector3 velocity = moveDir.normalized * CurrentSpeed + Vector3.up * _verticalSpeed;
+            Vector3 velocity = MoveDirection * _currentSpeed + Vector3.up * _verticalSpeed;
             _characterController.Move(velocity * Time.deltaTime);
-        }
-        private void ClearInput()
-        {
-            Jump = false;
         }
 
         private void LateUpdate()
         {
             CameraRotation();
+            ClearInput();
         }
 
         private void CameraRotation()
         {
-            // if (!_cursorLocked)
-            // {
-            //     _axisLook = Vector3.zero;
-            // }
-
-            // if there is an input and camera position is not fixed
             if (Look.sqrMagnitude >= _threshold && !MovementProfile.LockCameraPosition)
             {
-                // 아날로그 방식을 사용하는 경우, Time.deltaTime을 곱해줘야함
                 _cinemachineTargetYaw += Look.x;
                 _cinemachineTargetPitch += Look.y;
             }
 
-            // clamp our rotations so our values are limited 360 degrees
             _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, MovementProfile.BottomClamp, MovementProfile.TopClamp);
 
-            // Cinemachine will follow this target
             CameraHolder.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + MovementProfile.CameraAngleOverride, _cinemachineTargetYaw, 0.0f);
         }
 
+        private void ClearInput()
+        {
+            if (Jump) Jump = false;
 
+        }
 
         #region Input Reception
         public void SetCameraInfoProvider(ICameraInfoProvider cameraInfoProvider)
@@ -222,7 +185,7 @@ namespace Dave6.ShooterFramework.Movement
         }
         public void HandleMoveInput(Vector2 moveInput)
         {
-            Move = moveInput;
+            InputDirection = new Vector3(moveInput.x, 0.0f, moveInput.y).normalized;
         }
         public void HandleLookInput(Vector2 lookInput)
         {
@@ -240,24 +203,26 @@ namespace Dave6.ShooterFramework.Movement
         {
             Sprint = false;
         }
-
-        private void InputPressReset()
-        {
-            Jump = false;
-        }
         #endregion
 
-        #region 외부 제어 함수
-
-        #endregion
-
-        #region 유틸 함수
-        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-        {
-            if (lfAngle < -360f) lfAngle += 360f;
-            if (lfAngle > 360f) lfAngle -= 360f;
-            return Mathf.Clamp(lfAngle, lfMin, lfMax);
-        }
-        #endregion
     }
 }
+// [Combat Provider 필요함]
+            // if (!_inputAim)
+            // {
+            //     if (HasMovementInput())
+            //     {
+            //         _targetRotation = Mathf.Atan2(_inputDirection.x, _inputDirection.z) * Mathf.Rad2Deg + cameraAngle;
+            //         if (!IsForward()) _targetRotation += 180f;
+
+            //         _characterRotation = Mathf.SmoothDampAngle(
+            //             transform.eulerAngles.y, _targetRotation,
+            //             ref _rotationVelocity, MovementProfile.RotationSmoothTime);
+            //     }
+            // }
+            // else
+            // {
+            //      [Focus 상태인 경우]
+            //      _characterRotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraAngle, ref _rotationVelocity, MovementProfile.RotationSmoothTime);
+            //      transform.rotation = Quaternion.Euler(0f, _characterRotation, 0f);
+            // }
