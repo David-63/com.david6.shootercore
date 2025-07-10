@@ -1,28 +1,55 @@
 
 
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine
 {
     public class DStateMachine : IDStateMachineProvider
     {
+        private IDStateFactoryProvider _factory;
         private IDStateProvider _currentState;
+
+        public IDStateFactoryProvider Factory
+        {
+            get { return _factory; }
+            private set { _factory = value; }
+        }
+
+        public IDStateProvider CurrentState
+        {
+            get { return _currentState; }
+            private set { _currentState = value; }
+        }
+
+        public DStateMachine(IDContextProvider context)
+        {
+            _factory = new DStateFactory(context, this);
+        }
+
+        public void InitializeStateMachine()
+        {
+            SetInitialState(_factory.Grounded());
+        }
+        
 
         public void SetInitialState(IDStateProvider initialState)
         {
+            Log.WhatHappend(initialState);
             _currentState = initialState;
             _currentState.EnterState();
         }
         public void ChangeState(IDStateProvider newState)
         {
-            _currentState.ExitState();
+            //_currentState?.ExitState();
             _currentState = newState;
-            _currentState.EnterState();
+            
+            //_currentState.EnterState();
         }
 
         public void OnUpdate()
         {
-            _currentState?.UpdateSelf();
+            _currentState?.UpdateAll();
         }
 
     }

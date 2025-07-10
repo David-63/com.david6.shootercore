@@ -9,13 +9,6 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        private IDStateProvider _currentState;
-
-        public IDStateProvider CurrentState
-        {
-            get { return _currentState; }
-            set { _currentState = value; }
-        }
         #region Input caching
         public Vector3 InputDirection { get; private set; }
         public Vector2 InputLook { get; private set; }
@@ -23,7 +16,7 @@ namespace David6.ShooterCore.Context
         public bool JumpInputCheck;
         public bool InputSprint { get; private set; }
 
-        public bool HasMovementInput;
+        public bool HasMovementInput { get; private set; }
         public void HandleMoveInput(Vector2 moveInput)
         {
             // Process the move input and update InputDirection accordingly.

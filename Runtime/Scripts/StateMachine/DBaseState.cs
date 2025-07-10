@@ -1,20 +1,28 @@
-
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 
 
 namespace David6.ShooterCore.StateMachine
 {
-    public abstract class DBaseState  : IDStateProvider
+    public abstract class DBaseState : IDStateProvider
     {
-        protected IDContextProvider _context;
-        protected DStateFactory _factory;
-        protected DBaseState _superState;
-        protected DBaseState _subState;
+        private bool _isRoot = false;
+        private IDContextProvider _context;
+        private IDStateMachineProvider _stateMachine;
+        private IDStateProvider _superState;
+        private IDStateProvider _subState;
 
-        public DBaseState(IDContextProvider context, DStateFactory factory)
+        public bool IsRoot { get { return _isRoot; } set { _isRoot = value; } }
+        public IDContextProvider Context => _context;
+        public IDStateMachineProvider StateMachine => _stateMachine;
+
+        public IDStateProvider SuperState => _superState;
+        public IDStateProvider SubState => _subState;
+
+        public DBaseState(IDContextProvider context, IDStateMachineProvider stateMachine)
         {
-            this._context = context;
-            this._factory = factory;
+            _context = context;
+            _stateMachine = stateMachine;
         }
 
         public abstract void EnterState();
@@ -25,15 +33,50 @@ namespace David6.ShooterCore.StateMachine
 
         public abstract void InitializeSubState();
 
-        void UpdateAll() { }
+        public void UpdateAll()
+        {
+            UpdateSelf();
+            if (_subState != null)
+            {
+                _subState.UpdateAll();
+            }
+        }
+
+
+        // 어떻게 바꾸지?
         protected void SwitchState(IDStateProvider newState)
         {
             ExitState();
+            Log.WhatHappend("Entering " + newState);
             newState.EnterState();
-            _context.CurrentState = newState;
+
+            if (_isRoot)
+            {
+                _stateMachine.ChangeState(newState);
+            }
+            else if (_superState != null)
+            {
+                SuperState.SetSubState(newState);
+            }
         }
-        protected void SetSuperState() { }
-        protected void SetSubState() { }
+
+        /// <summary>
+        /// 부모 세팅
+        /// </summary>
+        /// <param name="superState"></param>
+        public void SetSuperState(IDStateProvider superState)
+        {
+            _superState = superState;
+        }
+        /// <summary>
+        /// 자식 세팅
+        /// </summary>
+        /// <param name="subState"></param>
+        public void SetSubState(IDStateProvider subState)
+        {
+            _subState = subState;
+            subState.SetSuperState(this);
+        }
 
     }
 }

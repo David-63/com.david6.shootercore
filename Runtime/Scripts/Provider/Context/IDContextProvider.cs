@@ -6,7 +6,6 @@ namespace David6.ShooterCore.Provider
 {
     public interface IDContextProvider
     {
-        IDStateProvider CurrentState { get; set; }
         DMovementProfile MovementProfile { get; }
 
         #region Input
@@ -21,6 +20,8 @@ namespace David6.ShooterCore.Provider
         void HandleStopJumpInput();
         void HandleStartSprintInput();
         void HandleStopSprintInput();
+
+        bool HasMovementInput { get; }
         #endregion
 
         void SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);

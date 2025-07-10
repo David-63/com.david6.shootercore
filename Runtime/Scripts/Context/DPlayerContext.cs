@@ -4,6 +4,7 @@ using David6.ShooterCore.Animator;
 using David6.ShooterCore.Movement;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.StateMachine;
+using David6.ShooterCore.Tools;
 using UnityEngine;
 
 namespace David6.ShooterCore.Context
@@ -19,7 +20,6 @@ namespace David6.ShooterCore.Context
         [SerializeField] private IDAnimatorProvider AnimatorProvider;
 
         private IDStateMachineProvider _stateMachine;
-        private IDStateFactoryProvider _stateFactory;
 
 
         // [속력 변수]
@@ -42,10 +42,8 @@ namespace David6.ShooterCore.Context
         void Awake()
         {
             _characterController = GetComponent<CharacterController>();
-            _stateFactory = new DStateFactory(this);
-            _currentState = _stateFactory.Grounded();
-            _currentState.EnterState();
-            //_stateMachine = new DStateMachine();
+            _stateMachine = new DStateMachine(this);
+            _stateMachine.InitializeStateMachine();
         }
         void Start()
         {
@@ -60,16 +58,11 @@ namespace David6.ShooterCore.Context
             CalculateGroundSpeed();
             CalculateMoveDirection();
             ApplyCharacterRotation();
+
+
+            _stateMachine.OnUpdate();
+            
             ApplyMovement();
-
-            //_stateMachine.OnUpdate();
-            _currentState.UpdateSelf();
-        }
-
-        // 임시
-        void ResetInput()
-        {
-            InputJump = false;
         }
 
         void InitializeCharacterController()
