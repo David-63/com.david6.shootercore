@@ -18,26 +18,11 @@ namespace David6.ShooterCore.Context
         [SerializeField] private DMovementProfile _movementProfile;
         public DMovementProfile MovementProfile { get { return _movementProfile; } }
         [SerializeField] private IDAnimatorProvider AnimatorProvider;
-
         private IDStateMachineProvider _stateMachine;
 
-
-        // [속력 변수]
-        public float _currentSpeed;
-        // [회전 변수]
         private float _rotationSpeed;
         private float _targetRotation;
         private float _characterRotation;
-
-        // [이동 방향]
-        public Vector3 _lastDirection;
-        public Vector3 _moveDirection;
-        public float _verticalSpeed;
-
-
-        // [수직 제어]
-
-        public bool IsForward() => _lastDirection.z >= -0.8f;
 
         void Awake()
         {
@@ -53,15 +38,7 @@ namespace David6.ShooterCore.Context
         void Update()
         {
             GroundCheck();
-
-            InputMoveSpeed();
-            CalculateGroundSpeed();
-            CalculateMoveDirection();
-            ApplyCharacterRotation();
-
-
-            _stateMachine.OnUpdate();
-            
+            _stateMachine.OnUpdate();            
             ApplyMovement();
         }
 

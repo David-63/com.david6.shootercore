@@ -35,7 +35,6 @@ namespace David6.ShooterCore.StateMachine
 
         public void SetInitialState(IDStateProvider initialState)
         {
-            Log.WhatHappend(initialState);
             _currentState = initialState;
             _currentState.EnterState();
         }

@@ -21,7 +21,7 @@ namespace David6.ShooterCore.StateMachine
         public override void UpdateSelf()
         {
             CheckTransition();
-            Context.ApplyGravity();
+            ApplyGravity();
         }
 
         public override void ExitState()
@@ -37,6 +37,7 @@ namespace David6.ShooterCore.StateMachine
         }
         public override void InitializeSubState()
         {
+            // 필요해지면 fall jump 만들기
         }
 
         void HandleJump()
@@ -53,12 +54,20 @@ namespace David6.ShooterCore.StateMachine
             }
         }
 
-        public void TryJump()
+        void TryJump()
         {
             // the square root of H * -2 * G = how much velocity needed to reach desired height
             Context.VerticalSpeed = Mathf.Sqrt(Context.MovementProfile.JumpHeight * -2f * Context.MovementProfile.AirborneGravity);
             Context.IsJumpReady = false;
             Context.ResetJump();
+        }
+
+        void ApplyGravity()
+        {
+            if (!Context.IsGrounded)
+            {
+                Context.VerticalSpeed += Context.MovementProfile.AirborneGravity * Time.deltaTime;
+            }
         }
     }
 }

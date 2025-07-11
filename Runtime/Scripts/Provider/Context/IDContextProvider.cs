@@ -8,40 +8,39 @@ namespace David6.ShooterCore.Provider
     {
         DMovementProfile MovementProfile { get; }
 
+        Transform CharacterTransform { get; }
+
         #region Input
         Vector3 InputDirection { get; }
-        Vector2 InputLook { get; }
         bool InputSprint { get; }
         bool InputJump { get; }
 
         void HandleMoveInput(Vector2 moveInput);
-        //void HandleLookInput(Vector2 lookInput);
         void HandleStartJumpInput();
         void HandleStopJumpInput();
         void HandleStartSprintInput();
         void HandleStopSprintInput();
 
-        bool HasMovementInput { get; }
         #endregion
 
         void SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
 
+        float HorizontalSpeed { get; set; }
         float TargetSpeed { get; set; }
+        Vector3 FinalMoveDirection { get; set; }
+        float YawAngle { get; }
         float VerticalSpeed { get; set; }
         bool IsGrounded { get; }
         bool IsJumpReady { get; set; }
         bool IsFalling { get; set; }
 
+        // Update
         void GroundCheck();
-        void ApplyGravity();
-
-        void InputMoveSpeed();
         void ApplyMovement();
 
-
-        void PerformJump();
-
         // 조건
+        bool HasMovementInput();
+        bool IsForward();
         bool CanJump();
         bool ShouldJump();
         bool ShouldGrounded();

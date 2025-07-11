@@ -1,4 +1,5 @@
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine
 {
@@ -22,7 +23,7 @@ namespace David6.ShooterCore.StateMachine
 
         public override void CheckTransition()
         {
-            if (!Context.HasMovementInput)
+            if (!Context.HasMovementInput())
             {
                 SwitchState(StateMachine.Factory.Idle());
             }

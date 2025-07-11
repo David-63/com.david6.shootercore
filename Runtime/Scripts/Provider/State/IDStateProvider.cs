@@ -20,5 +20,7 @@ namespace David6.ShooterCore.Provider
 
         void SetSuperState(IDStateProvider superState);
         void SetSubState(IDStateProvider subState);
+
+        void SwitchSubState(IDStateProvider newState);
     }
 }

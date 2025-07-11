@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using David6.ShooterCore.Provider;
 
 namespace David6.ShooterCore.StateMachine
@@ -7,38 +9,46 @@ namespace David6.ShooterCore.StateMachine
     /// </summary>
     public class DStateFactory : IDStateFactoryProvider
     {
-        private readonly IDContextProvider _context;
-        private readonly IDStateMachineProvider _stateMachine;
+        readonly IDContextProvider _context;
+        readonly IDStateMachineProvider _stateMachine;
+
+        Dictionary<Type, DBaseState> _stateCache = new Dictionary<Type, DBaseState>();
 
         public DStateFactory(IDContextProvider context, IDStateMachineProvider stateMachine)
         {
             _context = context;
             _stateMachine = stateMachine;
+            _stateCache[typeof(DGroundedState)] = new DGroundedState(_context, _stateMachine);
+            _stateCache[typeof(DAirborneState)] = new DAirborneState(_context, _stateMachine);
+            _stateCache[typeof(DIdleState)] = new DIdleState(_context, _stateMachine);
+            _stateCache[typeof(DWalkState)] = new DWalkState(_context, _stateMachine);
+            _stateCache[typeof(DRunState)] = new DRunState(_context, _stateMachine);
+
         }
 
         public IDStateProvider Grounded()
         {
-            return new DGroundedState(_context, _stateMachine);
+            return _stateCache[typeof(DGroundedState)];
         }
 
         public IDStateProvider Airborne()
         {
-            return new DAirborneState(_context, _stateMachine);
+            return _stateCache[typeof(DAirborneState)];
         }
 
         public IDStateProvider Idle()
         {
-            return new DIdleState(_context, _stateMachine);
+            return _stateCache[typeof(DIdleState)];
         }
 
         public IDStateProvider Walk()
         {
-            return new DWalkState(_context, _stateMachine);
+            return _stateCache[typeof(DWalkState)];
         }
 
         public IDStateProvider Run()
         {
-            return new DRunState(_context, _stateMachine);
+            return _stateCache[typeof(DRunState)];
         }
 
     }

@@ -1,5 +1,6 @@
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using Unity.Cinemachine;
 
 
 namespace David6.ShooterCore.StateMachine
@@ -42,22 +43,10 @@ namespace David6.ShooterCore.StateMachine
             }
         }
 
-
-        // 어떻게 바꾸지?
         protected void SwitchState(IDStateProvider newState)
         {
             ExitState();
-            Log.WhatHappend("Entering " + newState);
-            newState.EnterState();
-
-            if (_isRoot)
-            {
-                _stateMachine.ChangeState(newState);
-            }
-            else if (_superState != null)
-            {
-                SuperState.SetSubState(newState);
-            }
+            TransitionTo(newState);
         }
 
         /// <summary>
@@ -76,6 +65,30 @@ namespace David6.ShooterCore.StateMachine
         {
             _subState = subState;
             subState.SetSuperState(this);
+            Log.WhatHappend($"[SubState Set] {this.GetType().Name} -> {subState.GetType().Name}");
+        }
+
+        private void TransitionTo(IDStateProvider newState)
+        {
+            if (_isRoot)
+            {
+                Log.WhatHappend($"[State Transition] {this.GetType().Name} -> {newState.GetType().Name}");
+                // 루트인 경우, 스테이트 머신에 전이 반영
+                _stateMachine.ChangeState(newState);
+                newState.EnterState();
+            }
+            else if (_superState != null)
+            {
+                // 서브인 경우, 부모가 서브 전이를 처리하게 위임
+                _superState.SwitchSubState(newState);
+            }
+        }
+
+        public void SwitchSubState(IDStateProvider newState)
+        {
+            _subState?.ExitState(); // 기존의 하위 상태 종료
+            SetSubState(newState);  // 다음 상태를 현재 하위상태로 연결
+            newState.EnterState();
         }
 
     }

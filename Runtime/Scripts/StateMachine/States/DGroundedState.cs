@@ -1,25 +1,31 @@
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using UnityEngine;
 
 namespace David6.ShooterCore.StateMachine
 {
     public class DGroundedState : DBaseState
     {
+        private const float _speedOffset = 0.1f;
+        private float _rotationSpeed;
+
         public DGroundedState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine)
         {
             IsRoot = true;
-            InitializeSubState();
         }
         public override void EnterState()
         {
-            // 바닥에 있는 동안 중력은 y -0.1정도로 적용됨
             Context.VerticalSpeed = Context.MovementProfile.GroundGravity;
+            InitializeSubState();
         }
 
         public override void UpdateSelf()
         {
             CheckTransition();
+            GroundSpeed();
+            MoveDirection();
+            ApplyCharacterRotation();
         }
 
         public override void ExitState()
@@ -36,7 +42,7 @@ namespace David6.ShooterCore.StateMachine
         }
         public override void InitializeSubState()
         {
-            if (!Context.HasMovementInput)
+            if (!Context.HasMovementInput())
             {
                 SetSubState(StateMachine.Factory.Idle());
             }
@@ -47,6 +53,46 @@ namespace David6.ShooterCore.StateMachine
             else
             {
                 SetSubState(StateMachine.Factory.Run());
+            }
+
+            if (SubState != null)
+            {
+                Log.WhatHappend($"[SubState Enter] {SubState.GetType().Name}");
+                SubState.EnterState();
+            }
+        }
+
+        void GroundSpeed()
+        {
+            if (Mathf.Abs(Context.HorizontalSpeed - Context.TargetSpeed) > _speedOffset)
+            {
+                Context.HorizontalSpeed = Mathf.Lerp(Context.HorizontalSpeed, Context.TargetSpeed, Time.deltaTime * Context.MovementProfile.SpeedChangeRate);
+                Context.HorizontalSpeed = Mathf.Round(Context.HorizontalSpeed * 1000f) / 1000f;
+            }
+            else
+            {
+                Context.HorizontalSpeed = Context.TargetSpeed;
+            }
+        }
+
+        void MoveDirection()
+        {
+            Vector3 moveDirection = Quaternion.Euler(0f, Context.YawAngle, 0f) * Context.InputDirection;
+            moveDirection.Normalize();
+            if (Context.HasMovementInput())
+            {
+                Context.FinalMoveDirection = moveDirection;
+            }
+        }
+
+        private void ApplyCharacterRotation()
+        {
+            if (Context.HasMovementInput())
+            {
+                // 벡터의 x, z 성분을 사용하여 해당 방향이 z축의 +방향으로부터 몇 도 떨어저 있는지 계산
+                float targetRotation = Mathf.Atan2(Context.InputDirection.x, Context.InputDirection.z) * Mathf.Rad2Deg + Context.YawAngle;
+                float calcRotation = Mathf.SmoothDampAngle(Context.CharacterTransform.eulerAngles.y, targetRotation, ref _rotationSpeed, Context.MovementProfile.RotationSmoothTime);
+                Context.CharacterTransform.rotation = Quaternion.Euler(0.0f, calcRotation, 0.0f);
             }
         }
     }
