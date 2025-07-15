@@ -7,10 +7,11 @@ namespace David6.ShooterCore.StateMachine
     {
         public DWalkState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) {}
-        
+
         public override void EnterState()
         {
-            Context.TargetSpeed = Context.MovementProfile.MoveSpeed;
+            Context.TargetSpeed = Context.MovementProfile.WalkSpeed;
+            Context.AnimatorProvider.SetSpeed(Context.MovementProfile.WalkSpeed);
         }
         public override void UpdateSelf()
         {

@@ -16,8 +16,8 @@ namespace David6.ShooterCore.StateMachine
         }
         public override void EnterState()
         {
-            Context.VerticalSpeed = Context.MovementProfile.GroundGravity;
             InitializeSubState();
+            Context.VerticalSpeed = Context.MovementProfile.GroundGravity;
         }
 
         public override void UpdateSelf()
@@ -31,7 +31,7 @@ namespace David6.ShooterCore.StateMachine
         public override void ExitState()
         {
             // Cleanup when exiting grounded state
-            Context.TryFall();
+            Context.IsFalling = false;
         }
         public override void CheckTransition()
         {

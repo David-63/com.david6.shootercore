@@ -1,6 +1,5 @@
 
-using System.Collections;
-using David6.ShooterCore.Animator;
+using David6.ShooterCore.Animation;
 using David6.ShooterCore.Movement;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.StateMachine;
@@ -14,31 +13,52 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        private CharacterController _characterController;
-        [SerializeField] private DMovementProfile _movementProfile;
+        [SerializeField] DMovementProfile _movementProfile;
         public DMovementProfile MovementProfile { get { return _movementProfile; } }
-        [SerializeField] private IDAnimatorProvider AnimatorProvider;
-        private IDStateMachineProvider _stateMachine;
+        CharacterController _characterController;
+        IDAnimatorProvider _animatorProvider;
+        DAnimationEventProxy _animationEventProxy;
+        IDStateMachineProvider _stateMachine;
 
-        private float _rotationSpeed;
-        private float _targetRotation;
-        private float _characterRotation;
 
+        public AudioClip LandingAudioClip;
+        public AudioClip[] FootstepAudioClips;
+        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
+
+        // 컴포넌트 가져오기
         void Awake()
         {
             _characterController = GetComponent<CharacterController>();
+            if (this.TryGetComponentInChildren<Animator>(out var animComponent))
+            {
+                _animatorProvider = new DAnimatorController(animComponent);
+            }
+            if (this.TryGetComponentInChildren<DAnimationEventProxy>(out var proxy))
+            {
+                _animationEventProxy = proxy;
+            }
+
             _stateMachine = new DStateMachine(this);
             _stateMachine.InitializeStateMachine();
         }
         void Start()
         {
             InitializeCharacterController();
+
+            _animatorProvider.SetGrounded(true);
+
+            _animationEventProxy.OnFootstepEvent += OnFootstep;
+            _animationEventProxy.OnLandEvent += OnLand;
+
+            
+
         }
 
         void Update()
         {
             GroundCheck();
-            _stateMachine.OnUpdate();            
+            _stateMachine.OnUpdate();
             ApplyMovement();
         }
 
@@ -59,7 +79,7 @@ namespace David6.ShooterCore.Context
             }
         }
 
-        private void OnDrawGizmosSelected()
+        void OnDrawGizmosSelected()
         {
             Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
             Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
@@ -71,6 +91,26 @@ namespace David6.ShooterCore.Context
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z),
                 _movementProfile.GroundedRadius);
+        }
+        
+        void OnFootstep(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                if (FootstepAudioClips.Length > 0)
+                {
+                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_characterController.center), FootstepAudioVolume);
+                }
+            }
+        }
+
+        void OnLand(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_characterController.center), FootstepAudioVolume);
+            }
         }
 
     }

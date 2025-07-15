@@ -11,9 +11,9 @@ namespace David6.ShooterCore.Movement
     {
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
-        public float MoveSpeed = 2.0f;
+        public float WalkSpeed = 2.0f;
         [Tooltip("Sprint speed of the character in m/s")]
-        public float SprintSpeed = 6.0f;
+        public float RunSpeed = 6.0f;
         public float JumpBoostMultiplier = 1.4f;
         [Tooltip("Acceleration and deceleration")]
         public float SpeedChangeRate = 10.0f;

@@ -10,7 +10,9 @@ namespace David6.ShooterCore.StateMachine
 
         public override void EnterState()
         {
-            Context.TargetSpeed = 0.0f;
+            float idle = 0.0f;
+            Context.TargetSpeed = idle;
+            Context.AnimatorProvider.SetSpeed(idle);
         }
         public override void UpdateSelf()
         {

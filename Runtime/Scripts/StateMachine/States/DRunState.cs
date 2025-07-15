@@ -10,7 +10,8 @@ namespace David6.ShooterCore.StateMachine
         
         public override void EnterState()
         {
-            Context.TargetSpeed = Context.MovementProfile.SprintSpeed;
+            Context.TargetSpeed = Context.MovementProfile.RunSpeed;
+            Context.AnimatorProvider.SetSpeed(Context.MovementProfile.RunSpeed);
         }
         public override void UpdateSelf()
         {

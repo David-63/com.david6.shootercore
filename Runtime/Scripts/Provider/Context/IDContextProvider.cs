@@ -1,3 +1,4 @@
+using System.Collections;
 using David6.ShooterCore.Movement;
 using David6.ShooterCore.StateMachine;
 using UnityEngine;
@@ -7,8 +8,9 @@ namespace David6.ShooterCore.Provider
     public interface IDContextProvider
     {
         DMovementProfile MovementProfile { get; }
-
         Transform CharacterTransform { get; }
+        IDAnimatorProvider AnimatorProvider { get; }
+
 
         #region Input
         Vector3 InputDirection { get; }
@@ -46,9 +48,7 @@ namespace David6.ShooterCore.Provider
         bool ShouldGrounded();
 
         // 코루틴 호출함수
-        void ResetJump();
-        void ResetJumpCancel();
-        void TryFall();
-        void TryFallCancel();
+        Coroutine ExecuteCoroutine(IEnumerator routine);
+        void CancelCoroutine(Coroutine routine);
     }
 }
