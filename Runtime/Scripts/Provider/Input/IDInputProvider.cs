@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace David6.shootercore.Input
+namespace David6.ShooterCore.Provider
 {
     public interface IDInputProvider
     {
@@ -12,6 +12,8 @@ namespace David6.shootercore.Input
         public event Action OnStopJump;
         public event Action OnStartSprint;
         public event Action OnStopSprint;
+        public event Action OnStartAim;
+        public event Action OnStopAim;
         public event Action OnResume;
     }
 }

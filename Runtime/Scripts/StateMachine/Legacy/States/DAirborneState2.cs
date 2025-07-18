@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace David6.ShooterCore.StateMachine
 {
-    public class DAirborneState : DBaseState
+    public class DAirborneState2 : DBaseState2
     {
         Coroutine _jumpTimeoutCoroutine;
         Coroutine _fallTimeoutCoroutine;
-        public DAirborneState(IDContextProvider context, IDStateMachineProvider stateMachine)
+        public DAirborneState2(IDContextProvider context, IDStateMachineProvider2 stateMachine)
          : base(context, stateMachine)
         {
             IsRoot = true;

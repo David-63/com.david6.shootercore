@@ -1,6 +1,5 @@
 using System.Collections;
 using David6.ShooterCore.Movement;
-using David6.ShooterCore.StateMachine;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
@@ -16,12 +15,18 @@ namespace David6.ShooterCore.Provider
         Vector3 InputDirection { get; }
         bool InputSprint { get; }
         bool InputJump { get; }
+        bool InputAim { get; }
+        bool InputFire { get; }
 
         void HandleMoveInput(Vector2 moveInput);
         void HandleStartJumpInput();
         void HandleStopJumpInput();
         void HandleStartSprintInput();
         void HandleStopSprintInput();
+        void HandleStartAimInput();
+        void HandleStopAimInput();
+        void HandleStartFireInput();
+        void HandleStopFireInput();
 
         #endregion
 

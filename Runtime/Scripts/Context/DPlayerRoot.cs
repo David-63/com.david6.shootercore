@@ -1,4 +1,3 @@
-using David6.shootercore.Input;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -8,7 +7,7 @@ namespace David6.ShooterCore.Context
 {
     /// <summary>
     /// The root component for the player.
-    /// </summary>    
+    /// </summary>
     public class DPlayerRoot : MonoBehaviour
     {
         [Header("Player Root Settings")]
@@ -19,7 +18,6 @@ namespace David6.ShooterCore.Context
         [Tooltip("Camera handler behaviour that implements IDCameraInfoProvider interface.")]
         [SerializeField] private MonoBehaviour CameraHandlerBehaviour;
         [SerializeField] private GameObject CameraHolder; // 카메라가 따라갈 GameObject
-        
 
         // 인터페이스로 접근할 수 있는 프로퍼티
         public IDInputProvider InputProvider { get; private set; }
@@ -52,6 +50,8 @@ namespace David6.ShooterCore.Context
             InputProvider.OnStopJump += ContextProvider.HandleStopJumpInput;
             InputProvider.OnStartSprint += ContextProvider.HandleStartSprintInput;
             InputProvider.OnStopSprint += ContextProvider.HandleStopSprintInput;
+            InputProvider.OnStartAim += ContextProvider.HandleStartAimInput;
+            InputProvider.OnStopAim += ContextProvider.HandleStopAimInput;
             Log.WhatHappend("Input binding completed successfully.");
         }
     }

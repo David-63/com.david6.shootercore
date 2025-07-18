@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace David6.ShooterCore.StateMachine
 {
-    public class DGroundedState : DBaseState
+    public class DGroundedState2 : DBaseState2
     {
         private const float _speedOffset = 0.1f;
         private float _rotationSpeed;
 
-        public DGroundedState(IDContextProvider context, IDStateMachineProvider stateMachine)
+        public DGroundedState2(IDContextProvider context, IDStateMachineProvider2 stateMachine)
          : base(context, stateMachine)
         {
             IsRoot = true;

@@ -29,6 +29,11 @@ namespace David6.ShooterCore.Camera
 
         public float YawAngle => MainCamera.eulerAngles.y;
 
+        public void HandleLookInput(Vector2 input)
+        {
+            InputLook = input;
+        }
+
         void LateUpdate()
         {
             LookRotation();
@@ -50,10 +55,7 @@ namespace David6.ShooterCore.Camera
         }
 
 
-        public void HandleLookInput(Vector2 input)
-        {
-            InputLook = input;
-        }
+        
         static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;

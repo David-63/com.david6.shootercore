@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-namespace David6.shootercore.Input
+namespace David6.ShooterCore.Input
 {
     /// <summary>
     /// Represents a profile for input settings.

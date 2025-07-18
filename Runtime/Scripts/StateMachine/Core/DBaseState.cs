@@ -1,7 +1,5 @@
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using Unity.Cinemachine;
-
 
 namespace David6.ShooterCore.StateMachine
 {
@@ -29,11 +27,8 @@ namespace David6.ShooterCore.StateMachine
         public abstract void EnterState();
         public abstract void UpdateSelf();
         public abstract void ExitState();
-
         public abstract void CheckTransition();
-
         public abstract void InitializeSubState();
-
         public void UpdateAll()
         {
             UpdateSelf();
@@ -48,26 +43,6 @@ namespace David6.ShooterCore.StateMachine
             ExitState();
             TransitionTo(newState);
         }
-
-        /// <summary>
-        /// 부모 세팅
-        /// </summary>
-        /// <param name="superState"></param>
-        public void SetSuperState(IDStateProvider superState)
-        {
-            _superState = superState;
-        }
-        /// <summary>
-        /// 자식 세팅
-        /// </summary>
-        /// <param name="subState"></param>
-        public void SetSubState(IDStateProvider subState)
-        {
-            _subState = subState;
-            subState.SetSuperState(this);
-            Log.WhatHappend($"[SubState Set] {this.GetType().Name} -> {subState.GetType().Name}");
-        }
-
         private void TransitionTo(IDStateProvider newState)
         {
             if (_isRoot)
@@ -84,12 +59,20 @@ namespace David6.ShooterCore.StateMachine
             }
         }
 
+        public void SetSuperState(IDStateProvider superState) => _superState = superState;
+        public void SetSubState(IDStateProvider subState)
+        {
+            _subState = subState;
+            subState.SetSuperState(this);
+            Log.WhatHappend($"[SubState Set] {this.GetType().Name} -> {subState.GetType().Name}");
+        }
+
         public void SwitchSubState(IDStateProvider newState)
         {
+            // exit가 중복호출 될 수 있음. trigger flag를 추가한다면?
             _subState?.ExitState(); // 기존의 하위 상태 종료
             SetSubState(newState);  // 다음 상태를 현재 하위상태로 연결
             newState.EnterState();
         }
-
     }
 }

@@ -5,18 +5,18 @@ using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine
 {
-    public class DStateMachine : IDStateMachineProvider
+    public class DStateMachine : IDStateMachineProvider2
     {
-        private IDStateFactoryProvider _factory;
-        private IDStateProvider _currentState;
+        private IDStateFactoryProvider2 _factory;
+        private IDStateProvider2 _currentState;
 
-        public IDStateFactoryProvider Factory
+        public IDStateFactoryProvider2 Factory
         {
             get { return _factory; }
             private set { _factory = value; }
         }
 
-        public IDStateProvider CurrentState
+        public IDStateProvider2 CurrentState
         {
             get { return _currentState; }
             private set { _currentState = value; }
@@ -33,12 +33,12 @@ namespace David6.ShooterCore.StateMachine
         }
         
 
-        public void SetInitialState(IDStateProvider initialState)
+        public void SetInitialState(IDStateProvider2 initialState)
         {
             _currentState = initialState;
             _currentState.EnterState();
         }
-        public void ChangeState(IDStateProvider newState)
+        public void ChangeState(IDStateProvider2 newState)
         {
             //_currentState?.ExitState();
             _currentState = newState;

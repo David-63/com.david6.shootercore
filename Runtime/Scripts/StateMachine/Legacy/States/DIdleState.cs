@@ -3,15 +3,16 @@ using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine
 {
-    public class DRunState : DBaseState
+    public class DIdleState : DBaseState2
     {
-        public DRunState(IDContextProvider context, IDStateMachineProvider stateMachine)
+        public DIdleState(IDContextProvider context, IDStateMachineProvider2 stateMachine)
          : base(context, stateMachine) {}
-        
+
         public override void EnterState()
         {
-            Context.TargetSpeed = Context.MovementProfile.RunSpeed;
-            Context.AnimatorProvider.SetSpeed(Context.MovementProfile.RunSpeed);
+            float idle = 0.0f;
+            Context.TargetSpeed = idle;
+            Context.AnimatorProvider.SetSpeed(idle);
         }
         public override void UpdateSelf()
         {
@@ -24,13 +25,14 @@ namespace David6.ShooterCore.StateMachine
 
         public override void CheckTransition()
         {
-            if (!Context.HasMovementInput())
-            {
-                SwitchState(StateMachine.Factory.Idle());
-            }
-            else if (!Context.InputSprint)
+            if (!Context.HasMovementInput()) return;
+            if (!Context.InputSprint)
             {
                 SwitchState(StateMachine.Factory.Walk());
+            }
+            else
+            {
+                SwitchState(StateMachine.Factory.Run());
             }
         }
 

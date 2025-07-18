@@ -1,5 +1,6 @@
 using System.Collections;
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 using UnityEngine;
 
 namespace David6.ShooterCore.Context
@@ -9,40 +10,25 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        #region Input caching
         public IDAnimatorProvider AnimatorProvider {get { return _animatorProvider; } }
 
         public Transform CharacterTransform { get { return transform; } }
+        #region Input caching
 
         public Vector3 InputDirection { get; private set; }
         public bool InputJump { get; private set; }
         public bool InputSprint { get; private set; }
-        public void HandleMoveInput(Vector2 moveInput)
-        {
-            // Process the move input and update InputDirection accordingly.
-            InputDirection = new Vector3(moveInput.x, 0, moveInput.y);
-            // Additional logic for movement can be added here.
-        }
-        public void HandleStartJumpInput()
-        {
-            InputJump = true;
-        }
-        public void HandleStopJumpInput()
-        {
-            InputJump = false;
-        }
-        public void HandleStartSprintInput()
-        {
-            // Process the start sprint input.
-            InputSprint = true;
-            // Additional logic for starting sprint can be added here.
-        }
-        public void HandleStopSprintInput()
-        {
-            // Process the stop sprint input.
-            InputSprint = false;
-            // Additional logic for stopping sprint can be added here.
-        }
+        public bool InputAim { get; private set; }
+        public bool InputFire { get; private set; }
+        public void HandleMoveInput(Vector2 moveInput) => InputDirection = new Vector3(moveInput.x, 0, moveInput.y);
+        public void HandleStartJumpInput() => InputJump = true;
+        public void HandleStopJumpInput() => InputJump = false;
+        public void HandleStartSprintInput() => InputSprint = true;
+        public void HandleStopSprintInput() => InputSprint = false;
+        public void HandleStartAimInput() => InputAim = true;
+        public void HandleStopAimInput() => InputAim = false;
+        public void HandleStartFireInput() => InputFire = true;
+        public void HandleStopFireInput() => InputFire = false;
         #endregion
 
         #region Camera Info Provider
@@ -81,7 +67,7 @@ namespace David6.ShooterCore.Context
         #region Jump Control
 
         
-        bool _grounded;
+        bool _grounded = true;
 
         public bool IsGrounded
         {
@@ -89,8 +75,6 @@ namespace David6.ShooterCore.Context
             set { _grounded = value; }
         }
 
-        Coroutine jumpTimeoutCoroutine = null;
-        Coroutine fallTimeoutCoroutine = null;
         bool _isJumpReady = true;
         public bool IsJumpReady { get => _isJumpReady; set => _isJumpReady = value; }
         bool _isFalling = false;
@@ -104,7 +88,7 @@ namespace David6.ShooterCore.Context
         public bool IsForward() => _finalMoveDirection.z >= -0.8f;
         public bool CanJump() => _grounded && _isJumpReady;
         public bool ShouldJump() => InputJump && CanJump();
-        public bool ShouldGrounded() => _grounded && _isFalling;
+        public bool ShouldGrounded() => _grounded && _isFalling; // 점프 보정
 
         public Coroutine ExecuteCoroutine(IEnumerator routine) => StartCoroutine(routine);
         public void CancelCoroutine(Coroutine routine) => StopCoroutine(routine);

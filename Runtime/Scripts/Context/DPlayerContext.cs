@@ -1,8 +1,8 @@
-
 using David6.ShooterCore.Animation;
 using David6.ShooterCore.Movement;
 using David6.ShooterCore.Provider;
-using David6.ShooterCore.StateMachine;
+using David6.ShooterCore.StateMachine.Action;
+using David6.ShooterCore.StateMachine.Locomotion;
 using David6.ShooterCore.Tools;
 using UnityEngine;
 
@@ -18,8 +18,8 @@ namespace David6.ShooterCore.Context
         CharacterController _characterController;
         IDAnimatorProvider _animatorProvider;
         DAnimationEventProxy _animationEventProxy;
-        IDStateMachineProvider _stateMachine;
-
+        DLocomotionStateMachine _locomotionStateMachine;
+        DActionStateMachine _actionStateMachine;
 
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
@@ -39,8 +39,8 @@ namespace David6.ShooterCore.Context
                 _animationEventProxy = proxy;
             }
 
-            _stateMachine = new DStateMachine(this);
-            _stateMachine.InitializeStateMachine();
+            _locomotionStateMachine = new DLocomotionStateMachine(this);
+            _actionStateMachine = new DActionStateMachine(this);
         }
         void Start()
         {
@@ -50,15 +50,13 @@ namespace David6.ShooterCore.Context
 
             _animationEventProxy.OnFootstepEvent += OnFootstep;
             _animationEventProxy.OnLandEvent += OnLand;
-
-            
-
         }
 
         void Update()
         {
             GroundCheck();
-            _stateMachine.OnUpdate();
+            _locomotionStateMachine.OnUpdate();
+            _actionStateMachine.OnUpdate();
             ApplyMovement();
         }
 

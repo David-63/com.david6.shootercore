@@ -1,10 +1,11 @@
 
 
 using System;
+using David6.ShooterCore.Provider;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace David6.shootercore.Input
+namespace David6.ShooterCore.Input
 {
     public class DInputHandler : MonoBehaviour, IDInputProvider
     {
@@ -13,18 +14,24 @@ namespace David6.shootercore.Input
 
         #region 외부 구독용 이벤트
         public event Action OnPause = delegate { };
+        public event Action OnResume = delegate { };
         public event Action<Vector2> OnMove = delegate { };
         public event Action<Vector2> OnLook = delegate { };
         public event Action OnStartJump = delegate { };
         public event Action OnStopJump = delegate { };
         public event Action OnStartSprint = delegate { };
         public event Action OnStopSprint = delegate { };
-        public event Action OnResume = delegate { };
+        public event Action OnStartAim = delegate { };
+        public event Action OnStopAim = delegate { };
+        public event Action OnStartFire = delegate { };
+        public event Action OnStopFire = delegate { };
         #endregion
 
         #region 내부 액션 참조
         private InputActionMap _basicMap, _UIMap;
-        private InputAction _pauseAction, _moveAction, _lookAction, _jumpAction, _sprintAction, _resumeAction;
+        private InputAction _pauseAction, _resumeAction;
+        private InputAction _moveAction, _lookAction, _jumpAction, _sprintAction;
+        private InputAction _aimAction, _fireAction;
         #endregion
 
         private void Awake()
@@ -33,13 +40,15 @@ namespace David6.shootercore.Input
             _UIMap = inputSettingProfile.InputActions.FindActionMap("UI", throwIfNotFound: true);
 
             _pauseAction = _basicMap.FindAction("Pause", throwIfNotFound: true);
+            _resumeAction = _UIMap.FindAction("Resume", throwIfNotFound: true);
+
             _moveAction = _basicMap.FindAction("Move", throwIfNotFound: true);
             _lookAction = _basicMap.FindAction("Look", throwIfNotFound: true);
             _jumpAction = _basicMap.FindAction("Jump", throwIfNotFound: true);
             _sprintAction = _basicMap.FindAction("Sprint", throwIfNotFound: true);
 
-            _resumeAction = _UIMap.FindAction("Resume", throwIfNotFound: true);
-
+            _aimAction = _basicMap.FindAction("Aim", throwIfNotFound: true);
+            _fireAction = _basicMap.FindAction("Fire", throwIfNotFound: true);
         }
 
         private void OnEnable()
@@ -61,19 +70,27 @@ namespace David6.shootercore.Input
 
         private void SubscribeBasicActions()
         {
+            _pauseAction.performed += _ => HandlePause();
             _jumpAction.performed += _ => OnStartJump();
             _jumpAction.canceled += _ => OnStopJump();
             _sprintAction.performed += _ => OnStartSprint();
             _sprintAction.canceled += _ => OnStopSprint();
-            _pauseAction.performed += _ => HandlePause();
+            _aimAction.performed += _ => OnStartAim();
+            _aimAction.canceled += _ => OnStopAim();
+            _fireAction.performed += _ => OnStartFire();
+            _fireAction.canceled += _ => OnStopFire();
         }
         private void UnsubscribeBasicActions()
         {
+            _pauseAction.performed -= _ => HandlePause();
             _jumpAction.performed -= _ => OnStartJump();
             _jumpAction.canceled -= _ => OnStopJump();
             _sprintAction.performed -= _ => OnStartSprint();
             _sprintAction.canceled -= _ => OnStopSprint();
-            _pauseAction.performed -= _ => HandlePause();
+            _aimAction.performed -= _ => OnStartAim();
+            _aimAction.canceled -= _ => OnStopAim();
+            _fireAction.performed -= _ => OnStartFire();
+            _fireAction.canceled -= _ => OnStopFire();
         }
         private void SubscribeUIActions()
         {
