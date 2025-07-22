@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace David6.ShooterCore.Camera
+namespace David6.ShooterCore.Data
 {
     /// <summary>
     /// 카메라의 시점 프로필을 정의하는 클래스

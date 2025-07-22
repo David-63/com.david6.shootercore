@@ -1,9 +1,11 @@
+using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.TickSystem;
 using UnityEngine;
 
 namespace David6.ShooterCore.Camera
 {
-    public class DCameraHandler : MonoBehaviour, IDCameraInfoProvider
+    public class DCameraHandler : MonoBehaviour, IDCameraInfoProvider, IDLateTickable
     {
         // ScriptableObject로 설정할 수 있는 카메라 프로필
         [Header("Camera Profile")]
@@ -29,12 +31,22 @@ namespace David6.ShooterCore.Camera
 
         public float YawAngle => MainCamera.eulerAngles.y;
 
+        void Start()
+        {
+            DGameLoop.Instance.Register(this);
+        }
+
+        void Oestroy()
+        {
+            DGameLoop.Instance.Unregister(this);            
+        }
+
         public void HandleLookInput(Vector2 input)
         {
             InputLook = input;
         }
 
-        void LateUpdate()
+        public void LateTick(float deltaTime)
         {
             LookRotation();
         }

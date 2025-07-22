@@ -3,6 +3,7 @@ using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.StateMachine.Action;
 using David6.ShooterCore.StateMachine.Locomotion;
+using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace David6.ShooterCore.Context
     /// <summary>
     /// Player context for the DPlayer.
     /// </summary>
-    public partial class DPlayerContext : MonoBehaviour, IDContextProvider
+    public partial class DPlayerContext : MonoBehaviour, IDContextProvider, IDTickable
     {
         [SerializeField] DMovementProfile _movementProfile;
         public DMovementProfile MovementProfile { get { return _movementProfile; } }
@@ -50,13 +51,30 @@ namespace David6.ShooterCore.Context
 
             _animationEventProxy.OnFootstepEvent += OnFootstep;
             _animationEventProxy.OnLandEvent += OnLand;
+
+            if (DGameLoop.Instance != null)
+            {
+                DGameLoop.Instance.Register(this);
+                DGameLoop.Instance.Register(_locomotionStateMachine);
+                DGameLoop.Instance.Register(_actionStateMachine);
+            }
         }
 
-        void Update()
+        void OnDestroy()
+        {
+            if (DGameLoop.Instance != null)
+            {
+                DGameLoop.Instance.Unregister(this);
+                DGameLoop.Instance.Unregister(_locomotionStateMachine);
+                DGameLoop.Instance.Unregister(_actionStateMachine);
+            }
+        }
+
+        public void Tick(float deltaTime)
         {
             GroundCheck();
-            _locomotionStateMachine.OnUpdate();
-            _actionStateMachine.OnUpdate();
+            _locomotionStateMachine.Tick(deltaTime);
+            _actionStateMachine.Tick(deltaTime);
             ApplyMovement();
         }
 

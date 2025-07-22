@@ -1,8 +1,9 @@
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.TickSystem;
 
 namespace David6.ShooterCore.StateMachine
 {
-    public abstract class DBaseStateMachine : IDStateMachineProvider
+    public abstract class DBaseStateMachine : IDStateMachineProvider, IDTickable
     {
         IDStateProvider _currentState;
         IDStateFactoryProvider _factory;
@@ -27,6 +28,11 @@ namespace David6.ShooterCore.StateMachine
         }
         public void ChangeState(IDStateProvider newState) => _currentState = newState;
         public void OnUpdate() => _currentState?.UpdateAll();
+
+        public void Tick(float deltaTime)
+        {
+            _currentState?.UpdateAll();
+        }
 
         protected abstract void RegisterFactory(IDContextProvider context);
     }
