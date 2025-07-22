@@ -9,6 +9,7 @@ namespace David6.ShooterCore.Provider
             DMovementProfile MovementProfile { get; }
             Transform CharacterTransform { get; }
             IDAnimatorProvider AnimatorProvider { get; }
+            IDCooldownProvider CooldownProvider { get; }
 
 
             #region Input
@@ -63,13 +64,11 @@ namespace David6.ShooterCore.Provider
             bool ShouldGrounded();
             // TODO: 사격 및 재장전 조건 추가
             bool IsFiring { get; set; }
-            bool IsFireReady { get; set; }
-            bool CanFire();
+            float FireRate { get; }
             bool ShouldFire();
             bool IsReloadReady { get; set; }
             bool CanReload();
             bool ShouldReload();
-
 
         }
 }

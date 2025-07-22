@@ -1,4 +1,5 @@
 using David6.ShooterCore.Animation;
+using David6.ShooterCore.Cooldown;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.StateMachine.Action;
@@ -17,10 +18,11 @@ namespace David6.ShooterCore.Context
         [SerializeField] DMovementProfile _movementProfile;
         public DMovementProfile MovementProfile { get { return _movementProfile; } }
         CharacterController _characterController;
-        IDAnimatorProvider _animatorProvider;
         DAnimationEventProxy _animationEventProxy;
-        DLocomotionStateMachine _locomotionStateMachine;
-        DActionStateMachine _actionStateMachine;
+        IDAnimatorProvider _animatorHandler;
+        IDStateMachineProvider _locomotionStateMachine;
+        IDStateMachineProvider _actionStateMachine;
+        IDCooldownProvider _cooldownHandler;
 
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
@@ -33,7 +35,7 @@ namespace David6.ShooterCore.Context
             _characterController = GetComponent<CharacterController>();
             if (this.TryGetComponentInChildren<Animator>(out var animComponent))
             {
-                _animatorProvider = new DAnimatorController(animComponent);
+                _animatorHandler = new DAnimatorController(animComponent);
             }
             if (this.TryGetComponentInChildren<DAnimationEventProxy>(out var proxy))
             {
@@ -42,12 +44,13 @@ namespace David6.ShooterCore.Context
 
             _locomotionStateMachine = new DLocomotionStateMachine(this);
             _actionStateMachine = new DActionStateMachine(this);
+            _cooldownHandler = new DCooldownHandler();
         }
         void Start()
         {
             InitializeCharacterController();
 
-            _animatorProvider.SetGrounded(true);
+            _animatorHandler.SetGrounded(true);
 
             _animationEventProxy.OnFootstepEvent += OnFootstep;
             _animationEventProxy.OnLandEvent += OnLand;
@@ -55,8 +58,7 @@ namespace David6.ShooterCore.Context
             if (DGameLoop.Instance != null)
             {
                 DGameLoop.Instance.Register(this);
-                DGameLoop.Instance.Register(_locomotionStateMachine);
-                DGameLoop.Instance.Register(_actionStateMachine);
+                DGameLoop.Instance.Register(_cooldownHandler);
             }
         }
 
@@ -65,16 +67,15 @@ namespace David6.ShooterCore.Context
             if (DGameLoop.Instance != null)
             {
                 DGameLoop.Instance.Unregister(this);
-                DGameLoop.Instance.Unregister(_locomotionStateMachine);
-                DGameLoop.Instance.Unregister(_actionStateMachine);
+                DGameLoop.Instance.Unregister(_cooldownHandler);
             }
         }
 
         public void Tick(float deltaTime)
         {
             GroundCheck();
-            _locomotionStateMachine.Tick(deltaTime);
-            _actionStateMachine.Tick(deltaTime);
+            _locomotionStateMachine.OnUpdate();
+            _actionStateMachine.OnUpdate();
             ApplyMovement();
         }
 

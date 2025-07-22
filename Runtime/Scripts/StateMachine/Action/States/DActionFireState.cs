@@ -7,8 +7,8 @@ namespace David6.ShooterCore.StateMachine.Action
 {
     public class DActionFireState : DBaseState
     {
-        float _fireRate = 0.05f;
-        float _fireCooldown = 0.0f;
+        float _fireRate = 720f;
+        const string FIRE_KEY = "Action.Fire";
 
         public DActionFireState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { IsRoot = true; }
@@ -16,33 +16,25 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void EnterState()
         {
             Context.IsFiring = true;
-            FireCooldownReset();
+
+            // 무기에 따라 초기에 속도 세팅해줌
+            Context.AnimatorProvider.SetFireRate(Context.FireRate);
+            TryFire();
         }
 
         public override void UpdateSelf()
         {
             CheckTransition();
 
-            if (!Context.IsFireReady)
+            if (Context.CooldownProvider.IsReady(FIRE_KEY))
             {
-                _fireCooldown -= Time.deltaTime;
-
-                if (_fireCooldown <= 0f)
-                {
-                    Context.IsFireReady = true;
-                }
+                TryFire();
             }
-            else
-            {
-                Fire();
-            }
-
         }
 
         public override void ExitState()
         {
             Context.IsFiring = false;
-
         }
         public override void CheckTransition()
         {
@@ -50,28 +42,14 @@ namespace David6.ShooterCore.StateMachine.Action
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DActionIdleState)));
             }
-            else if (Context.ShouldFire())
-            {
-                SwitchState(StateMachine.Factory.GetState(typeof(DActionFireState)));
-            }
         }
         public override void InitializeSubState() { }
 
-        // IEnumerator FireRateRoutine()
-        // {
-        //     Context.IsFireReady = false;
-        //     Context.AnimatorProvider.SetFire();
-
-        //     yield return new WaitForSeconds(_fireRate);
-        //     Context.IsFireReady = true;
-        // }
-
-        void FireCooldownReset() => _fireCooldown = 0f;
-        void Fire()
+        void TryFire()
         {
             Context.AnimatorProvider.SetFire();
-            Context.IsFireReady = false;
-            _fireCooldown = _fireRate;
+            Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.FireRate);
+            Log.WhatHappend("Fire!");
         }
     }
 }

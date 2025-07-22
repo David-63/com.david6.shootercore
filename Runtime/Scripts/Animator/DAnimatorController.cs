@@ -47,7 +47,15 @@ namespace David6.ShooterCore.Animation
         }
         public void SetFire()
         {
-            _animator.CrossFade("Fire", 0.0f, _upperBodyLayer);
+            _animator.Play("Fire", _upperBodyLayer, 0.0f);
+        }
+        public void SetFireRate(float rpm)
+        {
+            float rps = rpm / 60f;
+            float targetPeriod = 1f / rps;
+            float originalClipLength = 0.15f;
+            float fireRate = originalClipLength / targetPeriod;
+            _animator.SetFloat("FireRate", fireRate);
         }
         public void SetReload()
         {
@@ -57,5 +65,13 @@ namespace David6.ShooterCore.Animation
         {
             _animator.SetLayerWeight(index, weight);
         }
+
+
+        /*
+
+        Fire 속도 관련해서
+        Fire 애니메이션의 클립 레퍼런스를 가져와서 rpm 계산하는게 더 좋음
+
+        */
     }
 }

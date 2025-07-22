@@ -7,9 +7,6 @@ namespace David6.ShooterCore.Provider
 
         void SetInitialState(IDStateProvider initialState);
         void ChangeState(IDStateProvider newState);
-
-        void Tick(float deltaTime);
-
         void OnUpdate();
     }
 }

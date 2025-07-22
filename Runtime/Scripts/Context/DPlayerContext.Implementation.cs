@@ -10,9 +10,11 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        public IDAnimatorProvider AnimatorProvider { get { return _animatorProvider; } }
+        public IDAnimatorProvider AnimatorProvider => _animatorHandler;
+        public IDCooldownProvider CooldownProvider => _cooldownHandler;
 
-        public Transform CharacterTransform { get { return transform; } }
+
+        public Transform CharacterTransform => transform;
         #region Input caching
 
         public Vector3 InputDirection { get; private set; }
@@ -107,12 +109,12 @@ namespace David6.ShooterCore.Context
         bool _isFiring = false;
         public bool IsFiring { get => _isFiring; set => _isFiring = value; }
 
-        // 코루틴에 의해 제어
-        bool _isFireReady = true;
-        public bool IsFireReady { get => _isFireReady; set => _isFireReady = value; }
 
-        public bool CanFire() => _isFireReady;
-        public bool ShouldFire() => InputFire && CanFire();
+        // FireRate는 임시 변수임
+        public float _FireRate = 720f;
+        public float FireRate => _FireRate;
+
+        public bool ShouldFire() => InputFire && !_isFiring;
 
         public bool _isReloadReady = true;
         public bool IsReloadReady { get => _isReloadReady; set => _isReloadReady = value; }

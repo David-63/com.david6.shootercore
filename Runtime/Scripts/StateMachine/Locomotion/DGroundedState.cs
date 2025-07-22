@@ -61,10 +61,10 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 {
                     SetSubState(StateMachine.Factory.GetState(typeof(DExplorationRunState)));
                 }
-                // else if (SuperState is DFocusState)
-                // {
-                //     SetSubState(StateMachine.Factory.GetState(typeof(DFocusRunState)));
-                // }
+                else if (SuperState is DFocusState)
+                {
+                    SetSubState(StateMachine.Factory.GetState(typeof(DFocusRunState)));
+                }
             }
 
             if (SubState != null)
