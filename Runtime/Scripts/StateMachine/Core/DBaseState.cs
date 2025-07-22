@@ -69,7 +69,6 @@ namespace David6.ShooterCore.StateMachine
 
         public void SwitchSubState(IDStateProvider newState)
         {
-            // exit가 중복호출 될 수 있음. trigger flag를 추가한다면?
             _subState?.ExitState(); // 기존의 하위 상태 종료
             SetSubState(newState);  // 다음 상태를 현재 하위상태로 연결
             newState.EnterState();

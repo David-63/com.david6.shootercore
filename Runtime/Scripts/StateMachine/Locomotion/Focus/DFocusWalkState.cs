@@ -11,17 +11,17 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 
         public override void EnterState()
         {
-            Context.TargetSpeed = Context.MovementProfile.WalkSpeed;
+            Context.TargetSpeed = Context.MovementProfile.WalkSpeed * _focusMovementMultipler;
             Context.AnimatorProvider.SetSpeed(Context.TargetSpeed);
         }
 
         public override void UpdateSelf()
         {
             CheckTransition();
-
             GroundSpeed();
             MoveDirection();
             ApplyCharacterRotation();
+            SetAnimationDirection();
         }
 
         public override void ExitState()

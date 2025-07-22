@@ -10,7 +10,7 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        public IDAnimatorProvider AnimatorProvider {get { return _animatorProvider; } }
+        public IDAnimatorProvider AnimatorProvider { get { return _animatorProvider; } }
 
         public Transform CharacterTransform { get { return transform; } }
         #region Input caching
@@ -20,6 +20,7 @@ namespace David6.ShooterCore.Context
         public bool InputSprint { get; private set; }
         public bool InputAim { get; private set; }
         public bool InputFire { get; private set; }
+        public bool InputReload { get; private set; }
         public void HandleMoveInput(Vector2 moveInput) => InputDirection = new Vector3(moveInput.x, 0, moveInput.y);
         public void HandleStartJumpInput() => InputJump = true;
         public void HandleStopJumpInput() => InputJump = false;
@@ -29,6 +30,8 @@ namespace David6.ShooterCore.Context
         public void HandleStopAimInput() => InputAim = false;
         public void HandleStartFireInput() => InputFire = true;
         public void HandleStopFireInput() => InputFire = false;
+        public void HandleStartReloadInput() => InputReload = true;
+        public void HandleStopReloadInput() => InputReload = false;
         #endregion
 
         #region Camera Info Provider
@@ -43,13 +46,12 @@ namespace David6.ShooterCore.Context
 
         #region Movement Methods
 
+        public float TargetSpeed { get; set; }
         float _horizontalSpeed;
-        public float HorizontalSpeed { get { return _horizontalSpeed; } set { _horizontalSpeed = value; } }
-        float _targetSpeed;
-        public float TargetSpeed { get { return _targetSpeed; } set { _targetSpeed = value; } }
+        public float HorizontalSpeed { get => _horizontalSpeed; set => _horizontalSpeed = value; }
 
         Vector3 _finalMoveDirection;
-        public Vector3 FinalMoveDirection {get{ return _finalMoveDirection; }set{ _finalMoveDirection = value; }}
+        public Vector3 FinalMoveDirection { get => _finalMoveDirection; set => _finalMoveDirection = value; }
         public float YawAngle => _cameraInfo.YawAngle;
         public void GroundCheck()
         {
@@ -64,16 +66,15 @@ namespace David6.ShooterCore.Context
 
         #endregion
 
+        public Coroutine ExecuteCoroutine(IEnumerator routine) => StartCoroutine(routine);
+        public void CancelCoroutine(Coroutine routine) => StopCoroutine(routine);
+
         #region Jump Control
 
-        
+
         bool _grounded = true;
 
-        public bool IsGrounded
-        {
-            get { return _grounded; }
-            set { _grounded = value; }
-        }
+        public bool IsGrounded { get => _grounded; set => _grounded = value; }
 
         bool _isJumpReady = true;
         public bool IsJumpReady { get => _isJumpReady; set => _isJumpReady = value; }
@@ -83,16 +84,42 @@ namespace David6.ShooterCore.Context
         float _verticalSpeed;
         public float VerticalSpeed { get => _verticalSpeed; set => _verticalSpeed = value; }
 
-
+        // Locomotion 조건
         public bool HasMovementInput() => InputDirection.x != 0 || InputDirection.z != 0;
         public bool IsForward() => _finalMoveDirection.z >= -0.8f;
         public bool CanJump() => _grounded && _isJumpReady;
         public bool ShouldJump() => InputJump && CanJump();
+
+        /// <summary>
+        /// Airborne 에 진입 했었고, 착지한 경우에 해당
+        /// </summary>
         public bool ShouldGrounded() => _grounded && _isFalling; // 점프 보정
 
-        public Coroutine ExecuteCoroutine(IEnumerator routine) => StartCoroutine(routine);
-        public void CancelCoroutine(Coroutine routine) => StopCoroutine(routine);
+        #endregion
 
+        #region Action Control
+
+        // 임시로 구성한 변수
+
+
+
+        // 현재 사용여부
+        bool _isFiring = false;
+        public bool IsFiring { get => _isFiring; set => _isFiring = value; }
+
+        // 코루틴에 의해 제어
+        bool _isFireReady = true;
+        public bool IsFireReady { get => _isFireReady; set => _isFireReady = value; }
+
+        public bool CanFire() => _isFireReady;
+        public bool ShouldFire() => InputFire && CanFire();
+
+        public bool _isReloadReady = true;
+        public bool IsReloadReady { get => _isReloadReady; set => _isReloadReady = value; }
+
+        public bool CanReload() => _isReloadReady;
+
+        public bool ShouldReload() => InputReload && CanReload();
         #endregion
     }
 }

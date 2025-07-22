@@ -1,5 +1,5 @@
 using David6.ShooterCore.Animation;
-using David6.ShooterCore.Movement;
+using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.StateMachine.Action;
 using David6.ShooterCore.StateMachine.Locomotion;

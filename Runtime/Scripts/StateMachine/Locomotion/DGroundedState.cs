@@ -41,7 +41,6 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 }
                 else if (SuperState is DFocusState)
                 {
-                    Log.WhatHappend("Focus 초기화");
                     SetSubState(StateMachine.Factory.GetState(typeof(DFocusIdleState)));
                 }
             }
@@ -53,7 +52,6 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 }
                 else if (SuperState is DFocusState)
                 {
-                    Log.WhatHappend("Focus 초기화");
                     SetSubState(StateMachine.Factory.GetState(typeof(DFocusWalkState)));
                 }
             }
@@ -63,11 +61,10 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 {
                     SetSubState(StateMachine.Factory.GetState(typeof(DExplorationRunState)));
                 }
-                else if (SuperState is DFocusState)
-                {
-                    Log.WhatHappend("Focus 초기화");
-                    SetSubState(StateMachine.Factory.GetState(typeof(DFocusRunState)));
-                }
+                // else if (SuperState is DFocusState)
+                // {
+                //     SetSubState(StateMachine.Factory.GetState(typeof(DFocusRunState)));
+                // }
             }
 
             if (SubState != null)

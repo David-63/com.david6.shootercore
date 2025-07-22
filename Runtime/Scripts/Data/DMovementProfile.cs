@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-namespace David6.ShooterCore.Movement
+namespace David6.ShooterCore.Data
 {
     /// <summary>
     /// Represents a movement profile for a player.

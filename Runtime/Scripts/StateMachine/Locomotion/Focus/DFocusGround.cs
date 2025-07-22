@@ -9,7 +9,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         private const float _speedOffset = 0.1f;
         private float _rotationSpeed;
         private float _characterRotation;
-        private float _rotationVelocity;
+
+        protected float _focusMovementMultipler = 0.8f;
 
         public DFocusGround(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { }
@@ -41,6 +42,11 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         {
             _characterRotation = Mathf.SmoothDampAngle(Context.CharacterTransform.eulerAngles.y, Context.YawAngle, ref _rotationSpeed, Context.MovementProfile.RotationSmoothTime);
             Context.CharacterTransform.rotation = Quaternion.Euler(0f, _characterRotation, 0f);
+        }
+
+        protected void SetAnimationDirection()
+        {
+            Context.AnimatorProvider.SetDirection(new Vector2(Context.InputDirection.x, Context.InputDirection.z));
         }
     }
 }

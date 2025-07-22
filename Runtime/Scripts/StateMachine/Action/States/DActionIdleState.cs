@@ -5,13 +5,11 @@ namespace David6.ShooterCore.StateMachine.Action
 {
     public class DActionIdleState : DBaseState
     {
-        // 내부에 서브 스테이트 머신 달기?
         public DActionIdleState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { IsRoot = true; }
 
         public override void EnterState()
         {
-            IsRoot = true;
         }
 
         public override void UpdateSelf()
@@ -25,6 +23,14 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void CheckTransition()
         {
             // 전투 입력 체크
+            if (Context.ShouldFire())
+            {
+                SwitchState(StateMachine.Factory.GetState(typeof(DActionFireState)));
+            }
+            else if (Context.ShouldReload())
+            {
+                SwitchState(StateMachine.Factory.GetState(typeof(DActionReloadState)));
+            }
         }
         public override void InitializeSubState() {}
     }

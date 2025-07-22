@@ -11,6 +11,7 @@ namespace David6.ShooterCore.Animation
     public class DAnimatorController : IDAnimatorProvider
     {
         Animator _animator;
+        int _upperBodyLayer = 1;
 
         public DAnimatorController(Animator animator) { _animator = animator; }
 
@@ -40,6 +41,21 @@ namespace David6.ShooterCore.Animation
             _animator.SetFloat("DirectionX", direction.x);
             _animator.SetFloat("DirectionY", direction.y);
         }
-
+        public void SetFocus(bool isFocus)
+        {
+            _animator.SetBool("Focus", isFocus);
+        }
+        public void SetFire()
+        {
+            _animator.CrossFade("Fire", 0.0f, _upperBodyLayer);
+        }
+        public void SetReload()
+        {
+            _animator.SetTrigger("Reload");
+        }
+        public void SetAnimationLayerWeight(int index, float weight)
+        {
+            _animator.SetLayerWeight(index, weight);
+        }
     }
 }

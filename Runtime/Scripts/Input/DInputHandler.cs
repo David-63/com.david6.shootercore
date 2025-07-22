@@ -1,6 +1,7 @@
 
 
 using System;
+using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,13 +26,15 @@ namespace David6.ShooterCore.Input
         public event Action OnStopAim = delegate { };
         public event Action OnStartFire = delegate { };
         public event Action OnStopFire = delegate { };
+        public event Action OnStartReload = delegate { };
+        public event Action OnStopReload = delegate { };
         #endregion
 
         #region 내부 액션 참조
         private InputActionMap _basicMap, _UIMap;
         private InputAction _pauseAction, _resumeAction;
         private InputAction _moveAction, _lookAction, _jumpAction, _sprintAction;
-        private InputAction _aimAction, _fireAction;
+        private InputAction _aimAction, _fireAction, _reloadAction;
         #endregion
 
         private void Awake()
@@ -49,6 +52,7 @@ namespace David6.ShooterCore.Input
 
             _aimAction = _basicMap.FindAction("Aim", throwIfNotFound: true);
             _fireAction = _basicMap.FindAction("Fire", throwIfNotFound: true);
+            _reloadAction = _basicMap.FindAction("Reload", throwIfNotFound: true);
         }
 
         private void OnEnable()
@@ -79,6 +83,8 @@ namespace David6.ShooterCore.Input
             _aimAction.canceled += _ => OnStopAim();
             _fireAction.performed += _ => OnStartFire();
             _fireAction.canceled += _ => OnStopFire();
+            _reloadAction.performed += _ => OnStartReload();
+            _reloadAction.canceled += _ => OnStopReload();
         }
         private void UnsubscribeBasicActions()
         {
@@ -91,6 +97,8 @@ namespace David6.ShooterCore.Input
             _aimAction.canceled -= _ => OnStopAim();
             _fireAction.performed -= _ => OnStartFire();
             _fireAction.canceled -= _ => OnStopFire();
+            _reloadAction.performed -= _ => OnStartReload();
+            _reloadAction.canceled -= _ => OnStopReload();
         }
         private void SubscribeUIActions()
         {

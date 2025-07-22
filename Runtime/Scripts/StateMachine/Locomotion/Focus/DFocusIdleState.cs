@@ -19,9 +19,9 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void UpdateSelf()
         {
             CheckTransition();
-
             GroundSpeed();
             ApplyCharacterRotation();
+            SetAnimationDirection();
         }
 
         public override void ExitState()

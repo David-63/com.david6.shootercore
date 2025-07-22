@@ -10,13 +10,15 @@ namespace David6.ShooterCore.Provider
     /// </summary>
     public interface IDAnimatorProvider
     {
-        // animation hash
-        // animation hash2
-        // animation crossfade
         void SetSpeed(float speed);
         void SetJump(bool isJumping);
         void SetGrounded(bool isGrounded);
         void SetFreeFall(bool isFreeFall);
         void SetDirection(Vector2 direction);
+        void SetFocus(bool isFocus);
+
+        void SetFire();
+        void SetReload();
+        void SetAnimationLayerWeight(int index, float weight);
     }
 }

@@ -52,6 +52,10 @@ namespace David6.ShooterCore.Context
             InputProvider.OnStopSprint += ContextProvider.HandleStopSprintInput;
             InputProvider.OnStartAim += ContextProvider.HandleStartAimInput;
             InputProvider.OnStopAim += ContextProvider.HandleStopAimInput;
+            InputProvider.OnStartFire += ContextProvider.HandleStartFireInput;
+            InputProvider.OnStopFire += ContextProvider.HandleStopFireInput;
+            InputProvider.OnStartReload += ContextProvider.HandleStartReloadInput;
+            InputProvider.OnStopReload += ContextProvider.HandleStopReloadInput;
             Log.WhatHappend("Input binding completed successfully.");
         }
     }

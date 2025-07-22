@@ -5,13 +5,15 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 {
     public class DFocusState : DBaseState
     {
-        // 내부에 서브 스테이트 머신 달기?
+        const int _upperBodyLayer = 1;
         public DFocusState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { IsRoot = true; }
 
         public override void EnterState()
         {
             InitializeSubState();
+            Context.AnimatorProvider.SetFocus(true);
+            Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 1.0f);
         }
 
         public override void UpdateSelf()
@@ -19,7 +21,11 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             CheckTransition();
         }
 
-        public override void ExitState() { }
+        public override void ExitState()
+        {
+            Context.AnimatorProvider.SetFocus(false);
+            Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 0.0f);
+        }
         public override void CheckTransition()
         {
             if (!Context.InputAim)

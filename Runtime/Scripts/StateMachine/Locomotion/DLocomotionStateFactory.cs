@@ -1,4 +1,5 @@
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine.Locomotion
 {
@@ -21,7 +22,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             StateCache[typeof(DFocusIdleState)] = new DFocusIdleState(Context, StateMachine);
             StateCache[typeof(DFocusWalkState)] = new DFocusWalkState(Context, StateMachine);
             StateCache[typeof(DFocusRunState)] = new DFocusRunState(Context, StateMachine);
-            
+            Log.WhatHappend("LocomotionState initialization successfully");
         }
 
     }
