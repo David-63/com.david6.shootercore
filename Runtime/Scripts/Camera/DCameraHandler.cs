@@ -20,7 +20,7 @@ namespace David6.ShooterCore.Camera
         /// <summary>
         /// 카메라가 따라갈 GameObject
         /// </summary>
-        public GameObject CameraHolder { get; set; }
+        GameObject _cameraHolder;
 
         public Vector2 InputLook { get; private set; }
 
@@ -40,6 +40,22 @@ namespace David6.ShooterCore.Camera
         {
             DGameLoop.Instance.Unregister(this);            
         }
+
+        public bool SetCameraHolder(GameObject cameraHolder)
+        {
+            bool flag = true;
+            if (cameraHolder != null)
+            {
+                _cameraHolder = cameraHolder;
+            }
+            else
+            {
+                flag = false;
+            }
+
+            return flag;
+        }
+
 
         public void HandleLookInput(Vector2 input)
         {
@@ -63,7 +79,7 @@ namespace David6.ShooterCore.Camera
             _cameraYaw = ClampAngle(_cameraYaw, float.MinValue, float.MaxValue);
             _cameraPitch = ClampAngle(_cameraPitch, CameraLookProfile.BottomClamp, CameraLookProfile.TopClamp);
 
-            CameraHolder.transform.rotation = Quaternion.Euler(_cameraPitch + CameraLookProfile.CameraAngleOverride, _cameraYaw, 0.0f);
+            _cameraHolder.transform.rotation = Quaternion.Euler(_cameraPitch + CameraLookProfile.CameraAngleOverride, _cameraYaw, 0.0f);
         }
 
 

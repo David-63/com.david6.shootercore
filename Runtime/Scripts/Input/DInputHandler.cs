@@ -10,7 +10,7 @@ namespace David6.ShooterCore.Input
 {
     public class DInputHandler : MonoBehaviour, IDInputProvider
     {
-        [Header("인풋 액션 에셋")]        
+        [Header("인풋 액션 에셋")]
         [SerializeField] private DInputSettingProfile inputSettingProfile;
 
         #region 외부 구독용 이벤트
@@ -88,6 +88,8 @@ namespace David6.ShooterCore.Input
         }
         private void UnsubscribeBasicActions()
         {
+            ClearActionInput();
+
             _pauseAction.performed -= _ => HandlePause();
             _jumpAction.performed -= _ => OnStartJump();
             _jumpAction.canceled -= _ => OnStopJump();
@@ -99,6 +101,7 @@ namespace David6.ShooterCore.Input
             _fireAction.canceled -= _ => OnStopFire();
             _reloadAction.performed -= _ => OnStartReload();
             _reloadAction.canceled -= _ => OnStopReload();
+
         }
         private void SubscribeUIActions()
         {
@@ -142,6 +145,17 @@ namespace David6.ShooterCore.Input
 
             _basicMap.Enable();
             SubscribeBasicActions();
+        }
+
+        private void ClearActionInput()
+        {
+            OnLook(Vector2.zero);
+            OnMove(Vector2.zero);
+            OnStopJump();
+            OnStopSprint();
+            OnStopAim();
+            OnStopFire();
+            OnStopReload();
         }
     }
 }

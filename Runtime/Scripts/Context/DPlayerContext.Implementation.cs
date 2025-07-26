@@ -39,9 +39,18 @@ namespace David6.ShooterCore.Context
         #region Camera Info Provider
         IDCameraInfoProvider _cameraInfo;
 
-        public void SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider)
+        public bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider)
         {
-            _cameraInfo = cameraInfoProvider;
+            bool flag = true;
+            if (cameraInfoProvider != null)
+            {
+                _cameraInfo = cameraInfoProvider;
+            }
+            else
+            {
+                flag = false;
+            }
+            return flag;
         }
 
         #endregion

@@ -16,7 +16,7 @@ namespace David6.ShooterCore.Provider
         /// <summary>
         /// 카메라가 따라갈 대상 설정, 외부에서는 값을 설정만 가능
         /// </summary>
-        GameObject CameraHolder { set; }
+        bool SetCameraHolder(GameObject cameraHolder);
         void HandleLookInput(Vector2 input);
 
     }

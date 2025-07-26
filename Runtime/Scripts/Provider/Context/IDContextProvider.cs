@@ -37,7 +37,7 @@ namespace David6.ShooterCore.Provider
             /// 외부 의존성 주입
             /// </summary>
             /// <param name="cameraInfoProvider"></param>
-            void SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
+            bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
 
             float HorizontalSpeed { get; set; }
             float TargetSpeed { get; set; }

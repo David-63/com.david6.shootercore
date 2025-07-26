@@ -27,7 +27,7 @@ namespace David6.ShooterCore.StateMachine.Action
             CheckTransition();
 
             if (Context.CooldownProvider.IsReady(FIRE_KEY))
-            {
+            {                
                 TryFire();
             }
         }

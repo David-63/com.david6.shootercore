@@ -10,19 +10,24 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public class DPlayerRoot : MonoBehaviour
     {
-        [Header("Player Root Settings")]
-        [Tooltip("Input provider behaviour that implements IDInputProvider interface.")]
+        [Header("Player Settings")]
         [SerializeField] private MonoBehaviour InputHanderBehaviour;
-        [Tooltip("Movement provider behaviour that implements IDBaseMovementProvider interface.")]
         [SerializeField] private MonoBehaviour PlayerContextBehaviour;
-        [Tooltip("Camera handler behaviour that implements IDCameraInfoProvider interface.")]
         [SerializeField] private MonoBehaviour CameraHandlerBehaviour;
         [SerializeField] private GameObject CameraHolder; // 카메라가 따라갈 GameObject
 
-        // 인터페이스로 접근할 수 있는 프로퍼티
-        public IDInputProvider InputProvider { get; private set; }
-        public IDContextProvider ContextProvider { get; private set; }
-        public IDCameraInfoProvider CameraHandler { get; private set; }
+        IDInputProvider InputProvider { get; set; }
+        IDContextProvider ContextProvider { get; set; }
+        IDCameraInfoProvider CameraHandler { get; set; }
+
+        [Header("UI Settings")]
+        [SerializeField] private MonoBehaviour InventoryControllerBehaviour;
+        [SerializeField] private MonoBehaviour InventoryViewBehaviour;
+
+        IDInventoryControllerProvider InventoryControllerProvider { get; set; }
+        IDInventoryViewProvider InventoryViewProvider { get; set; }
+
+
 
 
         void Awake()
@@ -30,22 +35,33 @@ namespace David6.ShooterCore.Context
             InputProvider = InputHanderBehaviour as IDInputProvider;
             ContextProvider = PlayerContextBehaviour as IDContextProvider;
             CameraHandler = CameraHandlerBehaviour as IDCameraInfoProvider;
+            InventoryControllerProvider = InventoryControllerBehaviour as IDInventoryControllerProvider;
+            InventoryViewProvider = InventoryViewBehaviour as IDInventoryViewProvider;
             InputBinding();
         }
 
         void Start()
-        {            
-            // 카메라 핸들러가 따라갈 GameObject 설정
-            ContextProvider.SetCameraInfoProvider(CameraHandler);
-            CameraHandler.CameraHolder = CameraHolder;
+        {
+            if (!ContextProvider.SetCameraInfoProvider(CameraHandler))
+            {
+                Log.WhatHappend("Failed to setup camera in context");
+            }
+            if (!CameraHandler.SetCameraHolder(CameraHolder))
+            {
+                Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
+            }
 
-            Log.WhatHappend("Player root initialized successfully.");
+            if (!InventoryControllerProvider.SetViewProvider(InventoryViewProvider))
+            {
+                Log.WhatHappend("Failed to setup InventoryView in InventoryController");
+            }
         }
 
         void InputBinding()
         {
-            InputProvider.OnMove += ContextProvider.HandleMoveInput;
             InputProvider.OnLook += CameraHandler.HandleLookInput;
+
+            InputProvider.OnMove += ContextProvider.HandleMoveInput;
             InputProvider.OnStartJump += ContextProvider.HandleStartJumpInput;
             InputProvider.OnStopJump += ContextProvider.HandleStopJumpInput;
             InputProvider.OnStartSprint += ContextProvider.HandleStartSprintInput;
@@ -56,7 +72,9 @@ namespace David6.ShooterCore.Context
             InputProvider.OnStopFire += ContextProvider.HandleStopFireInput;
             InputProvider.OnStartReload += ContextProvider.HandleStartReloadInput;
             InputProvider.OnStopReload += ContextProvider.HandleStopReloadInput;
-            Log.WhatHappend("Input binding completed successfully.");
+
+            InputProvider.OnPause += InventoryControllerProvider.HandlePause;
+            InputProvider.OnResume += InventoryControllerProvider.HandleResume;
         }
     }
 }
