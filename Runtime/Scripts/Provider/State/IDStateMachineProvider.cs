@@ -8,5 +8,6 @@ namespace David6.ShooterCore.Provider
         void SetInitialState(IDStateProvider initialState);
         void ChangeState(IDStateProvider newState);
         void OnUpdate();
+        void ActiveStateDebugMode();
     }
 }

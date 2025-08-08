@@ -12,6 +12,7 @@ namespace David6.ShooterCore.StateMachine
         private IDStateProvider _subState;
 
         public bool IsRoot { get { return _isRoot; } set { _isRoot = value; } }
+        public bool DebugMode { get; set; } = false;
         public IDContextProvider Context => _context;
         public IDStateMachineProvider StateMachine => _stateMachine;
 
@@ -47,7 +48,10 @@ namespace David6.ShooterCore.StateMachine
         {
             if (_isRoot)
             {
-                Log.WhatHappend($"[State Transition] {this.GetType().Name} -> {newState.GetType().Name}");
+                if (DebugMode)
+                {
+                    Log.WhatHappend($"[State Transition] {this.GetType().Name} -> {newState.GetType().Name}");
+                }
                 // 루트인 경우, 스테이트 머신에 전이 반영
                 _stateMachine.ChangeState(newState);
                 newState.EnterState();
@@ -64,7 +68,10 @@ namespace David6.ShooterCore.StateMachine
         {
             _subState = subState;
             subState.SetSuperState(this);
-            Log.WhatHappend($"[SubState Set] {this.GetType().Name} -> {subState.GetType().Name}");
+            if (DebugMode)
+            {
+                Log.WhatHappend($"[SubState Set] {this.GetType().Name} -> {subState.GetType().Name}");
+            }
         }
 
         public void SwitchSubState(IDStateProvider newState)

@@ -1,5 +1,4 @@
 using David6.ShooterCore.Provider;
-using David6.ShooterCore.TickSystem;
 
 namespace David6.ShooterCore.StateMachine
 {
@@ -30,5 +29,11 @@ namespace David6.ShooterCore.StateMachine
         public void OnUpdate() => _currentState?.UpdateAll();
 
         protected abstract void RegisterFactory(IDContextProvider context);
+
+
+        public void ActiveStateDebugMode()
+        {
+            _factory?.ActiveStateDebugMode();
+        }
     }
 }

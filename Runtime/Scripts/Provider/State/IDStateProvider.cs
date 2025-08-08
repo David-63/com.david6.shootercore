@@ -3,6 +3,7 @@ namespace David6.ShooterCore.Provider
     public interface IDStateProvider
     {
         bool IsRoot { get; set; }
+        bool DebugMode { get; set; }
         IDContextProvider Context { get; }
         IDStateMachineProvider StateMachine { get; }
 

@@ -35,5 +35,19 @@ namespace David6.ShooterCore.StateMachine
         }
 
         protected abstract void RegisterStates();
+
+        public void ActiveStateDebugMode()
+        {
+            foreach (var state in _stateCache.Values)
+            {
+                if (state is DBaseState baseState)
+                {
+                    baseState.DebugMode = true;
+                }
+            }
+            Log.WhatHappend("State debug mode activated for all states in the factory.");
+
+        }
+
     }
 }

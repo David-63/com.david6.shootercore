@@ -18,7 +18,6 @@ namespace David6.ShooterCore.StateMachine.Action
             Context.IsReloadReady = false;
             StartReload();
             Context.AnimatorProvider.SetReload();
-            Log.WhatHappend("Reload!");
 
             // TODO:
         }

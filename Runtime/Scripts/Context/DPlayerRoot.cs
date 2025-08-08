@@ -21,13 +21,15 @@ namespace David6.ShooterCore.Context
         IDCameraInfoProvider CameraHandler { get; set; }
 
         [Header("UI Settings")]
-        [SerializeField] private MonoBehaviour InventoryControllerBehaviour;
-        [SerializeField] private MonoBehaviour InventoryViewBehaviour;
+        [SerializeField] private MonoBehaviour RootPanelControllerBehaviour;
+        [SerializeField] private MonoBehaviour RootPanelViewBehaviour;
 
-        IDInventoryControllerProvider InventoryControllerProvider { get; set; }
-        IDInventoryViewProvider InventoryViewProvider { get; set; }
+        IDRootPanelControllerProvider RootPanelControllerProvider { get; set; }
+        IDRootPanelViewProvider RootPanelViewProvider { get; set; }
 
 
+        [Header("Debug Settings")]
+        [SerializeField] private bool StateDebugLog = false;
 
 
         void Awake()
@@ -35,8 +37,8 @@ namespace David6.ShooterCore.Context
             InputProvider = InputHanderBehaviour as IDInputProvider;
             ContextProvider = PlayerContextBehaviour as IDContextProvider;
             CameraHandler = CameraHandlerBehaviour as IDCameraInfoProvider;
-            InventoryControllerProvider = InventoryControllerBehaviour as IDInventoryControllerProvider;
-            InventoryViewProvider = InventoryViewBehaviour as IDInventoryViewProvider;
+            RootPanelControllerProvider = RootPanelControllerBehaviour as IDRootPanelControllerProvider;
+            RootPanelViewProvider = RootPanelViewBehaviour as IDRootPanelViewProvider;
             InputBinding();
         }
 
@@ -51,9 +53,10 @@ namespace David6.ShooterCore.Context
                 Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
             }
 
-            if (!InventoryControllerProvider.SetViewProvider(InventoryViewProvider))
+
+            if (StateDebugLog)
             {
-                Log.WhatHappend("Failed to setup InventoryView in InventoryController");
+                ContextProvider.ActiveStateDebugMode();
             }
         }
 
@@ -64,8 +67,8 @@ namespace David6.ShooterCore.Context
             InputProvider.OnMove += ContextProvider.HandleMoveInput;
             InputProvider.OnStartJump += ContextProvider.HandleStartJumpInput;
             InputProvider.OnStopJump += ContextProvider.HandleStopJumpInput;
-            InputProvider.OnStartSprint += ContextProvider.HandleStartSprintInput;
-            InputProvider.OnStopSprint += ContextProvider.HandleStopSprintInput;
+            InputProvider.OnStartRun += ContextProvider.HandleStartSprintInput;
+            InputProvider.OnStopRun += ContextProvider.HandleStopSprintInput;
             InputProvider.OnStartAim += ContextProvider.HandleStartAimInput;
             InputProvider.OnStopAim += ContextProvider.HandleStopAimInput;
             InputProvider.OnStartFire += ContextProvider.HandleStartFireInput;
@@ -73,8 +76,11 @@ namespace David6.ShooterCore.Context
             InputProvider.OnStartReload += ContextProvider.HandleStartReloadInput;
             InputProvider.OnStopReload += ContextProvider.HandleStopReloadInput;
 
-            InputProvider.OnPause += InventoryControllerProvider.HandlePause;
-            InputProvider.OnResume += InventoryControllerProvider.HandleResume;
+            InputProvider.OnPause += RootPanelControllerProvider.HandlePause;
+            InputProvider.OnResume += RootPanelControllerProvider.HandleResume;
+            InputProvider.OnPop += RootPanelControllerProvider.HandlePop;
+
+            RootPanelControllerProvider.OnCloseUI += InputProvider.HandleResume;
         }
     }
 }

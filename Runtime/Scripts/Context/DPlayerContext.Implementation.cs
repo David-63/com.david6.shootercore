@@ -15,6 +15,15 @@ namespace David6.ShooterCore.Context
 
 
         public Transform CharacterTransform => transform;
+
+
+        public void ActiveStateDebugMode()
+        {
+            _locomotionStateMachine.ActiveStateDebugMode();
+            _actionStateMachine.ActiveStateDebugMode();
+        }
+
+
         #region Input caching
 
         public Vector3 InputDirection { get; private set; }

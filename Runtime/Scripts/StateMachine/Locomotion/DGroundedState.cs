@@ -69,7 +69,10 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 
             if (SubState != null)
             {
-                Log.WhatHappend($"[SubState Enter] {SubState.GetType().Name}");
+                if (DebugMode)
+                {
+                    Log.WhatHappend($"[SubState Enter] {SubState.GetType().Name}");
+                }
                 SubState.EnterState();
             }
         }

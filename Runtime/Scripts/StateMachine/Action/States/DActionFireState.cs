@@ -7,7 +7,6 @@ namespace David6.ShooterCore.StateMachine.Action
 {
     public class DActionFireState : DBaseState
     {
-        float _fireRate = 720f;
         const string FIRE_KEY = "Action.Fire";
 
         public DActionFireState(IDContextProvider context, IDStateMachineProvider stateMachine)
@@ -49,7 +48,6 @@ namespace David6.ShooterCore.StateMachine.Action
         {
             Context.AnimatorProvider.SetFire();
             Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.FireRate);
-            Log.WhatHappend("Fire!");
         }
     }
 }

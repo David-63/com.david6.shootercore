@@ -4,71 +4,76 @@ using UnityEngine;
 
 namespace David6.ShooterCore.Provider
 {
-        public interface IDContextProvider
-        {
-            DMovementProfile MovementProfile { get; }
-            Transform CharacterTransform { get; }
-            IDAnimatorProvider AnimatorProvider { get; }
-            IDCooldownProvider CooldownProvider { get; }
+    public interface IDContextProvider
+    {
+        DMovementProfile MovementProfile { get; }
+        Transform CharacterTransform { get; }
+        IDAnimatorProvider AnimatorProvider { get; }
+        IDCooldownProvider CooldownProvider { get; }
 
 
-            #region Input
-            Vector3 InputDirection { get; }
-            bool InputSprint { get; }
-            bool InputJump { get; }
-            bool InputAim { get; }
-            bool InputFire { get; }
+        /// <summary>
+        ///  debug 모드 활성화
+        /// </summary>
+        void ActiveStateDebugMode();
 
-            void HandleMoveInput(Vector2 moveInput);
-            void HandleStartJumpInput();
-            void HandleStopJumpInput();
-            void HandleStartSprintInput();
-            void HandleStopSprintInput();
-            void HandleStartAimInput();
-            void HandleStopAimInput();
-            void HandleStartFireInput();
-            void HandleStopFireInput();
-            void HandleStartReloadInput();
-            void HandleStopReloadInput();
+        #region Input
+        Vector3 InputDirection { get; }
+        bool InputSprint { get; }
+        bool InputJump { get; }
+        bool InputAim { get; }
+        bool InputFire { get; }
 
-            #endregion
+        void HandleMoveInput(Vector2 moveInput);
+        void HandleStartJumpInput();
+        void HandleStopJumpInput();
+        void HandleStartSprintInput();
+        void HandleStopSprintInput();
+        void HandleStartAimInput();
+        void HandleStopAimInput();
+        void HandleStartFireInput();
+        void HandleStopFireInput();
+        void HandleStartReloadInput();
+        void HandleStopReloadInput();
 
-            /// <summary>
-            /// 외부 의존성 주입
-            /// </summary>
-            /// <param name="cameraInfoProvider"></param>
-            bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
+        #endregion
 
-            float HorizontalSpeed { get; set; }
-            float TargetSpeed { get; set; }
-            Vector3 FinalMoveDirection { get; set; }
-            float YawAngle { get; }
-            float VerticalSpeed { get; set; }
-            bool IsGrounded { get; }
-            bool IsJumpReady { get; set; }
-            bool IsFalling { get; set; }
+        /// <summary>
+        /// 외부 의존성 주입
+        /// </summary>
+        /// <param name="cameraInfoProvider"></param>
+        bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
 
-            // Update
-            void GroundCheck();
-            void ApplyMovement();
+        float HorizontalSpeed { get; set; }
+        float TargetSpeed { get; set; }
+        Vector3 FinalMoveDirection { get; set; }
+        float YawAngle { get; }
+        float VerticalSpeed { get; set; }
+        bool IsGrounded { get; }
+        bool IsJumpReady { get; set; }
+        bool IsFalling { get; set; }
 
-            // 코루틴 호출함수
-            Coroutine ExecuteCoroutine(IEnumerator routine);
-            void CancelCoroutine(Coroutine routine);
+        // Update
+        void GroundCheck();
+        void ApplyMovement();
 
-            // 조건
-            bool HasMovementInput();
-            bool IsForward();
-            bool CanJump();
-            bool ShouldJump();
-            bool ShouldGrounded();
-            // TODO: 사격 및 재장전 조건 추가
-            bool IsFiring { get; set; }
-            float FireRate { get; }
-            bool ShouldFire();
-            bool IsReloadReady { get; set; }
-            bool CanReload();
-            bool ShouldReload();
+        // 코루틴 호출함수
+        Coroutine ExecuteCoroutine(IEnumerator routine);
+        void CancelCoroutine(Coroutine routine);
 
-        }
+        // 조건
+        bool HasMovementInput();
+        bool IsForward();
+        bool CanJump();
+        bool ShouldJump();
+        bool ShouldGrounded();
+        // TODO: 사격 및 재장전 조건 추가
+        bool IsFiring { get; set; }
+        float FireRate { get; }
+        bool ShouldFire();
+        bool IsReloadReady { get; set; }
+        bool CanReload();
+        bool ShouldReload();
+
+    }
 }
