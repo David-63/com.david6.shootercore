@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item.Gear;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using David6.ShooterCore.UI.Equipment;
@@ -9,28 +11,43 @@ namespace David6.ShooterCore.UI
 {
     public class DRootPanelController : MonoBehaviour, IDRootPanelControllerProvider
     {
-        [SerializeField] DRootPanelView _rootPanelView;
-        DEquipmentModel _equipmentModel;
-        DEquipmentFactory _equipmentFactory;
-
+        [SerializeField] DRootPanelView _rootPanelView;        
         [SerializeField] DEquipmentSlotView _slotPanelView;
         [SerializeField] DEquipmentListView _listPanelView;
 
-
-        Stack<IDPanelPresenterProvider> _panelStack = new();
-        IDPanelPresenterProvider _currentPanel;
-        public event Action OnCloseUI;
-
+        DEquipmentModel _equipmentModel;
+        DEquipmentFactory _equipmentFactory;
         public DEquipmentFactory EquipmentFactory => _equipmentFactory;
 
+        [SerializeField] DEquipmentDatabase _equipmentDatabase;
 
-        private void Awake()
+
+
+        [SerializeField] List<DEquipmentItem> TestItem;
+
+
+        void Awake()
         {
             _equipmentModel = new DEquipmentModel();
+
+            if (_equipmentDatabase != null)
+            {
+                _equipmentModel.Initialize(_equipmentDatabase.EquipmentItems);
+            }
+
             _equipmentFactory = new DEquipmentFactory();
             _equipmentFactory.Initialize(this, _equipmentModel, _slotPanelView, _listPanelView);
         }
 
+        void Start()
+        {
+            //_equipmentFactory.EquipmentModel.AddItem(EDGearType.PrimaryWeapon, SampleItem);
+        }
+
+        #region UI Control
+        Stack<IDPanelPresenterProvider> _panelStack = new();
+        IDPanelPresenterProvider _currentPanel;
+        public event Action OnCloseUI;
         public void HandlePop()
         {
             PopPanel();
@@ -48,8 +65,7 @@ namespace David6.ShooterCore.UI
         // tab 입력을 받을 경우
         public void HandleResume()
         {
-            _rootPanelView?.HidePanel();
-            OnCloseUI?.Invoke();
+            ClearAllPanel();
         }
 
         public void PushPanel(IDPanelPresenterProvider panel)
@@ -81,5 +97,18 @@ namespace David6.ShooterCore.UI
             _currentPanel = null;
             OnCloseUI?.Invoke();
         }
+        void ClearAllPanel()
+        {
+            while (_panelStack.Count > 0)
+            {
+                var panel = _panelStack.Pop();
+                panel?.HidePanel();
+            }
+            _currentPanel = null;
+            _rootPanelView?.HidePanel();
+            OnCloseUI?.Invoke();
+        }
+        #endregion
+
     }
 }

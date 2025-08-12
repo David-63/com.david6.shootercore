@@ -1,29 +1,32 @@
+using System.Collections.Generic;
+using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.Item.Gear;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using UnityEngine;
 
 namespace David6.ShooterCore.UI.Equipment
 {
     public class DEquipmentSlotPresenter : DBaseEquipmentPresenter
     {
+        DEquipmentSlotView _panelView;
+        Dictionary<EDGearType, DEquipmentSlotButton> _buttonMap = new();
+
 
         public DEquipmentSlotPresenter(IDRootPanelControllerProvider rootPanelController, DEquipmentModel equipmentModel)
         : base(rootPanelController, equipmentModel) { }
 
         public override void Initialize()
         {
-            DEquipmentSlotView slotView = _rootPanelController.EquipmentFactory.ViewCache[typeof(DEquipmentSlotView)] as DEquipmentSlotView;
-            if (slotView == null)
+            _panelView = GetPanelView<DEquipmentSlotView>() as DEquipmentSlotView;
+            if (_panelView == null)
             {
-                Log.WhatHappend("DEquipmentSlotView is not found in ViewCache.");
+                Log.AttentionPlease("DEquipmentSlotView is not found in ViewCache.");
                 return;
             }
 
+            _equipmentModel.OnGearChanged += ChangeSlotIcon;
 
-            Log.WhatHappend("슬롯 패널 초기화");
-
-            foreach (var button in slotView.SlotButtons)
+            foreach (var button in _panelView.SlotButtons)
             {
                 var buttonSlot = button.GearType;
                 var slotData = _equipmentModel.GetEquippedGear(buttonSlot);
@@ -32,30 +35,36 @@ namespace David6.ShooterCore.UI.Equipment
                     button.SlotIcon = slotData.GearIcon;
                 }
 
-                Log.WhatHappend("클릭 이벤트 바인딩");
                 button.OnClicked += HandleSlotClicked;
+
+                _buttonMap[buttonSlot] = button;
             }
         }
 
-        private void HandleSlotClicked(EDGearType gearType)
+        void HandleSlotClicked(EDGearType gearType)
         {
-            Log.WhatHappend("HandleClick");
-            var gearData = _equipmentModel.GetEquippedGear(gearType);
-            if (gearData != null)
+            //선택중인 기어 타입 변경
+            _equipmentModel.SetListDisplayGearType(gearType);
+            
+            _rootPanelController.PushPanel(_rootPanelController.EquipmentFactory.PresenterCache[typeof(DEquipmentListPresenter)]);
+        }
+
+        void ChangeSlotIcon(EDGearType slotType, DGearData slotData)
+        {
+            if (_buttonMap.TryGetValue(slotType, out var button))
             {
-                _rootPanelController.PushPanel(_rootPanelController.EquipmentFactory.PresenterCache[typeof(DEquipmentListPresenter)]);
+                Log.WhatHappend("이미지 변경 성공");
+                button.SlotIcon = slotData.GearIcon;
             }
         }
 
         public override void ShowPanel()
         {
-            DEquipmentSlotView panelView = GetPanelView<DEquipmentSlotView>() as DEquipmentSlotView;
-            panelView.ShowPanel();
+            _panelView.ShowPanel();
         }
         public override void HidePanel()
         {
-            DEquipmentSlotView panelView = GetPanelView<DEquipmentSlotView>() as DEquipmentSlotView;
-            panelView.HidePanel();
+            _panelView.HidePanel();
         }
     }
 }

@@ -8,6 +8,7 @@ namespace David6.ShooterCore.UI.Equipment
     {
         IDRootPanelControllerProvider _rootPanelController;
         DEquipmentModel _equipmentModel;
+        public DEquipmentModel EquipmentModel { get => _equipmentModel; }
 
         public Dictionary<Type, IDPanelViewProvider> ViewCache = new();
         public Dictionary<Type, IDPanelPresenterProvider> PresenterCache = new();

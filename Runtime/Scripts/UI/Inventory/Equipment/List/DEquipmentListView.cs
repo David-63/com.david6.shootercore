@@ -1,27 +1,32 @@
+using System;
+using System.Collections.Generic;
+using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item.Gear;
+using David6.ShooterCore.Tools;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace David6.ShooterCore.UI.Equipment
 {
     public class DEquipmentListView : DBasePanelView
     {
-        protected override void Awake()
-        {
-            _canvasGroup = GetComponent<CanvasGroup>();
-            if (_canvasGroup == null)
-            {
-                Debug.LogError("CanvasGroup component is missing on DEquipmentSlotView.");
-            }
+        [SerializeField] DEquipmentScrollView _scrollView;
 
-            gameObject.SetActive(false);
-        }
+        public DEquipmentScrollView GetScrollView() => _scrollView;
 
         public override void ShowPanel()
         {
-            gameObject.SetActive(true);
+            _canvasGroup.alpha = 1.0f;
+            _canvasGroup.blocksRaycasts = true;
+            _canvasGroup.interactable = true;
+            _layoutElement.ignoreLayout = false;
         }
         public override void HidePanel()
         {
-            gameObject.SetActive(false);
+            _canvasGroup.alpha = 0.0f;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+            _layoutElement.ignoreLayout = true;
         }
     }
 }

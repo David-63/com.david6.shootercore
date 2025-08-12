@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace David6.ShooterCore.UI.Equipment
 {
@@ -10,24 +11,25 @@ namespace David6.ShooterCore.UI.Equipment
         [SerializeField] List<DEquipmentSlotButton> _equipSlotButtons;
         public IReadOnlyList<DEquipmentSlotButton> SlotButtons => _equipSlotButtons;
 
-        protected override void Awake()
-        {
-            _canvasGroup = GetComponent<CanvasGroup>();
-            if (_canvasGroup == null)
-            {
-                Debug.LogError("CanvasGroup component is missing on DEquipmentSlotView.");
-            }
-
-            gameObject.SetActive(false);
-        }
+        // public void SlotUpdate(EDGearType currentType, List<DGearData> items, Action<EDGearType, DGearData> onClick)
+        // {
+        //     _scrollView.SetScrollViewText(currentType);
+        //     _scrollView.SetItems(items, onClick);
+        // }
 
         public override void ShowPanel()
         {
-            gameObject.SetActive(true);
+            _canvasGroup.alpha = 1.0f;
+            _canvasGroup.blocksRaycasts = true;
+            _canvasGroup.interactable = true;
+            _layoutElement.ignoreLayout = false;
         }
         public override void HidePanel()
         {
-            gameObject.SetActive(false);
+            _canvasGroup.alpha = 0.0f;
+            _canvasGroup.blocksRaycasts = false;
+            _canvasGroup.interactable = false;
+            _layoutElement.ignoreLayout = true;
         }
     }
 }
