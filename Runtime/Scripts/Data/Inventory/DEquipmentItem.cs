@@ -1,4 +1,4 @@
-using David6.ShooterCore.Item.Gear;
+using David6.ShooterCore.Data.Enum;
 using UnityEngine;
 
 namespace David6.ShooterCore.Data.Gear

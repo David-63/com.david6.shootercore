@@ -39,11 +39,9 @@ namespace David6.ShooterCore.Context
             CameraHandler = CameraHandlerBehaviour as IDCameraHandlerProvider;
             RootPanelControllerProvider = RootPanelControllerBehaviour as IDRootPanelControllerProvider;
             RootPanelViewProvider = RootPanelViewBehaviour as IDRootPanelViewProvider;
-            InputBinding();
-        }
 
-        void Start()
-        {
+            InputBinding();
+
             if (!ContextProvider.SetCameraInfoProvider(CameraHandler))
             {
                 Log.WhatHappend("Failed to setup camera in context");
@@ -52,8 +50,10 @@ namespace David6.ShooterCore.Context
             {
                 Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
             }
+        }
 
-
+        void Start()
+        {
             if (StateDebugLog)
             {
                 ContextProvider.ActiveStateDebugMode();

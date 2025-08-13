@@ -19,5 +19,10 @@ namespace David6.ShooterCore.Provider
         bool SetCameraHolder(GameObject cameraHolder);
         void HandleLookInput(Vector2 input);
 
+        void ActiveExplorationCamera();
+        void ActiveFocusCamera();
+
+        void ActiveMenuCamera();
+        void InactiveMenuCamera();
     }
 }

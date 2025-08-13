@@ -1,4 +1,4 @@
-namespace David6.ShooterCore.Item.Gear
+namespace David6.ShooterCore.Data.Enum
 {
     public enum EDGearType
     {

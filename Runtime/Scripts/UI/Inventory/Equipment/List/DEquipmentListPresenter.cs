@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Data.Gear;
-using David6.ShooterCore.Item.Gear;
 using David6.ShooterCore.Provider;
 
 namespace David6.ShooterCore.UI.Equipment

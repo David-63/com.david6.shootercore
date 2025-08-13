@@ -164,11 +164,6 @@ namespace David6.ShooterCore.Input
 
         public void Tick(float deltaTime)
         {
-            
-        }
-
-        void Update()
-        {
             if (_basicMap.enabled)
             {
                 Vector2 moveValue = _moveAction.ReadValue<Vector2>();

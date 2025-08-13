@@ -1,5 +1,5 @@
 using System;
-using David6.ShooterCore.Item.Gear;
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Tools;
 using TMPro;
 using UnityEngine;

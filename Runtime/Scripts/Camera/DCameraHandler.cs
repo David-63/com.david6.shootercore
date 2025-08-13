@@ -1,16 +1,23 @@
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
+using David6.ShooterCore.Tools;
 using UnityEngine;
 
 namespace David6.ShooterCore.Camera
 {
+    
     public class DCameraHandler : MonoBehaviour, IDCameraHandlerProvider, IDLateTickable
     {
-        // ScriptableObject로 설정할 수 있는 카메라 프로필
-        [Header("Camera Profile")]
-        [Tooltip("카메라의 시점 프로필")]
-        public DCameraLookProfile CameraLookProfile;
+        // ScriptableObject로 설정할 수 있는 카메라 프로필        
+        [Tooltip("Camera Profile")]
+        [SerializeField] DCameraLookProfile CameraLookProfile;
+        [Header("Camera Prefabs")]
+        [SerializeField] GameObject ExplorationCamera;
+        [SerializeField] GameObject FocusCamera;
+        [SerializeField] GameObject MenuCamera;
+
+        GameObject _prevCamera;
 
         /// <summary>
         /// 메인 카메라의 Transform
@@ -30,7 +37,6 @@ namespace David6.ShooterCore.Camera
         private float _cameraPitch = 0.0f;
         private const float _threshold = 0.01f; // 카메라 회전 임계값
 
-
         void Start()
         {
             DGameLoop.Instance.Register(this);
@@ -38,7 +44,7 @@ namespace David6.ShooterCore.Camera
 
         void OnDestroy()
         {
-            DGameLoop.Instance.Unregister(this);            
+            DGameLoop.Instance.Unregister(this);
         }
 
         public bool SetCameraHolder(GameObject cameraHolder)
@@ -65,6 +71,29 @@ namespace David6.ShooterCore.Camera
         public void LateTick(float deltaTime)
         {
             LookRotation();
+        }
+
+        public void ActiveExplorationCamera()
+        {
+            if (_prevCamera != null) _prevCamera.SetActive(false);
+            ExplorationCamera.SetActive(true);
+            _prevCamera = ExplorationCamera;
+        }
+        public void ActiveFocusCamera()
+        {
+            if (_prevCamera != null) _prevCamera.SetActive(false);
+            FocusCamera.SetActive(true);
+            _prevCamera = FocusCamera;
+        }
+        public void ActiveMenuCamera()
+        {
+            if (_prevCamera != null) _prevCamera.SetActive(false);
+            MenuCamera.SetActive(true);
+        }
+        public void InactiveMenuCamera()
+        {
+            MenuCamera.SetActive(false);
+            _prevCamera.SetActive(true);
         }
 
         void LookRotation()

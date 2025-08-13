@@ -28,7 +28,7 @@ namespace David6.ShooterCore.Context
 
         // 외부 컴포넌트
         IDRootPanelControllerProvider _rootPanelController;
-        IDCameraHandlerProvider _cameraInfo;
+        IDCameraHandlerProvider _cameraHandler;
 
 
         // 리소스
@@ -50,13 +50,13 @@ namespace David6.ShooterCore.Context
             {
                 _animationEventProxy = proxy;
             }
-
-            _locomotionStateMachine = new DLocomotionStateMachine(this);
-            _actionStateMachine = new DActionStateMachine(this);
-            _cooldownHandler = new DCooldownHandler();
         }
         void Start()
         {
+            _locomotionStateMachine = new DLocomotionStateMachine(this);
+            _actionStateMachine = new DActionStateMachine(this);
+            _cooldownHandler = new DCooldownHandler();
+
             InitializeCharacterController();
 
             _animatorHandler.SetGrounded(true);

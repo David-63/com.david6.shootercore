@@ -14,6 +14,7 @@ namespace David6.ShooterCore.Context
         public DMovementProfile MovementProfile => _movementProfile;
         public IDAnimatorProvider AnimatorProvider => _animatorHandler;
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
+        public IDCameraHandlerProvider CameraHandlerProvider => _cameraHandler;
 
         public Transform CharacterTransform => transform;
 
@@ -70,7 +71,7 @@ namespace David6.ShooterCore.Context
             bool flag = true;
             if (cameraInfoProvider != null)
             {
-                _cameraInfo = cameraInfoProvider;
+                _cameraHandler = cameraInfoProvider;
             }
             else
             {
@@ -88,7 +89,7 @@ namespace David6.ShooterCore.Context
 
         Vector3 _finalMoveDirection;
         public Vector3 FinalMoveDirection { get => _finalMoveDirection; set => _finalMoveDirection = value; }
-        public float YawAngle => _cameraInfo.YawAngle;
+        public float YawAngle => _cameraHandler.YawAngle;
 
 
         #endregion

@@ -12,6 +12,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void EnterState()
         {
             InitializeSubState();
+            Context.CameraHandlerProvider.ActiveExplorationCamera();
         }
 
         public override void UpdateSelf()

@@ -14,6 +14,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             InitializeSubState();
             Context.AnimatorProvider.SetFocus(true);
             Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 1.0f);
+            Context.CameraHandlerProvider.ActiveFocusCamera();
         }
 
         public override void UpdateSelf()

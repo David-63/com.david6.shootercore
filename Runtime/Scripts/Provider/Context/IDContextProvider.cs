@@ -10,11 +10,12 @@ namespace David6.ShooterCore.Provider
         Transform CharacterTransform { get; }
         IDAnimatorProvider AnimatorProvider { get; }
         IDCooldownProvider CooldownProvider { get; }
+        IDCameraHandlerProvider CameraHandlerProvider { get; }
         /// <summary>
         /// 외부 의존성 주입
         /// </summary>
         /// <param name="cameraInfoProvider"></param>
-        bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider);
+        bool SetCameraInfoProvider(IDCameraHandlerProvider cameraHandlerProvider);
 
         /// <summary>
         ///  debug 모드 활성화
