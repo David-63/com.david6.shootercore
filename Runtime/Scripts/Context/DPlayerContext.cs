@@ -15,15 +15,24 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider, IDTickable
     {
-        [SerializeField] DMovementProfile _movementProfile;
-        public DMovementProfile MovementProfile { get { return _movementProfile; } }
+        // 등록된 컴포넌트        
         CharacterController _characterController;
         DAnimationEventProxy _animationEventProxy;
+
+
+        // 생성한 컴포넌트
         IDAnimatorProvider _animatorHandler;
         IDStateMachineProvider _locomotionStateMachine;
         IDStateMachineProvider _actionStateMachine;
         IDCooldownProvider _cooldownHandler;
 
+        // 외부 컴포넌트
+        IDRootPanelControllerProvider _rootPanelController;
+        IDCameraHandlerProvider _cameraInfo;
+
+
+        // 리소스
+        [SerializeField] DMovementProfile _movementProfile;
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
@@ -77,6 +86,7 @@ namespace David6.ShooterCore.Context
             _locomotionStateMachine.OnUpdate();
             _actionStateMachine.OnUpdate();
             ApplyMovement();
+            FocusCheck();
         }
 
         void InitializeCharacterController()

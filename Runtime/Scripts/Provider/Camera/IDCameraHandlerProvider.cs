@@ -5,7 +5,7 @@ namespace David6.ShooterCore.Provider
     /// <summary>
     /// 카메라 정보 제공자 인터페이스
     /// </summary>
-    public interface IDCameraInfoProvider
+    public interface IDCameraHandlerProvider
     {
         Vector2 InputLook { get; }
         /// <summary>

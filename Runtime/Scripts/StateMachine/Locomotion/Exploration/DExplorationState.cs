@@ -22,7 +22,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void ExitState() { }
         public override void CheckTransition()
         {
-            if (Context.InputAim)
+            if (Context.IsFocus)
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DFocusState)));
             }

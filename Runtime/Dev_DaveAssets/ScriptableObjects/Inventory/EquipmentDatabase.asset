@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ff664f2d665b564db23d47e42ef8347, type: 3}
   m_Name: EquipmentDatabase
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Data.Gear.DEquipmentDatabase
-  EquipmentItems: []
+  EquipmentItems:
+  - {fileID: 11400000, guid: 4a1b55b807b86024a863efdd4d493653, type: 2}
+  - {fileID: 11400000, guid: 0be965c6851304248a2b0e464eff8cf5, type: 2}
+  - {fileID: 11400000, guid: 5bfc8df9c28bc984095973e0d2d00a32, type: 2}
+  - {fileID: 11400000, guid: 92b41144be4ef764da85f2dc297f2192, type: 2}

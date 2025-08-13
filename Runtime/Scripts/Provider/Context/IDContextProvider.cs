@@ -10,7 +10,11 @@ namespace David6.ShooterCore.Provider
         Transform CharacterTransform { get; }
         IDAnimatorProvider AnimatorProvider { get; }
         IDCooldownProvider CooldownProvider { get; }
-
+        /// <summary>
+        /// 외부 의존성 주입
+        /// </summary>
+        /// <param name="cameraInfoProvider"></param>
+        bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider);
 
         /// <summary>
         ///  debug 모드 활성화
@@ -36,14 +40,15 @@ namespace David6.ShooterCore.Provider
         void HandleStartReloadInput();
         void HandleStopReloadInput();
 
+
+        // UI 입력
+        void HandlePauseInput();
+        void HandleResumeInput();
+        void HandlePopInput();
+
         #endregion
 
-        /// <summary>
-        /// 외부 의존성 주입
-        /// </summary>
-        /// <param name="cameraInfoProvider"></param>
-        bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider);
-
+        // Movement 변수
         float HorizontalSpeed { get; set; }
         float TargetSpeed { get; set; }
         Vector3 FinalMoveDirection { get; set; }
@@ -52,10 +57,6 @@ namespace David6.ShooterCore.Provider
         bool IsGrounded { get; }
         bool IsJumpReady { get; set; }
         bool IsFalling { get; set; }
-
-        // Update
-        void GroundCheck();
-        void ApplyMovement();
 
         // 코루틴 호출함수
         Coroutine ExecuteCoroutine(IEnumerator routine);
@@ -67,13 +68,19 @@ namespace David6.ShooterCore.Provider
         bool CanJump();
         bool ShouldJump();
         bool ShouldGrounded();
-        // TODO: 사격 및 재장전 조건 추가
+
+        bool IsFocus { get; set; }
+
+        void StartFocus();
+
+
         bool IsFiring { get; set; }
         float FireRate { get; }
         bool ShouldFire();
-        bool IsReloadReady { get; set; }
-        bool CanReload();
         bool ShouldReload();
 
+        // Tick
+        void GroundCheck();
+        void ApplyMovement();
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -10,9 +11,9 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
+        public DMovementProfile MovementProfile => _movementProfile;
         public IDAnimatorProvider AnimatorProvider => _animatorHandler;
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
-
 
         public Transform CharacterTransform => transform;
 
@@ -43,12 +44,28 @@ namespace David6.ShooterCore.Context
         public void HandleStopFireInput() => InputFire = false;
         public void HandleStartReloadInput() => InputReload = true;
         public void HandleStopReloadInput() => InputReload = false;
+
+
+        public IDRootPanelControllerProvider RootPanelController => _rootPanelController;
+
+        public void HandlePauseInput()
+        {
+            _rootPanelController.HandlePause();
+        }
+        public void HandleResumeInput()
+        {
+            _rootPanelController.HandleResume();
+        }
+        public void HandlePopInput()
+        {
+            _rootPanelController.HandlePop();
+        }
+
         #endregion
 
         #region Camera Info Provider
-        IDCameraInfoProvider _cameraInfo;
 
-        public bool SetCameraInfoProvider(IDCameraInfoProvider cameraInfoProvider)
+        public bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider)
         {
             bool flag = true;
             if (cameraInfoProvider != null)
@@ -64,8 +81,7 @@ namespace David6.ShooterCore.Context
 
         #endregion
 
-        #region Movement Methods
-
+        #region Movement
         public float TargetSpeed { get; set; }
         float _horizontalSpeed;
         public float HorizontalSpeed { get => _horizontalSpeed; set => _horizontalSpeed = value; }
@@ -73,16 +89,7 @@ namespace David6.ShooterCore.Context
         Vector3 _finalMoveDirection;
         public Vector3 FinalMoveDirection { get => _finalMoveDirection; set => _finalMoveDirection = value; }
         public float YawAngle => _cameraInfo.YawAngle;
-        public void GroundCheck()
-        {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z);
-            _grounded = Physics.CheckSphere(spherePosition, _movementProfile.GroundedRadius, _movementProfile.GroundLayers, QueryTriggerInteraction.Ignore);
-        }
-        public void ApplyMovement()
-        {
-            Vector3 velocity = _finalMoveDirection * _horizontalSpeed + Vector3.up * _verticalSpeed;
-            _characterController.Move(velocity * Time.deltaTime);
-        }
+
 
         #endregion
 
@@ -119,11 +126,19 @@ namespace David6.ShooterCore.Context
 
         #region Action Control
 
-        // 임시로 구성한 변수
+        bool _isFocus = false;
+        const string FOCUS_KEY = "State.Focus";
+        float _focusDuration = 3.0f;
+
+        public bool IsFocus { get => _isFocus; set => _isFocus = value; }
+        public void StartFocus()
+        {
+            _cooldownHandler.StartCooldown(FOCUS_KEY, _focusDuration);
+            _isFocus = true;
+        }
 
 
-
-        // 현재 사용여부
+        // 아래의 변수는 전부 Inventory Module에 의해 제어될 예정
         bool _isFiring = false;
         public bool IsFiring { get => _isFiring; set => _isFiring = value; }
 
@@ -134,12 +149,31 @@ namespace David6.ShooterCore.Context
 
         public bool ShouldFire() => InputFire && !_isFiring;
 
-        public bool _isReloadReady = true;
-        public bool IsReloadReady { get => _isReloadReady; set => _isReloadReady = value; }
+        public bool ShouldReload() => InputReload;
+        #endregion
 
-        public bool CanReload() => _isReloadReady;
+        #region Tick Method
 
-        public bool ShouldReload() => InputReload && CanReload();
+        public void GroundCheck()
+        {
+            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z);
+            _grounded = Physics.CheckSphere(spherePosition, _movementProfile.GroundedRadius, _movementProfile.GroundLayers, QueryTriggerInteraction.Ignore);
+        }
+        public void ApplyMovement()
+        {
+            Vector3 velocity = _finalMoveDirection * _horizontalSpeed + Vector3.up * _verticalSpeed;
+            _characterController.Move(velocity * Time.deltaTime);
+        }
+        public void FocusCheck()
+        {
+            if (!_isFocus) return;
+
+            if (_cooldownHandler.IsReady(FOCUS_KEY))
+            {
+                _isFocus = false;
+            }
+        }
+
         #endregion
     }
 }

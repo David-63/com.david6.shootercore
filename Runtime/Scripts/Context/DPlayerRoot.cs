@@ -18,7 +18,7 @@ namespace David6.ShooterCore.Context
 
         IDInputProvider InputProvider { get; set; }
         IDContextProvider ContextProvider { get; set; }
-        IDCameraInfoProvider CameraHandler { get; set; }
+        IDCameraHandlerProvider CameraHandler { get; set; }
 
         [Header("UI Settings")]
         [SerializeField] private MonoBehaviour RootPanelControllerBehaviour;
@@ -36,7 +36,7 @@ namespace David6.ShooterCore.Context
         {
             InputProvider = InputHanderBehaviour as IDInputProvider;
             ContextProvider = PlayerContextBehaviour as IDContextProvider;
-            CameraHandler = CameraHandlerBehaviour as IDCameraInfoProvider;
+            CameraHandler = CameraHandlerBehaviour as IDCameraHandlerProvider;
             RootPanelControllerProvider = RootPanelControllerBehaviour as IDRootPanelControllerProvider;
             RootPanelViewProvider = RootPanelViewBehaviour as IDRootPanelViewProvider;
             InputBinding();
@@ -76,9 +76,9 @@ namespace David6.ShooterCore.Context
             InputProvider.OnStartReload += ContextProvider.HandleStartReloadInput;
             InputProvider.OnStopReload += ContextProvider.HandleStopReloadInput;
 
-            InputProvider.OnPause += RootPanelControllerProvider.HandlePause;
-            InputProvider.OnResume += RootPanelControllerProvider.HandleResume;
-            InputProvider.OnPop += RootPanelControllerProvider.HandlePop;
+            InputProvider.OnPause += ContextProvider.HandlePauseInput;
+            InputProvider.OnResume += ContextProvider.HandleResumeInput;
+            InputProvider.OnPop += ContextProvider.HandlePopInput;
 
             RootPanelControllerProvider.OnCloseUI += InputProvider.HandleResume;
         }

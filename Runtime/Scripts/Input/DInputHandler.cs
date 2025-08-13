@@ -3,12 +3,13 @@
 using System;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.TickSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace David6.ShooterCore.Input
 {
-    public class DInputHandler : MonoBehaviour, IDInputProvider
+    public class DInputHandler : MonoBehaviour, IDInputProvider, IDTickable
     {
         [SerializeField] DInputSettingProfile inputSettingProfile;
 
@@ -51,7 +52,7 @@ namespace David6.ShooterCore.Input
 
         #endregion
 
-        private void Awake()
+        void Awake()
         {
             _basicMap = inputSettingProfile.InputActions.FindActionMap("Basic", throwIfNotFound: true);
             _UIMap = inputSettingProfile.InputActions.FindActionMap("UI", throwIfNotFound: true);
@@ -70,7 +71,23 @@ namespace David6.ShooterCore.Input
             _reloadAction = _basicMap.FindAction("Reload", throwIfNotFound: true);
         }
 
-        private void OnEnable()
+        void Start()
+        {
+            if (DGameLoop.Instance != null)
+            {
+                DGameLoop.Instance.Register(this);
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (DGameLoop.Instance != null)
+            {
+                DGameLoop.Instance.Unregister(this);
+            }
+        }
+
+        void OnEnable()
         {
             _basicMap.Enable();
             SubscribeBasicActions();
@@ -79,7 +96,7 @@ namespace David6.ShooterCore.Input
             UnsubscribeUIActions();
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             _basicMap.Disable();
             UnsubscribeBasicActions();
@@ -87,7 +104,7 @@ namespace David6.ShooterCore.Input
             UnsubscribeUIActions();
         }
 
-        private void SubscribeBasicActions()
+        void SubscribeBasicActions()
         {
             _onPause = _ => HandlePause();
             _pauseAction.performed += _onPause;
@@ -115,7 +132,7 @@ namespace David6.ShooterCore.Input
             _onStopReload = _ => OnStopReload();
             _reloadAction.canceled += _onStopReload;
         }
-        private void UnsubscribeBasicActions()
+        void UnsubscribeBasicActions()
         {
             ClearActionInput();
 
@@ -132,20 +149,25 @@ namespace David6.ShooterCore.Input
             _reloadAction.canceled -= _onStopReload;
 
         }
-        private void SubscribeUIActions()
+        void SubscribeUIActions()
         {
             _onResume = _ => OnResume();
             _resumeAction.performed += _onResume;
             _onPop = _ => OnPop();
             _popAction.performed += _onPop;
         }
-        private void UnsubscribeUIActions()
+        void UnsubscribeUIActions()
         {
             _resumeAction.performed -= _onResume;
             _popAction.performed -= _onPop;
         }
 
-        private void Update()
+        public void Tick(float deltaTime)
+        {
+            
+        }
+
+        void Update()
         {
             if (_basicMap.enabled)
             {
@@ -186,7 +208,7 @@ namespace David6.ShooterCore.Input
             SubscribeBasicActions();
         }
 
-        private void ClearActionInput()
+        void ClearActionInput()
         {
             OnLook(Vector2.zero);
             OnMove(Vector2.zero);
