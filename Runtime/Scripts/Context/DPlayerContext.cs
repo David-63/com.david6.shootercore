@@ -82,11 +82,14 @@ namespace David6.ShooterCore.Context
 
         public void Tick(float deltaTime)
         {
+            FocusCheck();
             GroundCheck();
+
             _locomotionStateMachine.OnUpdate();
             _actionStateMachine.OnUpdate();
+
             ApplyMovement();
-            FocusCheck();
+            CameraTransitionCheck();
         }
 
         void InitializeCharacterController()

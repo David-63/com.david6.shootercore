@@ -5,6 +5,6 @@ namespace David6.ShooterCore.Data.Enum
         None = -1,
         Exploration,
         Focus,
-        Menu,
+        Pause,
     }
 }

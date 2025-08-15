@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using David6.ShooterCore.Data;
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
@@ -17,8 +19,6 @@ namespace David6.ShooterCore.Camera
         [SerializeField] GameObject FocusCamera;
         [SerializeField] GameObject MenuCamera;
 
-        GameObject _prevCamera;
-
         /// <summary>
         /// 메인 카메라의 Transform
         /// </summary>
@@ -33,9 +33,21 @@ namespace David6.ShooterCore.Camera
         public Vector2 InputLook { get; private set; }
 
         // [카메라 transform 회전값]
-        private float _cameraYaw = 0.0f;
-        private float _cameraPitch = 0.0f;
-        private const float _threshold = 0.01f; // 카메라 회전 임계값
+        float _cameraYaw = 0.0f;
+        float _cameraPitch = 0.0f;
+        const float _threshold = 0.01f; // 카메라 회전 임계값
+
+        Dictionary<EDCameraType, GameObject> _cameraMap;
+
+        void Awake()
+        {
+            _cameraMap = new Dictionary<EDCameraType, GameObject>()
+            {
+                { EDCameraType.Exploration, ExplorationCamera },
+                { EDCameraType.Focus, FocusCamera },
+                { EDCameraType.Pause, MenuCamera }
+            };
+        }
 
         void Start()
         {
@@ -73,27 +85,13 @@ namespace David6.ShooterCore.Camera
             LookRotation();
         }
 
-        public void ActiveExplorationCamera()
+        public void ActivateCamera(EDCameraType type)
         {
-            if (_prevCamera != null) _prevCamera.SetActive(false);
-            ExplorationCamera.SetActive(true);
-            _prevCamera = ExplorationCamera;
-        }
-        public void ActiveFocusCamera()
-        {
-            if (_prevCamera != null) _prevCamera.SetActive(false);
-            FocusCamera.SetActive(true);
-            _prevCamera = FocusCamera;
-        }
-        public void ActiveMenuCamera()
-        {
-            if (_prevCamera != null) _prevCamera.SetActive(false);
-            MenuCamera.SetActive(true);
-        }
-        public void InactiveMenuCamera()
-        {
-            MenuCamera.SetActive(false);
-            _prevCamera.SetActive(true);
+            foreach (var kvp in _cameraMap)
+            {
+                bool active = kvp.Key == type;
+                kvp.Value.SetActive(active);
+            }
         }
 
         void LookRotation()

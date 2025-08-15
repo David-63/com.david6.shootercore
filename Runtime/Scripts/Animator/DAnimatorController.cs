@@ -11,12 +11,14 @@ namespace David6.ShooterCore.Animation
     public class DAnimatorController : IDAnimatorProvider
     {
         Animator _animator;
-        int _upperBodyLayer = 1;
+        const int UPPERBODY_LAYER = 1;
+        const int HAND_LAYER = 2;
 
         public DAnimatorController(Animator animator) { _animator = animator; }
 
         public Animator PlayerAnimator => _animator;
 
+        #region 애니메이터 변수 세팅
         public void SetSpeed(float speed)
         {
             _animator.SetFloat("Speed", speed);
@@ -47,8 +49,16 @@ namespace David6.ShooterCore.Animation
         }
         public void SetFire()
         {
-            _animator.Play("Fire", _upperBodyLayer, 0.0f);
+            _animator.Play("Fire", UPPERBODY_LAYER, 0.0f);
         }
+        public void SetReload()
+        {
+            _animator.SetTrigger("Reload");
+        }
+        #endregion
+
+        
+
         public void SetFireRate(float rpm)
         {
             float rps = rpm / 60f;
@@ -57,10 +67,7 @@ namespace David6.ShooterCore.Animation
             float fireRate = originalClipLength / targetPeriod;
             _animator.SetFloat("FireRate", fireRate);
         }
-        public void SetReload()
-        {
-            _animator.SetTrigger("Reload");
-        }
+        
         public void SetAnimationLayerWeight(int index, float weight)
         {
             _animator.SetLayerWeight(index, weight);

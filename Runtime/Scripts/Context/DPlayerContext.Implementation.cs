@@ -1,5 +1,6 @@
 using System.Collections;
 using David6.ShooterCore.Data;
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -24,7 +25,6 @@ namespace David6.ShooterCore.Context
             _locomotionStateMachine.ActiveStateDebugMode();
             _actionStateMachine.ActiveStateDebugMode();
         }
-
 
         #region Input caching
 
@@ -51,6 +51,14 @@ namespace David6.ShooterCore.Context
 
         public void HandlePauseInput()
         {
+            // focus 해제
+            _cooldownHandler.CancelCooldown(FOCUS_KEY);
+            IsFocus = false;
+
+            // 카메라 변경
+            RequestCameraTransition(EDCameraType.Pause);
+
+            // ui 활성화
             _rootPanelController.HandlePause();
         }
         public void HandleResumeInput()
@@ -64,7 +72,10 @@ namespace David6.ShooterCore.Context
 
         #endregion
 
-        #region Camera Info Provider
+        public void HandleCloseUI()
+        {
+            RequestCameraTransition(EDCameraType.Exploration);
+        }
 
         public bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider)
         {
@@ -79,8 +90,20 @@ namespace David6.ShooterCore.Context
             }
             return flag;
         }
+        public bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController)
+        {
+            bool flag = true;
+            if (rootPanelController != null)
+            {
+                _rootPanelController = rootPanelController;
+            }
+            else
+            {
+                flag = false;
+            }
+            return flag;
+        }
 
-        #endregion
 
         #region Movement
         public float TargetSpeed { get; set; }
@@ -129,15 +152,34 @@ namespace David6.ShooterCore.Context
 
         bool _isFocus = false;
         const string FOCUS_KEY = "State.Focus";
-        float _focusDuration = 3.0f;
+        float _focusDuration = 5.0f;
 
-        public bool IsFocus { get => _isFocus; set => _isFocus = value; }
+        public bool IsFocus
+        {
+            get
+            {
+                return _isFocus;
+            }
+            set
+            {
+                _isFocus = value;
+                AnimatorProvider.SetFocus(_isFocus);
+                if (_isFocus)
+                {
+                    RequestCameraTransition(EDCameraType.Focus);
+                }
+                else
+                {
+                    RequestCameraTransition(EDCameraType.Exploration);
+                }
+            }
+        }
+
         public void StartFocus()
         {
             _cooldownHandler.StartCooldown(FOCUS_KEY, _focusDuration);
-            _isFocus = true;
+            IsFocus = true;
         }
-
 
         // 아래의 변수는 전부 Inventory Module에 의해 제어될 예정
         bool _isFiring = false;
@@ -151,30 +193,58 @@ namespace David6.ShooterCore.Context
         public bool ShouldFire() => InputFire && !_isFiring;
 
         public bool ShouldReload() => InputReload;
+
+
+        // 카메라 전환 요청
+        bool _cameraSwapFlag = false;
+        EDCameraType _cameraStateType = EDCameraType.None;
+
+        /// <summary>
+        /// 카메라 변경은 이 함수를 통해서만 가능
+        /// </summary>
+        /// <param name="camera"></param>
+        public void RequestCameraTransition(EDCameraType camera)
+        {
+            _cameraSwapFlag = true;
+            _cameraStateType = camera;
+        }
         #endregion
 
         #region Tick Method
 
-        public void GroundCheck()
+        void GroundCheck()
         {
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z);
             _grounded = Physics.CheckSphere(spherePosition, _movementProfile.GroundedRadius, _movementProfile.GroundLayers, QueryTriggerInteraction.Ignore);
         }
-        public void ApplyMovement()
+        void ApplyMovement()
         {
             Vector3 velocity = _finalMoveDirection * _horizontalSpeed + Vector3.up * _verticalSpeed;
             _characterController.Move(velocity * Time.deltaTime);
         }
-        public void FocusCheck()
+        void FocusCheck()
         {
-            if (!_isFocus) return;
+            if (!IsFocus) return;
 
             if (_cooldownHandler.IsReady(FOCUS_KEY))
             {
-                _isFocus = false;
+                IsFocus = false;
             }
         }
+        void CameraTransitionCheck()
+        {
+            if (!_cameraSwapFlag) return;
+
+            _cameraHandler.ActivateCamera(_cameraStateType);
+        }
+
 
         #endregion
     }
+    /*
+
+        Focus 관련해서 전용 클래스를 하나 만들어야할 것 같음
+        이것과 연관된 코드 로직도 많기 때문에, Context 내부에서 Focus 관련 로직을 구성하면 복잡하게 꼬여버리는 듯 함
+
+    */
 }

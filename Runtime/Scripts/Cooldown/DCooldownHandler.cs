@@ -13,6 +13,13 @@ namespace David6.ShooterCore.Cooldown
         {
             _cooldowns[key] = duration;
         }
+        public void CancelCooldown(string key)
+        {
+            if (_cooldowns.ContainsKey(key))
+            {
+                _cooldowns.Remove(key);
+            }
+        }
         public bool IsReady(string key)
         {
             if (!_cooldowns.ContainsKey(key))
@@ -24,7 +31,7 @@ namespace David6.ShooterCore.Cooldown
                 _cooldowns.Remove(key);
                 return true;
             }
-            
+
             return false;
         }
         public void Tick(float deltaTime)

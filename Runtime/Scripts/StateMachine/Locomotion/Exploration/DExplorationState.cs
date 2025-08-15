@@ -1,3 +1,4 @@
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 
@@ -12,7 +13,6 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void EnterState()
         {
             InitializeSubState();
-            Context.CameraHandlerProvider.ActiveExplorationCamera();
         }
 
         public override void UpdateSelf()

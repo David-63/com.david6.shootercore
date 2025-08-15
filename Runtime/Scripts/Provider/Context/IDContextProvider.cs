@@ -1,5 +1,6 @@
 using System.Collections;
 using David6.ShooterCore.Data;
+using David6.ShooterCore.Data.Enum;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
@@ -16,6 +17,7 @@ namespace David6.ShooterCore.Provider
         /// </summary>
         /// <param name="cameraInfoProvider"></param>
         bool SetCameraInfoProvider(IDCameraHandlerProvider cameraHandlerProvider);
+        bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController);
 
         /// <summary>
         ///  debug 모드 활성화
@@ -49,6 +51,9 @@ namespace David6.ShooterCore.Provider
 
         #endregion
 
+        // 이벤트 바인딩
+        void HandleCloseUI();
+
         // Movement 변수
         float HorizontalSpeed { get; set; }
         float TargetSpeed { get; set; }
@@ -73,6 +78,7 @@ namespace David6.ShooterCore.Provider
         bool IsFocus { get; set; }
 
         void StartFocus();
+        void RequestCameraTransition(EDCameraType camera);
 
 
         bool IsFiring { get; set; }
@@ -80,8 +86,5 @@ namespace David6.ShooterCore.Provider
         bool ShouldFire();
         bool ShouldReload();
 
-        // Tick
-        void GroundCheck();
-        void ApplyMovement();
     }
 }

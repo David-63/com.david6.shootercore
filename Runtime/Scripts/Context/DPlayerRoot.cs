@@ -46,9 +46,44 @@ namespace David6.ShooterCore.Context
             {
                 Log.WhatHappend("Failed to setup camera in context");
             }
+            if (!ContextProvider.SetRootPanelController(RootPanelControllerProvider))
+            {
+                Log.WhatHappend("Failed to setup root panel controller in context");
+            }
+            
             if (!CameraHandler.SetCameraHolder(CameraHolder))
             {
                 Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (InputProvider != null)
+            {
+                InputProvider.OnLook -= CameraHandler.HandleLookInput;
+
+                InputProvider.OnMove -= ContextProvider.HandleMoveInput;
+                InputProvider.OnStartJump -= ContextProvider.HandleStartJumpInput;
+                InputProvider.OnStopJump -= ContextProvider.HandleStopJumpInput;
+                InputProvider.OnStartRun -= ContextProvider.HandleStartSprintInput;
+                InputProvider.OnStopRun -= ContextProvider.HandleStopSprintInput;
+                InputProvider.OnStartAim -= ContextProvider.HandleStartAimInput;
+                InputProvider.OnStopAim -= ContextProvider.HandleStopAimInput;
+                InputProvider.OnStartFire -= ContextProvider.HandleStartFireInput;
+                InputProvider.OnStopFire -= ContextProvider.HandleStopFireInput;
+                InputProvider.OnStartReload -= ContextProvider.HandleStartReloadInput;
+                InputProvider.OnStopReload -= ContextProvider.HandleStopReloadInput;
+
+                InputProvider.OnPause -= ContextProvider.HandlePauseInput;
+                InputProvider.OnResume -= ContextProvider.HandleResumeInput;
+                InputProvider.OnPop -= ContextProvider.HandlePopInput;
+            }
+
+            if (RootPanelControllerProvider != null)
+            {
+                RootPanelControllerProvider.OnCloseUI -= InputProvider.HandleResume;
+                RootPanelControllerProvider.OnCloseUI -= ContextProvider.HandleCloseUI;
             }
         }
 
@@ -81,6 +116,7 @@ namespace David6.ShooterCore.Context
             InputProvider.OnPop += ContextProvider.HandlePopInput;
 
             RootPanelControllerProvider.OnCloseUI += InputProvider.HandleResume;
+            RootPanelControllerProvider.OnCloseUI += ContextProvider.HandleCloseUI;
         }
     }
 }

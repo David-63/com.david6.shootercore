@@ -1,3 +1,4 @@
+using David6.ShooterCore.Data.Enum;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
@@ -19,10 +20,6 @@ namespace David6.ShooterCore.Provider
         bool SetCameraHolder(GameObject cameraHolder);
         void HandleLookInput(Vector2 input);
 
-        void ActiveExplorationCamera();
-        void ActiveFocusCamera();
-
-        void ActiveMenuCamera();
-        void InactiveMenuCamera();
+        void ActivateCamera(EDCameraType type);
     }
 }
