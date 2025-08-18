@@ -13,10 +13,10 @@ namespace David6.ShooterCore.Data
         [Tooltip("Move speed of the character in m/s")]
         public float WalkSpeed = 2.0f;
         [Tooltip("Sprint speed of the character in m/s")]
-        public float RunSpeed = 6.0f;
+        public float RunSpeed = 5.0f;
         public float JumpBoostMultiplier = 1.4f;
         [Tooltip("Acceleration and deceleration")]
-        public float SpeedChangeRate = 10.0f;
+        public float SpeedChangeRate = 5.0f;
         [Tooltip("Deceleration In Air")]
         public float AirDeceleration = 2.0f;        // 천천히 감속되는걸 목표로
         [Tooltip("How fast the character turns to face movement direction")]

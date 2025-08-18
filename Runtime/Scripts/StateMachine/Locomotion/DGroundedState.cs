@@ -14,7 +14,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             Context.VerticalSpeed = Context.MovementProfile.GroundGravity;
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
         }
@@ -63,6 +63,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 }
                 else if (SuperState is DFocusState)
                 {
+                    //SetSubState(StateMachine.Factory.GetState(typeof(DFocusWalkState)));
                     SetSubState(StateMachine.Factory.GetState(typeof(DFocusRunState)));
                 }
             }

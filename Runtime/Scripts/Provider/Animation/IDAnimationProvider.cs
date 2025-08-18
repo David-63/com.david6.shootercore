@@ -21,5 +21,8 @@ namespace David6.ShooterCore.Provider
         void SetFireRate(float rpm);
         void SetReload();
         void SetAnimationLayerWeight(int index, float weight);
+
+        void ActiveUpperbodyLayer();
+        void InactiveUpperbodyLayer();
     }
 }

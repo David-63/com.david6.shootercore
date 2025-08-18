@@ -26,7 +26,7 @@ namespace David6.ShooterCore.StateMachine
             _currentState.EnterState();
         }
         public void ChangeState(IDStateProvider newState) => _currentState = newState;
-        public void OnUpdate() => _currentState?.UpdateAll();
+        public void OnUpdate(float deltaTime) => _currentState?.UpdateAll(deltaTime);
 
         protected abstract void RegisterFactory(IDContextProvider context);
 

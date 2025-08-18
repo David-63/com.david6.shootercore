@@ -13,11 +13,11 @@ namespace David6.ShooterCore.Provider
         /// 애니메이터 파라미터 수정 및 초기 세팅
         /// </summary>
         void EnterState();
-        void UpdateSelf();
+        void UpdateSelf(float deltaTime);
         void ExitState();
         void CheckTransition();
         void InitializeSubState();
-        void UpdateAll();
+        void UpdateAll(float deltaTime);
 
         void SetSuperState(IDStateProvider superState);
         void SetSubState(IDStateProvider subState);

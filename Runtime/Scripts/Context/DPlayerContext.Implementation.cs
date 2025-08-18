@@ -108,10 +108,23 @@ namespace David6.ShooterCore.Context
         #region Movement
         public float TargetSpeed { get; set; }
         float _horizontalSpeed;
-        public float HorizontalSpeed { get => _horizontalSpeed; set => _horizontalSpeed = value; }
+        public float HorizontalSpeed
+        {
+            get => _horizontalSpeed;
+            set
+            {
+                _horizontalSpeed = value;
+                //Log.WhatHappend("_horizontalSpeed 세팅되는 값: "+ value);
+            }
+        }
 
         Vector3 _finalMoveDirection;
         public Vector3 FinalMoveDirection { get => _finalMoveDirection; set => _finalMoveDirection = value; }
+
+        public Vector2 CaptureDirection { get; set; }
+
+
+
         public float YawAngle => _cameraHandler.YawAngle;
 
 

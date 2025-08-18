@@ -14,6 +14,7 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void EnterState()
         {
+            Context.AnimatorProvider.ActiveUpperbodyLayer();
             Context.IsFiring = true;
 
             // 무기에 따라 초기에 속도 세팅해줌
@@ -21,7 +22,7 @@ namespace David6.ShooterCore.StateMachine.Action
             TryFire();
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
 
@@ -33,8 +34,10 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void ExitState()
         {
+            Context.AnimatorProvider.InactiveUpperbodyLayer();
             Context.IsFiring = false;
         }
+
         public override void CheckTransition()
         {
             if (!Context.InputFire)

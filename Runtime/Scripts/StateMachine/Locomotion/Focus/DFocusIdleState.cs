@@ -13,15 +13,14 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         {
             float idleSpeed = 0.0f;
             Context.TargetSpeed = idleSpeed;
-            Context.AnimatorProvider.SetSpeed(idleSpeed);
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
-            GroundSpeed();
+            GroundSpeed(deltaTime);
             ApplyCharacterRotation();
-            SetAnimationDirection();
+            SetAnimationDirection(deltaTime);
         }
 
         public override void ExitState()
@@ -30,6 +29,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void CheckTransition()
         {
             if (!Context.HasMovementInput()) return;
+
+            //SwitchState(StateMachine.Factory.GetState(typeof(DFocusWalkState)));
             if (!Context.InputSprint)
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DFocusWalkState)));

@@ -85,8 +85,8 @@ namespace David6.ShooterCore.Context
             FocusCheck();
             GroundCheck();
 
-            _locomotionStateMachine.OnUpdate();
-            _actionStateMachine.OnUpdate();
+            _locomotionStateMachine.OnUpdate(deltaTime);
+            _actionStateMachine.OnUpdate(deltaTime);
 
             ApplyMovement();
             CameraTransitionCheck();

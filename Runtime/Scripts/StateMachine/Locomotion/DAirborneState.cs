@@ -29,7 +29,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             Context.AnimatorProvider.SetGrounded(false);
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
             ApplyGravity();

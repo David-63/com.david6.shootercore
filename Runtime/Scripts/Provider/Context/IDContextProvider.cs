@@ -58,11 +58,13 @@ namespace David6.ShooterCore.Provider
         float HorizontalSpeed { get; set; }
         float TargetSpeed { get; set; }
         Vector3 FinalMoveDirection { get; set; }
+        Vector2 CaptureDirection { get; set; }
         float YawAngle { get; }
         float VerticalSpeed { get; set; }
         bool IsGrounded { get; }
         bool IsJumpReady { get; set; }
         bool IsFalling { get; set; }
+
 
         // 코루틴 호출함수
         Coroutine ExecuteCoroutine(IEnumerator routine);

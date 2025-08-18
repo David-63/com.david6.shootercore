@@ -15,5 +15,7 @@ namespace David6.ShooterCore.Data
         public float BottomClamp = -30.0f;
         [Tooltip("카메라 각도 오버라이드 (고정된 시점에서 조정용)")]
         public float CameraAngleOverride = 0.0f;
+
+        public float MaxLookRange = 200.0f;
     }
 }

@@ -12,7 +12,7 @@ namespace David6.ShooterCore.StateMachine.Action
         {
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
         }

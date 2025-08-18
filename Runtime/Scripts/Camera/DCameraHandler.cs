@@ -6,7 +6,7 @@ using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
 using UnityEngine;
 
-namespace David6.ShooterCore.Camera
+namespace David6.ShooterCore.Look
 {
     
     public class DCameraHandler : MonoBehaviour, IDCameraHandlerProvider, IDLateTickable
@@ -18,6 +18,7 @@ namespace David6.ShooterCore.Camera
         [SerializeField] GameObject ExplorationCamera;
         [SerializeField] GameObject FocusCamera;
         [SerializeField] GameObject MenuCamera;
+        [SerializeField] GameObject AimTarget;
 
         /// <summary>
         /// 메인 카메라의 Transform
@@ -38,6 +39,8 @@ namespace David6.ShooterCore.Camera
         const float _threshold = 0.01f; // 카메라 회전 임계값
 
         Dictionary<EDCameraType, GameObject> _cameraMap;
+        Camera _lookCamera;
+        public LayerMask HitMask;
 
         void Awake()
         {
@@ -52,6 +55,7 @@ namespace David6.ShooterCore.Camera
         void Start()
         {
             DGameLoop.Instance.Register(this);
+            _lookCamera = Camera.main;
         }
 
         void OnDestroy()
@@ -83,6 +87,23 @@ namespace David6.ShooterCore.Camera
         public void LateTick(float deltaTime)
         {
             LookRotation();
+
+
+            // RaycastHit 구하는 로직 추가
+            // IK에 사용할 예정
+
+            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, CameraLookProfile.MaxLookRange, HitMask))
+            {
+                AimTarget.transform.position = hit.point;
+            }
+            else
+            {
+                AimTarget.transform.position = _lookCamera.transform.position + _lookCamera.transform.forward * CameraLookProfile.MaxLookRange;
+            }
         }
 
         public void ActivateCamera(EDCameraType type)

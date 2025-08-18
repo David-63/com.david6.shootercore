@@ -12,17 +12,18 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public DExplorationGround(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) {}
 
-        protected void GroundSpeed()
+        protected void GroundSpeed(float deltaTime)
         {
             if (Mathf.Abs(Context.HorizontalSpeed - Context.TargetSpeed) > _speedOffset)
             {
-                Context.HorizontalSpeed = Mathf.Lerp(Context.HorizontalSpeed, Context.TargetSpeed, Time.deltaTime * Context.MovementProfile.SpeedChangeRate);
+                Context.HorizontalSpeed = Mathf.Lerp(Context.HorizontalSpeed, Context.TargetSpeed, deltaTime * Context.MovementProfile.SpeedChangeRate);
                 Context.HorizontalSpeed = Mathf.Round(Context.HorizontalSpeed * 1000f) / 1000f;
             }
             else
             {
                 Context.HorizontalSpeed = Context.TargetSpeed;
             }
+            Context.AnimatorProvider.SetSpeed(Context.HorizontalSpeed);
         }
 
         protected void MoveDirection()

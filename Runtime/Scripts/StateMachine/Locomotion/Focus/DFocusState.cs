@@ -15,9 +15,9 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             //Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 1.0f);
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
-            CheckTransition();
+            CheckTransition();            
         }
 
         public override void ExitState()

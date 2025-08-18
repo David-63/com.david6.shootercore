@@ -13,17 +13,19 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void EnterState()
         {
+            Context.AnimatorProvider.ActiveUpperbodyLayer();
             Context.CooldownProvider.StartCooldown(RELOAD_KEY, _reloadTime);
             Context.AnimatorProvider.SetReload();
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
         }
 
         public override void ExitState()
         {
+            Context.AnimatorProvider.InactiveUpperbodyLayer();
         }
         public override void CheckTransition()
         {

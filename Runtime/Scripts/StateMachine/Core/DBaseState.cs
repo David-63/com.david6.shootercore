@@ -26,16 +26,16 @@ namespace David6.ShooterCore.StateMachine
         }
 
         public abstract void EnterState();
-        public abstract void UpdateSelf();
+        public abstract void UpdateSelf(float deltaTime);
         public abstract void ExitState();
         public abstract void CheckTransition();
         public abstract void InitializeSubState();
-        public void UpdateAll()
+        public void UpdateAll(float deltaTime)
         {
-            UpdateSelf();
+            UpdateSelf(deltaTime);
             if (_subState != null)
             {
-                _subState.UpdateAll();
+                _subState.UpdateAll(deltaTime);
             }
         }
 

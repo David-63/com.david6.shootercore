@@ -12,13 +12,12 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void EnterState()
         {
             Context.TargetSpeed = Context.MovementProfile.WalkSpeed;
-            Context.AnimatorProvider.SetSpeed(Context.TargetSpeed);
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
-            GroundSpeed();
+            GroundSpeed(deltaTime);
             MoveDirection();
             ApplyCharacterRotation();
         }

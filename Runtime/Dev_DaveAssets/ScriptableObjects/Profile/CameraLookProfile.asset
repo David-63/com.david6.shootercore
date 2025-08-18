@@ -15,3 +15,4 @@ MonoBehaviour:
   TopClamp: 70
   BottomClamp: -30
   CameraAngleOverride: 0
+  MaxLookRange: 200

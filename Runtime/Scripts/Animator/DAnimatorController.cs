@@ -57,7 +57,7 @@ namespace David6.ShooterCore.Animation
         }
         #endregion
 
-        
+
 
         public void SetFireRate(float rpm)
         {
@@ -67,10 +67,19 @@ namespace David6.ShooterCore.Animation
             float fireRate = originalClipLength / targetPeriod;
             _animator.SetFloat("FireRate", fireRate);
         }
-        
+
         public void SetAnimationLayerWeight(int index, float weight)
         {
             _animator.SetLayerWeight(index, weight);
+        }
+
+        public void ActiveUpperbodyLayer()
+        {
+            _animator.SetLayerWeight(UPPERBODY_LAYER, 1);    
+        }
+        public void InactiveUpperbodyLayer()
+        {
+            _animator.SetLayerWeight(UPPERBODY_LAYER, 0);
         }
 
 

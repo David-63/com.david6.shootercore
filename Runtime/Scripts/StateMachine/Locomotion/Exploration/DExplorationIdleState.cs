@@ -13,13 +13,12 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         {
             float idle = 0.0f;
             Context.TargetSpeed = idle;
-            Context.AnimatorProvider.SetSpeed(idle);
         }
 
-        public override void UpdateSelf()
+        public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
-            GroundSpeed();
+            GroundSpeed(deltaTime);
         }
 
         public override void ExitState()
