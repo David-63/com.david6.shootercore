@@ -3,6 +3,10 @@ using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.StateMachine.Action
 {
+    /*
+        종료 조건을 애니메이션 충족으로 하던가 해야함
+        나중가서는 캔슬 기능도 추가해야함
+    */
     public class DActionReloadState : DBaseState
     {
         const string RELOAD_KEY = "Action.Reload";
@@ -13,9 +17,10 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void EnterState()
         {
-            Context.AnimatorProvider.ActiveUpperbodyLayer();
+            Context.StartFocus();
             Context.CooldownProvider.StartCooldown(RELOAD_KEY, _reloadTime);
             Context.AnimatorProvider.SetReload();
+            Context.CameraHandlerProvider.SetRigWeight(0);
         }
 
         public override void UpdateSelf(float deltaTime)
@@ -25,7 +30,8 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void ExitState()
         {
-            Context.AnimatorProvider.InactiveUpperbodyLayer();
+            Context.StartFocus();
+            Context.CameraHandlerProvider.SetRigWeight(1);
         }
         public override void CheckTransition()
         {

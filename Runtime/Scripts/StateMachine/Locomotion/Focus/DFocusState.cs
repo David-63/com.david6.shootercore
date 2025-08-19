@@ -12,7 +12,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void EnterState()
         {
             InitializeSubState();
-            //Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 1.0f);
+            Context.AnimatorProvider.ActiveUpperbodyLayer();
+            Context.CameraHandlerProvider.SetRigWeight(1);
         }
 
         public override void UpdateSelf(float deltaTime)
@@ -22,7 +23,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 
         public override void ExitState()
         {
-            //Context.AnimatorProvider.SetAnimationLayerWeight(_upperBodyLayer, 0.0f);
+            Context.AnimatorProvider.InactiveUpperbodyLayer();
+            Context.CameraHandlerProvider.SetRigWeight(0);
         }
         public override void CheckTransition()
         {

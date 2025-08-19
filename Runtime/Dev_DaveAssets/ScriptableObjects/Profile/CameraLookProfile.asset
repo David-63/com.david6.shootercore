@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: CameraLookProfile
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Camera.DCameraLookProfile
   TopClamp: 70
-  BottomClamp: -30
+  BottomClamp: -60
   CameraAngleOverride: 0
   MaxLookRange: 200

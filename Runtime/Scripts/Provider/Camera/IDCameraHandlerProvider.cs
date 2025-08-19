@@ -21,5 +21,7 @@ namespace David6.ShooterCore.Provider
         void HandleLookInput(Vector2 input);
 
         void ActivateCamera(EDCameraType type);
+
+        void SetRigWeight(float weight);
     }
 }

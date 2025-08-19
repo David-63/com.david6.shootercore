@@ -5,6 +5,7 @@ using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 namespace David6.ShooterCore.Look
 {
@@ -19,6 +20,11 @@ namespace David6.ShooterCore.Look
         [SerializeField] GameObject FocusCamera;
         [SerializeField] GameObject MenuCamera;
         [SerializeField] GameObject AimTarget;
+
+        [Header("Rig IK")]
+        [SerializeField] Rig HandRig;
+        [SerializeField] Rig AimRig;
+
 
         /// <summary>
         /// 메인 카메라의 Transform
@@ -128,6 +134,12 @@ namespace David6.ShooterCore.Look
             _cameraPitch = ClampAngle(_cameraPitch, CameraLookProfile.BottomClamp, CameraLookProfile.TopClamp);
 
             _targetCameraHolder.transform.rotation = Quaternion.Euler(_cameraPitch + CameraLookProfile.CameraAngleOverride, _cameraYaw, 0.0f);
+        }
+
+        public void SetRigWeight(float weight)
+        {
+            HandRig.weight = weight;
+            AimRig.weight = weight;
         }
 
 
