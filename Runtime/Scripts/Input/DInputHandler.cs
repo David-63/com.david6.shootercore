@@ -1,6 +1,7 @@
 
 
 using System;
+using David6.ShooterCore.Context;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
@@ -54,6 +55,9 @@ namespace David6.ShooterCore.Input
 
         void Awake()
         {
+            var bootstrapper = GetComponent<DPlayerBootstrapper>();
+            bootstrapper.Register<IDInputProvider>(this);
+            
             _basicMap = inputSettingProfile.InputActions.FindActionMap("Basic", throwIfNotFound: true);
             _UIMap = inputSettingProfile.InputActions.FindActionMap("UI", throwIfNotFound: true);
 

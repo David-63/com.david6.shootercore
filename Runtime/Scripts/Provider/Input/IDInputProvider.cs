@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace David6.ShooterCore.Provider
 {
-    public interface IDInputProvider
+    public interface IDInputProvider : IDProvider
     {
         event Action OnPause;
         event Action OnResume;

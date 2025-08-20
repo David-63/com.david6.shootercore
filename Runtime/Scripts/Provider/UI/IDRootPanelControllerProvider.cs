@@ -1,9 +1,10 @@
 using System;
+using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.UI.Equipment;
 
 namespace David6.ShooterCore.Provider
 {
-    public interface IDRootPanelControllerProvider
+    public interface IDRootPanelControllerProvider : IDProvider
     {
         event Action OnCloseUI;
         DEquipmentFactory EquipmentFactory { get; }
@@ -12,5 +13,7 @@ namespace David6.ShooterCore.Provider
         void HandlePop();
         void PushPanel(IDPanelPresenterProvider panel);
         void PopPanel();
+
+        void RegisterOnEquip(Action<DGearData> callback);
     }
 }

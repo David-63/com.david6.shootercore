@@ -1,6 +1,7 @@
 using System.Collections;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Data.Enum;
+using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -75,6 +76,11 @@ namespace David6.ShooterCore.Context
         public void HandleCloseUI()
         {
             RequestCameraTransition(EDCameraType.Exploration);
+        }
+        public void OnGearEquipped(DGearData data)
+        {
+            Log.WhatHappend("머가 바뀜?");
+            _combatHandler.SetWeapon(data);
         }
 
         public bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider)

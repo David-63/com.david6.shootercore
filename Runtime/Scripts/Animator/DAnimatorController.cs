@@ -57,8 +57,6 @@ namespace David6.ShooterCore.Animation
         }
         #endregion
 
-
-
         public void SetFireRate(float rpm)
         {
             float rps = rpm / 60f;
@@ -68,6 +66,7 @@ namespace David6.ShooterCore.Animation
             _animator.SetFloat("FireRate", fireRate);
         }
 
+        // 이건 안씀
         public void SetAnimationLayerWeight(int index, float weight)
         {
             _animator.SetLayerWeight(index, weight);
@@ -75,7 +74,7 @@ namespace David6.ShooterCore.Animation
 
         public void ActiveUpperbodyLayer()
         {
-            _animator.SetLayerWeight(UPPERBODY_LAYER, 1);    
+            _animator.SetLayerWeight(UPPERBODY_LAYER, 1);
         }
         public void InactiveUpperbodyLayer()
         {
@@ -87,7 +86,9 @@ namespace David6.ShooterCore.Animation
 
         Fire 속도 관련해서
         Fire 애니메이션의 클립 레퍼런스를 가져와서 rpm 계산하는게 더 좋음
-
         */
+        
+
+        
     }
 }

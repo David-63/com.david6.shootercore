@@ -1,11 +1,12 @@
 using System.Collections;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Data.Enum;
+using David6.ShooterCore.Data.Gear;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
 {
-    public interface IDContextProvider
+    public interface IDContextProvider : IDProvider
     {
         DMovementProfile MovementProfile { get; }
         Transform CharacterTransform { get; }
@@ -53,6 +54,7 @@ namespace David6.ShooterCore.Provider
 
         // 이벤트 바인딩
         void HandleCloseUI();
+        void OnGearEquipped(DGearData data);
 
         // Movement 변수
         float HorizontalSpeed { get; set; }

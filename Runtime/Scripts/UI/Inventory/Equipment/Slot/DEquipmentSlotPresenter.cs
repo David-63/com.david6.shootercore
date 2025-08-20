@@ -53,7 +53,6 @@ namespace David6.ShooterCore.UI.Equipment
         {
             if (_buttonMap.TryGetValue(slotType, out var button))
             {
-                Log.WhatHappend("이미지 변경 성공");
                 button.SlotIcon = slotData.GearIcon;
             }
         }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using David6.ShooterCore.Context;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Provider;
@@ -50,6 +51,9 @@ namespace David6.ShooterCore.Look
 
         void Awake()
         {
+            var bootstrapper = GetComponent<DPlayerBootstrapper>();
+            bootstrapper.Register<IDCameraHandlerProvider>(this);
+
             _cameraMap = new Dictionary<EDCameraType, GameObject>()
             {
                 { EDCameraType.Exploration, ExplorationCamera },

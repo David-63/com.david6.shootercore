@@ -1,4 +1,5 @@
 using David6.ShooterCore.Animation;
+using David6.ShooterCore.Combat;
 using David6.ShooterCore.Cooldown;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Provider;
@@ -25,6 +26,7 @@ namespace David6.ShooterCore.Context
         IDStateMachineProvider _locomotionStateMachine;
         IDStateMachineProvider _actionStateMachine;
         IDCooldownProvider _cooldownHandler;
+        DCombatHandler _combatHandler;
 
         // 외부 컴포넌트
         IDRootPanelControllerProvider _rootPanelController;
@@ -41,6 +43,9 @@ namespace David6.ShooterCore.Context
         // 컴포넌트 가져오기
         void Awake()
         {
+            var bootstrapper = FindAnyObjectByType(typeof(DPlayerBootstrapper)) as DPlayerBootstrapper;
+            bootstrapper.Register<IDContextProvider>(this);
+
             _characterController = GetComponent<CharacterController>();
             if (this.TryGetComponentInChildren<Animator>(out var animComponent))
             {
@@ -56,6 +61,7 @@ namespace David6.ShooterCore.Context
             _locomotionStateMachine = new DLocomotionStateMachine(this);
             _actionStateMachine = new DActionStateMachine(this);
             _cooldownHandler = new DCooldownHandler();
+            _combatHandler = new DCombatHandler();
 
             InitializeCharacterController();
 
@@ -63,6 +69,8 @@ namespace David6.ShooterCore.Context
 
             _animationEventProxy.OnFootstepEvent += OnFootstep;
             _animationEventProxy.OnLandEvent += OnLand;
+
+
 
             if (DGameLoop.Instance != null)
             {

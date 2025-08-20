@@ -14,6 +14,7 @@ namespace David6.ShooterCore.UI.Equipment
         public Dictionary<EDGearType, List<DGearData>> EquipmentItems { get; set; } = new();
         // 장비 변경 이벤트
         public event Action<EDGearType, DGearData> OnGearChanged;
+        public event Action<DGearData> OnGearEquipped;
 
         // 현재 선택중인 타입
         EDGearType _selectedGearType;
@@ -51,7 +52,9 @@ namespace David6.ShooterCore.UI.Equipment
             if (!Equipped.ContainsKey(gearType)) return;
 
             Equipped[gearType] = gearData;
-            OnGearChanged?.Invoke(gearType, gearData);
+
+            OnGearChanged?.Invoke(gearType, gearData);  // UI
+            OnGearEquipped?.Invoke(gearData);           // 외부
         }
 
         public void AddItem(EDGearType type, DGearData gearData)

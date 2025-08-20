@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using David6.ShooterCore.Context;
 using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.Item.Gear;
 using David6.ShooterCore.Provider;
@@ -11,7 +12,7 @@ namespace David6.ShooterCore.UI
 {
     public class DRootPanelController : MonoBehaviour, IDRootPanelControllerProvider
     {
-        [SerializeField] DRootPanelView _rootPanelView;        
+        [SerializeField] DRootPanelView _rootPanelView;
         [SerializeField] DEquipmentSlotView _slotPanelView;
         [SerializeField] DEquipmentListView _listPanelView;
 
@@ -28,6 +29,9 @@ namespace David6.ShooterCore.UI
 
         void Awake()
         {
+            var root = GetComponent<DPlayerBootstrapper>();
+            root.Register<IDRootPanelControllerProvider>(this);
+
             _equipmentModel = new DEquipmentModel();
 
             if (_equipmentDatabase != null)
@@ -110,5 +114,10 @@ namespace David6.ShooterCore.UI
         }
         #endregion
 
+        public void RegisterOnEquip(Action<DGearData> callback)
+        {
+            _equipmentModel.OnGearEquipped += callback;
+        }
+        
     }
 }
