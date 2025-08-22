@@ -17,14 +17,46 @@ namespace David6.ShooterCore.Context
         public IDAnimatorProvider AnimatorProvider => _animatorHandler;
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
         public IDCameraHandlerProvider CameraHandlerProvider => _cameraHandler;
+        public IDRigHandlerProvider RigHandlerProvider => _rigHandler;
+        
 
         public Transform CharacterTransform => transform;
+        public Transform WeaponSocket => _WeaponSocket;
+
 
 
         public void ActiveStateDebugMode()
         {
             _locomotionStateMachine.ActiveStateDebugMode();
             _actionStateMachine.ActiveStateDebugMode();
+        }
+
+
+        public bool SetCameraHandler(IDCameraHandlerProvider cameraInfoProvider)
+        {
+            bool flag = true;
+            if (cameraInfoProvider != null)
+            {
+                _cameraHandler = cameraInfoProvider;
+            }
+            else
+            {
+                flag = false;
+            }
+            return flag;
+        }
+        public bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController)
+        {
+            bool flag = true;
+            if (rootPanelController != null)
+            {
+                _rootPanelController = rootPanelController;
+            }
+            else
+            {
+                flag = false;
+            }
+            return flag;
         }
 
         #region Input caching
@@ -73,6 +105,7 @@ namespace David6.ShooterCore.Context
 
         #endregion
 
+        #region Events
         public void HandleCloseUI()
         {
             RequestCameraTransition(EDCameraType.Exploration);
@@ -81,27 +114,18 @@ namespace David6.ShooterCore.Context
         {
             Log.WhatHappend("머가 바뀜?");
             _combatHandler.SetWeapon(data);
+            _rigHandler.SetupRigIK(data.GearPrefab.GetComponent<DWeaponFrame>());
         }
+        #endregion
 
-        public bool SetCameraInfoProvider(IDCameraHandlerProvider cameraInfoProvider)
+        
+
+        public bool SetRigHandler(IDRigHandlerProvider rigHandler)
         {
             bool flag = true;
-            if (cameraInfoProvider != null)
+            if (rigHandler != null)
             {
-                _cameraHandler = cameraInfoProvider;
-            }
-            else
-            {
-                flag = false;
-            }
-            return flag;
-        }
-        public bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController)
-        {
-            bool flag = true;
-            if (rootPanelController != null)
-            {
-                _rootPanelController = rootPanelController;
+                _rigHandler = rigHandler;
             }
             else
             {
@@ -255,6 +279,11 @@ namespace David6.ShooterCore.Context
             if (!_cameraSwapFlag) return;
 
             _cameraHandler.ActivateCamera(_cameraStateType);
+        }
+
+        public GameObject MakeObject(GameObject prefab, Transform target)
+        {
+            return Instantiate(prefab, target);
         }
 
 

@@ -31,10 +31,13 @@ namespace David6.ShooterCore.Context
         // 외부 컴포넌트
         IDRootPanelControllerProvider _rootPanelController;
         IDCameraHandlerProvider _cameraHandler;
+        IDRigHandlerProvider _rigHandler;
 
 
         // 리소스
+        [Header("Resources")]
         [SerializeField] DMovementProfile _movementProfile;
+        [SerializeField] Transform _WeaponSocket;
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
@@ -61,7 +64,7 @@ namespace David6.ShooterCore.Context
             _locomotionStateMachine = new DLocomotionStateMachine(this);
             _actionStateMachine = new DActionStateMachine(this);
             _cooldownHandler = new DCooldownHandler();
-            _combatHandler = new DCombatHandler();
+            _combatHandler = new DCombatHandler(this);
 
             InitializeCharacterController();
 

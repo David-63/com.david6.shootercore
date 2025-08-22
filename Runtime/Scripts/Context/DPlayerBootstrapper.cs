@@ -33,28 +33,27 @@ namespace David6.ShooterCore.Context
             var context = Resolve<IDContextProvider>();
             var panelController = Resolve<IDRootPanelControllerProvider>();
 
-
-            if (!context.SetCameraInfoProvider(Resolve<IDCameraHandlerProvider>()))
+            if (!context.SetCameraHandler(Resolve<IDCameraHandlerProvider>()))
             {
                 Log.ErrorAlert("Failed to setup camera in context");
             }
-            if (!context.SetRootPanelController(Resolve<IDRootPanelControllerProvider>()))
+            if (!context.SetRigHandler(Resolve<IDRigHandlerProvider>()))
+            {
+                Log.ErrorAlert("Failed to setup camera in context");
+            }            
+            if (!context.SetRootPanelController(panelController))
             {
                 Log.WhatHappend("Failed to setup root panel controller in context");
             }
-
-            panelController.RegisterOnEquip(context.OnGearEquipped);
-
             if (!Resolve<IDCameraHandlerProvider>().SetCameraHolder(CameraHolder))
             {
                 Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
             }
 
 
-
-
-
+            // 이벤트 바인딩
             InputBinding();
+            panelController.RegisterOnEquip(context.OnGearEquipped);
 
             if (StateDebugLog)
             {

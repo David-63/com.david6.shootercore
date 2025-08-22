@@ -10,15 +10,15 @@ namespace David6.ShooterCore.Provider
     {
         DMovementProfile MovementProfile { get; }
         Transform CharacterTransform { get; }
+        Transform WeaponSocket { get; }
         IDAnimatorProvider AnimatorProvider { get; }
         IDCooldownProvider CooldownProvider { get; }
         IDCameraHandlerProvider CameraHandlerProvider { get; }
-        /// <summary>
-        /// 외부 의존성 주입
-        /// </summary>
-        /// <param name="cameraInfoProvider"></param>
-        bool SetCameraInfoProvider(IDCameraHandlerProvider cameraHandlerProvider);
+        IDRigHandlerProvider RigHandlerProvider { get; }
+
+        bool SetCameraHandler(IDCameraHandlerProvider cameraHandler);
         bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController);
+        bool SetRigHandler(IDRigHandlerProvider rigHandler);
 
         /// <summary>
         ///  debug 모드 활성화
@@ -89,6 +89,9 @@ namespace David6.ShooterCore.Provider
         float FireRate { get; }
         bool ShouldFire();
         bool ShouldReload();
+
+        GameObject MakeObject(GameObject prefab, Transform target);
+
 
     }
 }

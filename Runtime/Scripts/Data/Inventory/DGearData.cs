@@ -12,6 +12,7 @@ namespace David6.ShooterCore.Data.Gear
         public string GearName; // Name of the gear item.
         public Sprite GearIcon;
         public string GearDescription;
+        public GameObject GearPrefab;
 
     }
 }

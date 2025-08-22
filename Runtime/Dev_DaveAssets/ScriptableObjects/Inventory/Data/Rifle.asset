@@ -15,3 +15,4 @@ MonoBehaviour:
   GearName: Rifle
   GearIcon: {fileID: 21300000, guid: 5c4c3115867d5dc47bf263736643c6c5, type: 3}
   GearDescription: 
+  GearPrefab: {fileID: 432236197380059279, guid: e20740acd51f56a47b1abc1411ed25e7, type: 3}
