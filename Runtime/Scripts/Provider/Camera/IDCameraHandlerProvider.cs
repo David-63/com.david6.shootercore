@@ -9,19 +9,10 @@ namespace David6.ShooterCore.Provider
     public interface IDCameraHandlerProvider : IDProvider
     {
         Vector2 InputLook { get; }
-        /// <summary>
-        /// 카메라의 수평 회전 각도 제공
-        /// </summary>
-        float YawAngle { get; }
+        float YawAngle { get; } // 카메라의 수평 회전 각도 제공
 
-        /// <summary>
-        /// 카메라가 따라갈 대상 설정, 외부에서는 값을 설정만 가능
-        /// </summary>
-        bool SetCameraHolder(GameObject cameraHolder);
+        bool SetCameraHolder(GameObject cameraHolder); // Follow Target
         void HandleLookInput(Vector2 input);
-
         void ActivateCamera(EDCameraType type);
-
-        void SetRigWeight(float weight);
     }
 }

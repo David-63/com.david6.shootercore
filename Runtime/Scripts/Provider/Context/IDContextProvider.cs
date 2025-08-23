@@ -15,6 +15,7 @@ namespace David6.ShooterCore.Provider
         IDCooldownProvider CooldownProvider { get; }
         IDCameraHandlerProvider CameraHandlerProvider { get; }
         IDRigHandlerProvider RigHandlerProvider { get; }
+        IDCombatHandler CombatHandler { get; }
 
         bool SetCameraHandler(IDCameraHandlerProvider cameraHandler);
         bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController);
@@ -54,7 +55,7 @@ namespace David6.ShooterCore.Provider
 
         // 이벤트 바인딩
         void HandleCloseUI();
-        void OnGearEquipped(DGearData data);
+        void OnGearEquipped(EDGearType type, DGearData data);
 
         // Movement 변수
         float HorizontalSpeed { get; set; }

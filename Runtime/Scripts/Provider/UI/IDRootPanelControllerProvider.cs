@@ -1,4 +1,5 @@
 using System;
+using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.UI.Equipment;
 
@@ -14,6 +15,6 @@ namespace David6.ShooterCore.Provider
         void PushPanel(IDPanelPresenterProvider panel);
         void PopPanel();
 
-        void RegisterOnEquip(Action<DGearData> callback);
+        void RegisterOnEquip(Action<EDGearType, DGearData> callback);
     }
 }

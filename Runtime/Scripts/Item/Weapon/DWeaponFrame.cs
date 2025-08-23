@@ -7,11 +7,18 @@ public class DWeaponFrame : MonoBehaviour
     public Transform Grip_Right;
     public Vector3 AimRigOffset;
 
-    // 무기 스텟
+    // Muzzle
+    public Transform Muzzle;
+
+    // 무기 스텟 (Structure or Scriptable)
     float _fireRate = 720f;
+    float _projectileSpeed = 400.0f;
+
+
     public float FireRate => _fireRate;
-    float _projectileSpeed = 10.0f;
     public float ProjectileSpeed => _projectileSpeed;
+
+    public Transform GetMuzzle() => Muzzle;
 
 
 }

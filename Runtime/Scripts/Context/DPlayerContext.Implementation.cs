@@ -18,6 +18,7 @@ namespace David6.ShooterCore.Context
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
         public IDCameraHandlerProvider CameraHandlerProvider => _cameraHandler;
         public IDRigHandlerProvider RigHandlerProvider => _rigHandler;
+        public IDCombatHandler CombatHandler => _combatHandler;
         
 
         public Transform CharacterTransform => transform;
@@ -110,10 +111,10 @@ namespace David6.ShooterCore.Context
         {
             RequestCameraTransition(EDCameraType.Exploration);
         }
-        public void OnGearEquipped(DGearData data)
+        public void OnGearEquipped(EDGearType type, DGearData data)
         {
             Log.WhatHappend("머가 바뀜?");
-            _combatHandler.SetWeapon(data);
+            _combatHandler.SetWeapon(type, data);
             _rigHandler.SetupRigIK(data.GearPrefab.GetComponent<DWeaponFrame>());
         }
         #endregion

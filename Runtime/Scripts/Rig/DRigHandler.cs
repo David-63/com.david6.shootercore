@@ -48,7 +48,7 @@ namespace David6.ShooterCore.Animation
 
 
 
-        public void RigOverride()
+        void RigOverride()
         {
             var leftHand = Resolve<DRIgTwoBoneIK>(EDConstraintType.IK_LEFT).GetConstraint() as TwoBoneIKConstraint;
             if (leftHand != null) leftHand.data.target = _IKHandLeft;

@@ -26,7 +26,7 @@ namespace David6.ShooterCore.Context
         IDStateMachineProvider _locomotionStateMachine;
         IDStateMachineProvider _actionStateMachine;
         IDCooldownProvider _cooldownHandler;
-        DCombatHandler _combatHandler;
+        IDCombatHandler _combatHandler;
 
         // 외부 컴포넌트
         IDRootPanelControllerProvider _rootPanelController;

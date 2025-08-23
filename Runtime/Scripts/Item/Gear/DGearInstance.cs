@@ -17,6 +17,5 @@ namespace David6.ShooterCore.Item.Gear
             GearData = gearData;
             InstanceID = Guid.NewGuid().ToString();
         }
-
     }
 }

@@ -20,7 +20,7 @@ namespace David6.ShooterCore.StateMachine.Action
             Context.StartFocus();
             Context.CooldownProvider.StartCooldown(RELOAD_KEY, _reloadTime);
             Context.AnimatorProvider.SetReload();
-            Context.CameraHandlerProvider.SetRigWeight(0);
+            Context.RigHandlerProvider.InactiveRig();
         }
 
         public override void UpdateSelf(float deltaTime)
@@ -31,7 +31,7 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void ExitState()
         {
             Context.StartFocus();
-            Context.CameraHandlerProvider.SetRigWeight(1);
+            Context.RigHandlerProvider.ActiveRig();
         }
         public override void CheckTransition()
         {

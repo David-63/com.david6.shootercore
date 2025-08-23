@@ -22,10 +22,6 @@ namespace David6.ShooterCore.Look
         [SerializeField] GameObject MenuCamera;
         [SerializeField] GameObject AimTarget;
 
-        [Header("Rig IK")]
-        [SerializeField] Rig HandRig;
-        [SerializeField] Rig AimRig;
-
 
         /// <summary>
         /// 메인 카메라의 Transform
@@ -98,11 +94,10 @@ namespace David6.ShooterCore.Look
         {
             LookRotation();
 
-
             // RaycastHit 구하는 로직 추가
             // IK에 사용할 예정
 
-            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
+            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));            
 
             RaycastHit hit;
 
@@ -139,13 +134,6 @@ namespace David6.ShooterCore.Look
 
             _targetCameraHolder.transform.rotation = Quaternion.Euler(_cameraPitch + CameraLookProfile.CameraAngleOverride, _cameraYaw, 0.0f);
         }
-
-        public void SetRigWeight(float weight)
-        {
-            HandRig.weight = weight;
-            AimRig.weight = weight;
-        }
-
 
         static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
