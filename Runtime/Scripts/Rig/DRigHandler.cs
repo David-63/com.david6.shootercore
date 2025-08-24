@@ -39,8 +39,8 @@ namespace David6.ShooterCore.Animation
 
         public void SetupRigIK(DWeaponFrame weaponFrame)
         {
-            _IKHandLeft = weaponFrame.Grip_Left;
-            _IKHandRight = weaponFrame.Grip_Right;
+            _IKHandLeft = weaponFrame.GripLeft;
+            _IKHandRight = weaponFrame.GripRight;
             _IKAimOffset = weaponFrame.AimRigOffset;
             RigOverride();
         }

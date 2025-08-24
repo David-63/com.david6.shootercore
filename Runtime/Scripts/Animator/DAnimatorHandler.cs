@@ -8,13 +8,23 @@ namespace David6.ShooterCore.Animation
     /// <summary>
     /// 플레이어 애니메이터 컨트롤러
     /// </summary>
-    public class DAnimatorController : IDAnimatorProvider
+    public class DAnimatorHandler : IDAnimatorHandlerProvider
     {
+        IDContextProvider _context;
         Animator _animator;
+
+        [Header("Resource")]
+        public AudioClip LandingAudioClip;
+        public AudioClip[] FootstepAudioClips;
+        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
+
+
+
         const int UPPERBODY_LAYER = 1;
         const int HAND_LAYER = 2;
 
-        public DAnimatorController(Animator animator) { _animator = animator; }
+        public DAnimatorHandler(IDContextProvider context, Animator animator) { _context = context; _animator = animator; }
 
         public Animator PlayerAnimator => _animator;
 
@@ -87,8 +97,26 @@ namespace David6.ShooterCore.Animation
         Fire 속도 관련해서
         Fire 애니메이션의 클립 레퍼런스를 가져와서 rpm 계산하는게 더 좋음
         */
-        
 
-        
+
+        public void OnFootstep(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                if (FootstepAudioClips.Length > 0)
+                {
+                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], _context.CharacterTransform.TransformPoint(_context.Controller.center), FootstepAudioVolume);
+                }
+            }
+        }
+        public void OnLand(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                AudioSource.PlayClipAtPoint(LandingAudioClip, _context.CharacterTransform.TransformPoint(_context.Controller.center), FootstepAudioVolume);
+            }
+        }
+
     }
 }

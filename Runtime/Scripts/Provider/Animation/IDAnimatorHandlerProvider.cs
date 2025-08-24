@@ -8,7 +8,7 @@ namespace David6.ShooterCore.Provider
     /// <summary>
     /// 애니메이터 제공자 인터페이스
     /// </summary>
-    public interface IDAnimatorProvider
+    public interface IDAnimatorHandlerProvider
     {
         void SetSpeed(float speed);
         void SetJump(bool isJumping);
@@ -24,5 +24,9 @@ namespace David6.ShooterCore.Provider
 
         void ActiveUpperbodyLayer();
         void InactiveUpperbodyLayer();
+
+
+        void OnFootstep(AnimationEvent animationEvent);
+        void OnLand(AnimationEvent animationEvent);
     }
 }

@@ -11,7 +11,9 @@ namespace David6.ShooterCore.Provider
         DMovementProfile MovementProfile { get; }
         Transform CharacterTransform { get; }
         Transform WeaponSocket { get; }
-        IDAnimatorProvider AnimatorProvider { get; }
+        CharacterController Controller { get; }
+
+        IDAnimatorHandlerProvider AnimatorProvider { get; }
         IDCooldownProvider CooldownProvider { get; }
         IDCameraHandlerProvider CameraHandlerProvider { get; }
         IDRigHandlerProvider RigHandlerProvider { get; }
@@ -92,6 +94,7 @@ namespace David6.ShooterCore.Provider
         bool ShouldReload();
 
         GameObject MakeObject(GameObject prefab, Transform target);
+        GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal);
 
 
     }

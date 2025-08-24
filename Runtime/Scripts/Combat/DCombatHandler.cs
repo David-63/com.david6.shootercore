@@ -23,6 +23,14 @@ namespace David6.ShooterCore.Combat
         public LayerMask HitMask;
 
 
+
+        // 총기 관련 변수
+
+        bool _chamberLoaded = false;
+        int _reserveAmmo; // maxReserveAmmo (_magazineCapacity * 4)
+        int _currentMagazine; // _magazineCapacity
+
+
         public DCombatHandler(IDContextProvider context)
         {
             _context = context;
@@ -34,11 +42,14 @@ namespace David6.ShooterCore.Combat
                     _weapons[type] = null;
                 }
             }
+
             HitMask.value = 1;
         }
 
         public void SetWeapon(EDGearType type, DGearData data)
         {
+
+            // Weapon 인스턴스 등록
             if (!_weapons.TryGetValue(type, out var instance) || instance == null)
             {
                 instance = new DWeaponInstance();
@@ -52,21 +63,38 @@ namespace David6.ShooterCore.Combat
                 instance.WeaponObject = _context.MakeObject(data.GearPrefab, _context.WeaponSocket);
             }
             instance.WeaponFrame = instance.WeaponObject.GetComponent<DWeaponFrame>();
+
+
+            // 탄약 세팅 (나중에 딕셔너리로 캐싱하기)
+            _chamberLoaded = true;
+            _reserveAmmo = instance.WeaponFrame.MaxReserveAmmo;
+            _currentMagazine = instance.WeaponFrame.MagazineCapacity - 1;
         }
 
-        public void Fire()
+        public bool Fire()
         {
+            if (!_chamberLoaded)
+            {
+                // no clip 사운드
+                return false;
+            }
             // 일단 무기 정보 필요함
             var currentWeapon = _weapons[_currentType];
             if (currentWeapon == null)
             {
                 Log.WhatHappend("무기 업승");
-                return;
+                return false;
             }
 
-            Transform muzzleTransform = currentWeapon.WeaponFrame.GetMuzzle();
 
-            Log.WhatHappend("Muzzle Position: " + muzzleTransform.transform);
+            // 이펙트
+            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
+
+            _context.MakeObject(currentWeapon.WeaponFrame.MuzzleFlash, muzzleTransform);
+            _context.MakeObject(currentWeapon.WeaponFrame.ChamberCase, currentWeapon.WeaponFrame.ChamberTransform);
+
+
+
             Camera mainCamera = Camera.main;
             Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
 
@@ -89,6 +117,20 @@ namespace David6.ShooterCore.Combat
             Log.WhatHappend("delay: " + delay);
 
             _context.ExecuteCoroutine(DelayedHit(muzzleTransform.position, intendedPoint, delay));
+
+            Log.WhatHappend(_currentMagazine);
+
+            if (_currentMagazine <= 0)
+            {
+                _chamberLoaded = false;
+            }
+            else
+            {
+                --_currentMagazine;    
+            }            
+            Log.WhatHappend(_currentMagazine);
+
+            return true;
         }
 
         IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
@@ -106,19 +148,74 @@ namespace David6.ShooterCore.Combat
             {
                 // 타격 이펙트
                 Debug.DrawLine(beginPoint, hit.point, Color.blue, 1f);
-                Log.WhatHappend("begin: " + beginPoint);
-                Log.WhatHappend("hit.point: " + hit.point);
 
                 var damageable = hit.collider.GetComponent<IDDamageable>();
                 if (damageable != null)
                 {
                     damageable.Hit();
                 }
+
+                var currentWeapon = _weapons[_currentType];
+                if (currentWeapon == null)
+                {
+                    Log.WhatHappend("무기 업승");
+                }
+                else
+                {
+                    _context.MakeObject(currentWeapon.WeaponFrame.ImpactShard, hit.point, hit.normal);
+                }
+                
             }
-            else
+        }
+
+
+        public void OnEjectMagazine(AnimationEvent animationEvent)
+        {
+            // 무기 가져오기
+            Log.WhatHappend("Eject!!");
+            var currentWeapon = _weapons[_currentType];
+            if (currentWeapon == null)
             {
-                Debug.DrawLine(beginPoint, targetPoint, Color.yellow, 3f);
+                Log.WhatHappend("무기 업승");
+                return;
             }
+
+            // 탄창 파티클 발생
+            _context.MakeObject(currentWeapon.WeaponFrame.MagazineEject, currentWeapon.WeaponFrame.MagazineTransform);
+            // 매쉬 숨기기
+            currentWeapon.WeaponFrame.MagazineObject.SetActive(false);
+            // 로직 처리
+            _currentMagazine = 0;
+        }
+        public void OnInsertMagazine(AnimationEvent animationEvent)
+        {
+            // 무기 가져오기
+            Log.WhatHappend("Insert!!");
+            var currentWeapon = _weapons[_currentType];
+            if (currentWeapon == null)
+            {
+                Log.WhatHappend("무기 업승");
+                return;
+            }
+            // 매쉬 드러내기
+            currentWeapon.WeaponFrame.MagazineObject.SetActive(true);
+            // 로직 처리
+            _currentMagazine = currentWeapon.WeaponFrame.MagazineCapacity;
+            
+        }
+
+        public void OnChamberLoad(AnimationEvent animationEvent)
+        {
+            Log.WhatHappend("Load!!");
+            var currentWeapon = _weapons[_currentType];
+            if (currentWeapon == null)
+            {
+                Log.WhatHappend("무기 업승");
+                return;
+            }
+            // 로직 처리
+            --_currentMagazine;
+            _chamberLoaded = true;
         }
 
         public class DWeaponInstance

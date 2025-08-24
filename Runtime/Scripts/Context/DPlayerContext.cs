@@ -22,7 +22,7 @@ namespace David6.ShooterCore.Context
 
 
         // 생성한 컴포넌트
-        IDAnimatorProvider _animatorHandler;
+        IDAnimatorHandlerProvider _animatorHandler;
         IDStateMachineProvider _locomotionStateMachine;
         IDStateMachineProvider _actionStateMachine;
         IDCooldownProvider _cooldownHandler;
@@ -52,7 +52,7 @@ namespace David6.ShooterCore.Context
             _characterController = GetComponent<CharacterController>();
             if (this.TryGetComponentInChildren<Animator>(out var animComponent))
             {
-                _animatorHandler = new DAnimatorController(animComponent);
+                _animatorHandler = new DAnimatorHandler(this, animComponent);
             }
             if (this.TryGetComponentInChildren<DAnimationEventProxy>(out var proxy))
             {
@@ -66,19 +66,42 @@ namespace David6.ShooterCore.Context
             _cooldownHandler = new DCooldownHandler();
             _combatHandler = new DCombatHandler(this);
 
-            InitializeCharacterController();
-
             _animatorHandler.SetGrounded(true);
-
-            _animationEventProxy.OnFootstepEvent += OnFootstep;
-            _animationEventProxy.OnLandEvent += OnLand;
-
+            InitializeCharacterController();
+            InitailzeAnimEvent();
 
 
             if (DGameLoop.Instance != null)
             {
                 DGameLoop.Instance.Register(this);
                 DGameLoop.Instance.Register(_cooldownHandler);
+            }
+
+
+            void InitializeCharacterController()
+            {
+                gameObject.layer = 3;
+                if (_characterController == null)
+                {
+                    _characterController.stepOffset = 0.25f;
+                    _characterController.skinWidth = 0.02f;
+                    _characterController.minMoveDistance = 0;
+                    _characterController.center = new Vector3(0, 0.93f, 0);
+                    if (MovementProfile)
+                    {
+                        _characterController.radius = MovementProfile.GroundedRadius;
+                    }
+                    _characterController.height = 1.8f;
+                }
+            }
+
+            void InitailzeAnimEvent()
+            {
+                _animationEventProxy.OnFootstepEvent += _animatorHandler.OnFootstep;
+                _animationEventProxy.OnLandEvent += _animatorHandler.OnLand;
+                _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
+                _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
+                _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
             }
         }
 
@@ -103,23 +126,6 @@ namespace David6.ShooterCore.Context
             CameraTransitionCheck();
         }
 
-        void InitializeCharacterController()
-        {
-            gameObject.layer = 3;
-            if (_characterController == null)
-            {
-                _characterController.stepOffset = 0.25f;
-                _characterController.skinWidth = 0.02f;
-                _characterController.minMoveDistance = 0;
-                _characterController.center = new Vector3(0, 0.93f, 0);
-                if (MovementProfile)
-                {
-                    _characterController.radius = MovementProfile.GroundedRadius;
-                }
-                _characterController.height = 1.8f;
-            }
-        }
-
         void OnDrawGizmosSelected()
         {
             Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
@@ -132,26 +138,6 @@ namespace David6.ShooterCore.Context
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z),
                 _movementProfile.GroundedRadius);
-        }
-        
-        void OnFootstep(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                if (FootstepAudioClips.Length > 0)
-                {
-                    var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_characterController.center), FootstepAudioVolume);
-                }
-            }
-        }
-
-        void OnLand(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_characterController.center), FootstepAudioVolume);
-            }
         }
 
     }

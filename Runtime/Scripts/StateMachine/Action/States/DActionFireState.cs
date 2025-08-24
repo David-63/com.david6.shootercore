@@ -47,10 +47,12 @@ namespace David6.ShooterCore.StateMachine.Action
 
         void TryFire()
         {
-            Context.StartFocus();
-            Context.AnimatorProvider.SetFire();
-            Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.FireRate);
-            Context.CombatHandler.Fire();
+            if (Context.CombatHandler.Fire())
+            {
+                Context.StartFocus();
+                Context.AnimatorProvider.SetFire();
+                Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.FireRate);
+            }
         }
     }
 }

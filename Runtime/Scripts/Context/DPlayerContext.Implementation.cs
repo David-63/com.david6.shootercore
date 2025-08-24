@@ -5,6 +5,7 @@ using David6.ShooterCore.Data.Gear;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 namespace David6.ShooterCore.Context
 {
@@ -14,17 +15,16 @@ namespace David6.ShooterCore.Context
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
         public DMovementProfile MovementProfile => _movementProfile;
-        public IDAnimatorProvider AnimatorProvider => _animatorHandler;
+        public IDAnimatorHandlerProvider AnimatorProvider => _animatorHandler;
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
         public IDCameraHandlerProvider CameraHandlerProvider => _cameraHandler;
         public IDRigHandlerProvider RigHandlerProvider => _rigHandler;
         public IDCombatHandler CombatHandler => _combatHandler;
-        
+
 
         public Transform CharacterTransform => transform;
         public Transform WeaponSocket => _WeaponSocket;
-
-
+        public CharacterController Controller => _characterController;
 
         public void ActiveStateDebugMode()
         {
@@ -119,7 +119,7 @@ namespace David6.ShooterCore.Context
         }
         #endregion
 
-        
+
 
         public bool SetRigHandler(IDRigHandlerProvider rigHandler)
         {
@@ -285,6 +285,10 @@ namespace David6.ShooterCore.Context
         public GameObject MakeObject(GameObject prefab, Transform target)
         {
             return Instantiate(prefab, target);
+        }
+        public GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal)
+        {
+            return Instantiate(prefab, position, Quaternion.LookRotation(normal));
         }
 
 
