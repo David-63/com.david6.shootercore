@@ -2,12 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
 
 namespace David6.ShooterCore.Combat
 {
+    public class DWeaponInstance
+    {
+        public DGearData GearData;
+        public GameObject WeaponObject;
+        public DWeaponFrame WeaponFrame;
+    }
+
     public class DCombatHandler : IDCombatHandler
     {
         // 무기나 장비를 알고 있어야함
@@ -17,10 +25,17 @@ namespace David6.ShooterCore.Combat
         IDContextProvider _context;
         Dictionary<EDGearType, DWeaponInstance> _weapons = new();
         EDGearType _currentType;
+
+        public DWeaponInstance GetCurrentWeapon => _weapons[_currentType];
+
+
+        // 아직 안쓰는 기능
         public EDGearType CurrentType { get => _currentType; set => _currentType = value; }
 
+
+        // 제어 변수
         const float MAX_DISTANCE = 500.0f;
-        public LayerMask HitMask;
+        LayerMask _hitMask;
 
 
 
@@ -43,7 +58,7 @@ namespace David6.ShooterCore.Combat
                 }
             }
 
-            HitMask.value = 1;
+            _hitMask.value = 1;
         }
 
         public void SetWeapon(EDGearType type, DGearData data)
@@ -89,21 +104,19 @@ namespace David6.ShooterCore.Combat
 
             // 이펙트
             Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
+            Transform chamberTransform = currentWeapon.WeaponFrame.ChamberTransform;
 
-            _context.MakeObject(currentWeapon.WeaponFrame.MuzzleFlash, muzzleTransform);
-            _context.MakeObject(currentWeapon.WeaponFrame.ChamberCase, currentWeapon.WeaponFrame.ChamberTransform);
+            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_MuzzleFlash, muzzleTransform.position, muzzleTransform.rotation);
+            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_ChamberCase, chamberTransform.position, chamberTransform.rotation);
 
-
-
+            // 사격 계산
             Camera mainCamera = Camera.main;
             Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
 
             // Ray 생성
             Ray aimRay = mainCamera.ScreenPointToRay(screenCenter);
-
             Vector3 intendedPoint;
-
-            if (Physics.Raycast(aimRay, out var camHit, MAX_DISTANCE, HitMask))
+            if (Physics.Raycast(aimRay, out var camHit, MAX_DISTANCE, _hitMask))
             {
                 intendedPoint = camHit.point;
             }
@@ -114,20 +127,31 @@ namespace David6.ShooterCore.Combat
 
             float travelDistance = Vector3.Distance(muzzleTransform.position, intendedPoint);
             float delay = travelDistance / currentWeapon.WeaponFrame.ProjectileSpeed;
-            Log.WhatHappend("delay: " + delay);
+            Vector3 direction = (intendedPoint - muzzleTransform.position).normalized;
 
+            // 명중판정 코루틴
             _context.ExecuteCoroutine(DelayedHit(muzzleTransform.position, intendedPoint, delay));
 
-            Log.WhatHappend(_currentMagazine);
+            // 투사체 렌더링 오브젝트
+            if (_currentMagazine % 2 == 0)
+            {
+                GameObject bullet = _context.SpawnVFX(currentWeapon.WeaponFrame.FX_BulletTrace, muzzleTransform.position, Quaternion.LookRotation(direction));
+                ParticleSystem trace = bullet.GetComponent<ParticleSystem>();
+                var emitParams = new ParticleSystem.EmitParams();
+                emitParams.velocity = direction * currentWeapon.WeaponFrame.ProjectileSpeed;
+                emitParams.startLifetime = delay;
+                trace.Emit(emitParams, 1);
+            }
 
+            // 제어 로직
             if (_currentMagazine <= 0)
             {
                 _chamberLoaded = false;
             }
             else
             {
-                --_currentMagazine;    
-            }            
+                --_currentMagazine;
+            }
             Log.WhatHappend(_currentMagazine);
 
             return true;
@@ -144,7 +168,7 @@ namespace David6.ShooterCore.Combat
             direction.Normalize();
 
             // 한번 더 레이케스팅
-            if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, MAX_DISTANCE, HitMask))
+            if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, MAX_DISTANCE, _hitMask))
             {
                 // 타격 이펙트
                 Debug.DrawLine(beginPoint, hit.point, Color.blue, 1f);
@@ -156,15 +180,10 @@ namespace David6.ShooterCore.Combat
                 }
 
                 var currentWeapon = _weapons[_currentType];
-                if (currentWeapon == null)
+                if (currentWeapon != null)
                 {
-                    Log.WhatHappend("무기 업승");
+                    _context.SpawnVFX(currentWeapon.WeaponFrame.FX_ImpactShard, hit.point, Quaternion.LookRotation(hit.normal));
                 }
-                else
-                {
-                    _context.MakeObject(currentWeapon.WeaponFrame.ImpactShard, hit.point, hit.normal);
-                }
-                
             }
         }
 
@@ -179,9 +198,10 @@ namespace David6.ShooterCore.Combat
                 Log.WhatHappend("무기 업승");
                 return;
             }
+            Transform magazineTransform = currentWeapon.WeaponFrame.MagazineTransform;
 
-            // 탄창 파티클 발생
-            _context.MakeObject(currentWeapon.WeaponFrame.MagazineEject, currentWeapon.WeaponFrame.MagazineTransform);
+            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_MagazineEject, magazineTransform.position, magazineTransform.rotation);
+
             // 매쉬 숨기기
             currentWeapon.WeaponFrame.MagazineObject.SetActive(false);
             // 로직 처리
@@ -201,7 +221,7 @@ namespace David6.ShooterCore.Combat
             currentWeapon.WeaponFrame.MagazineObject.SetActive(true);
             // 로직 처리
             _currentMagazine = currentWeapon.WeaponFrame.MagazineCapacity;
-            
+
         }
 
         public void OnChamberLoad(AnimationEvent animationEvent)
@@ -218,12 +238,7 @@ namespace David6.ShooterCore.Combat
             _chamberLoaded = true;
         }
 
-        public class DWeaponInstance
-        {
-            public DGearData GearData;
-            public GameObject WeaponObject;
-            public DWeaponFrame WeaponFrame;
-        }
+
     }
 
 }

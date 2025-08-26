@@ -10,16 +10,18 @@ public class DWeaponFrame : MonoBehaviour
 
     [Header("Weapon Module")]
     [SerializeField] Transform _muzzleTransform;
-    [SerializeField] GameObject _muzzleFlash;
+    [SerializeField] GameObject _fxMuzzleFlash;
     [SerializeField] Transform _chamberTransform;
-    [SerializeField] GameObject _chamberCase;
+    [SerializeField] GameObject _fxChamberCase;
     [SerializeField] Transform _magazineTransform;
-    [SerializeField] GameObject _magazineEject;
+    [SerializeField] GameObject _fxMagazineEject;
     [SerializeField] GameObject _magazineObject;
+    [SerializeField] GameObject _fxBulletTrace;
+
 
 
     [Header("Impact")]
-    [SerializeField] GameObject _impactShard;
+    [SerializeField] GameObject _fxImpactShard;
 
 
     // 무기 스텟 (Structure or Scriptable)
@@ -36,17 +38,21 @@ public class DWeaponFrame : MonoBehaviour
 
     // 모듈 공유
     public Transform MuzzleTransform => _muzzleTransform;
-    public GameObject MuzzleFlash => _muzzleFlash;
+    public GameObject FX_MuzzleFlash => _fxMuzzleFlash;
     public Transform ChamberTransform => _chamberTransform;
-    public GameObject ChamberCase => _chamberCase;
+    public GameObject FX_ChamberCase => _fxChamberCase;
     public Transform MagazineTransform => _magazineTransform;
-    public GameObject MagazineEject => _magazineEject;
+    public GameObject FX_MagazineEject => _fxMagazineEject;
     public GameObject MagazineObject => _magazineObject;
-    public GameObject ImpactShard => _impactShard;
+    public GameObject FX_BulletTrace => _fxBulletTrace;
+
+
+    public GameObject FX_ImpactShard => _fxImpactShard;
 
     // 무기 스텟
     public float FireRate => _fireRate;
     public float ProjectileSpeed => _projectileSpeed;
     public int MagazineCapacity => _magazineCapacity;
     public int MaxReserveAmmo => _maxReserveAmmo;
+
 }

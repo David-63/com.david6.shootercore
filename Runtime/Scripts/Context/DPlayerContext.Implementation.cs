@@ -2,6 +2,7 @@ using System.Collections;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -14,17 +15,18 @@ namespace David6.ShooterCore.Context
     /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
-        public DMovementProfile MovementProfile => _movementProfile;
         public IDAnimatorHandlerProvider AnimatorProvider => _animatorHandler;
         public IDCooldownProvider CooldownProvider => _cooldownHandler;
         public IDCameraHandlerProvider CameraHandlerProvider => _cameraHandler;
         public IDRigHandlerProvider RigHandlerProvider => _rigHandler;
         public IDCombatHandler CombatHandler => _combatHandler;
 
-
-        public Transform CharacterTransform => transform;
-        public Transform WeaponSocket => _WeaponSocket;
         public CharacterController Controller => _characterController;
+        public DMovementProfile MovementProfile => _movementProfile;
+        public Transform CharacterTransform => transform;
+        public Transform WeaponSocket => _weaponSocket;
+
+        [SerializeField] Transform VFXHolder;
 
         public void ActiveStateDebugMode()
         {
@@ -229,13 +231,7 @@ namespace David6.ShooterCore.Context
         bool _isFiring = false;
         public bool IsFiring { get => _isFiring; set => _isFiring = value; }
 
-
-        // FireRate는 임시 변수임
-        public float _FireRate = 720f;
-        public float FireRate => _FireRate;
-
         public bool ShouldFire() => InputFire && !_isFiring;
-
         public bool ShouldReload() => InputReload;
 
 
@@ -282,6 +278,8 @@ namespace David6.ShooterCore.Context
             _cameraHandler.ActivateCamera(_cameraStateType);
         }
 
+        #endregion
+
         public GameObject MakeObject(GameObject prefab, Transform target)
         {
             return Instantiate(prefab, target);
@@ -291,8 +289,20 @@ namespace David6.ShooterCore.Context
             return Instantiate(prefab, position, Quaternion.LookRotation(normal));
         }
 
+        public GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)
+        {
+            GameObject vfx = DGamePool.Instance.Get(vfxPrefab, VFXHolder);
+            vfx.transform.position = position;
+            vfx.transform.rotation = rotation;
 
-        #endregion
+            ParticleSystem ps = vfx.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Play();
+            }
+
+            return vfx;
+        }
     }
     /*
 

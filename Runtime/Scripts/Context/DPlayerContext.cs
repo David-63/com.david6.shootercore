@@ -37,10 +37,7 @@ namespace David6.ShooterCore.Context
         // 리소스
         [Header("Resources")]
         [SerializeField] DMovementProfile _movementProfile;
-        [SerializeField] Transform _WeaponSocket;
-        public AudioClip LandingAudioClip;
-        public AudioClip[] FootstepAudioClips;
-        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+        [SerializeField] Transform _weaponSocket;
 
 
         // 컴포넌트 가져오기

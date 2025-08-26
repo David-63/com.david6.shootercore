@@ -17,7 +17,7 @@ namespace David6.ShooterCore.StateMachine.Action
             Context.IsFiring = true;
 
             // 무기에 따라 초기에 속도 세팅해줌
-            Context.AnimatorProvider.SetFireRate(Context.FireRate);
+            Context.AnimatorProvider.SetFireRate(Context.CombatHandler.GetCurrentWeapon.WeaponFrame.FireRate);
             TryFire();
         }
 
@@ -47,11 +47,12 @@ namespace David6.ShooterCore.StateMachine.Action
 
         void TryFire()
         {
+            // 쿨다운은 CombatHandler 에 위임하기
             if (Context.CombatHandler.Fire())
             {
                 Context.StartFocus();
                 Context.AnimatorProvider.SetFire();
-                Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.FireRate);
+                Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.GetCurrentWeapon.WeaponFrame.FireRate);
             }
         }
     }

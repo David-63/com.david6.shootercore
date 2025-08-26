@@ -8,10 +8,10 @@ namespace David6.ShooterCore.Provider
 {
     public interface IDContextProvider : IDProvider
     {
+        CharacterController Controller { get; }
         DMovementProfile MovementProfile { get; }
         Transform CharacterTransform { get; }
         Transform WeaponSocket { get; }
-        CharacterController Controller { get; }
 
         IDAnimatorHandlerProvider AnimatorProvider { get; }
         IDCooldownProvider CooldownProvider { get; }
@@ -89,12 +89,13 @@ namespace David6.ShooterCore.Provider
 
 
         bool IsFiring { get; set; }
-        float FireRate { get; }
         bool ShouldFire();
         bool ShouldReload();
 
         GameObject MakeObject(GameObject prefab, Transform target);
         GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal);
+
+        GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
 
 
     }
