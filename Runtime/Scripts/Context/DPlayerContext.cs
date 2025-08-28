@@ -38,6 +38,9 @@ namespace David6.ShooterCore.Context
         [Header("Resources")]
         [SerializeField] DMovementProfile _movementProfile;
         [SerializeField] Transform _weaponSocket;
+        public AudioClip LandingAudioClip;
+        public AudioClip[] FootstepAudioClips;
+        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
 
         // 컴포넌트 가져오기
@@ -94,8 +97,8 @@ namespace David6.ShooterCore.Context
 
             void InitailzeAnimEvent()
             {
-                _animationEventProxy.OnFootstepEvent += _animatorHandler.OnFootstep;
-                _animationEventProxy.OnLandEvent += _animatorHandler.OnLand;
+                _animationEventProxy.OnFootstepEvent += OnFootstep;
+                _animationEventProxy.OnLandEvent += OnLand;
                 _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
                 _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
                 _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
@@ -121,6 +124,25 @@ namespace David6.ShooterCore.Context
 
             ApplyMovement();
             CameraTransitionCheck();
+        }
+
+        public void OnFootstep(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                if (FootstepAudioClips.Length > 0)
+                {
+                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], CharacterTransform.TransformPoint(Controller.center), FootstepAudioVolume);
+                }
+            }
+        }
+        public void OnLand(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                AudioSource.PlayClipAtPoint(LandingAudioClip, CharacterTransform.TransformPoint(Controller.center), FootstepAudioVolume);
+            }
         }
 
         void OnDrawGizmosSelected()

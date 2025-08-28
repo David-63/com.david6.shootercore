@@ -7,7 +7,8 @@ namespace David6.ShooterCore.Provider
 {
     public interface IDCombatHandler
     {
-        public DWeaponInstance GetCurrentWeapon { get; }
+        DWeaponInstance GetCurrentWeapon { get; }
+        bool ChamberLoaded { get; }
 
         void SetWeapon(EDGearType type, DGearData data);
         bool Fire();

@@ -28,6 +28,12 @@ namespace David6.ShooterCore.Context
         public T Resolve<T>() where T : class, IDProvider => _providers[typeof(T)] as T;
         #endregion
 
+        void Awake()
+        {
+            // dll 초기화: Xbox Controller Input 활성화
+            GameInputWrapper.InitGameInput();
+        }
+
         void Start()
         {
             var context = Resolve<IDContextProvider>();

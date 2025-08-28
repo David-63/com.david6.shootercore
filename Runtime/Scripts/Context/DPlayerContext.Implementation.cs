@@ -6,7 +6,6 @@ using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 namespace David6.ShooterCore.Context
 {
@@ -115,7 +114,6 @@ namespace David6.ShooterCore.Context
         }
         public void OnGearEquipped(EDGearType type, DGearData data)
         {
-            Log.WhatHappend("머가 바뀜?");
             _combatHandler.SetWeapon(type, data);
             _rigHandler.SetupRigIK(data.GearPrefab.GetComponent<DWeaponFrame>());
         }
@@ -227,12 +225,35 @@ namespace David6.ShooterCore.Context
             IsFocus = true;
         }
 
-        // 아래의 변수는 전부 Inventory Module에 의해 제어될 예정
-        bool _isFiring = false;
-        public bool IsFiring { get => _isFiring; set => _isFiring = value; }
+        bool _isTriggerReleased = true;
+        public bool IsTriggerReleased { get => _isTriggerReleased; set => _isTriggerReleased = value; }
 
-        public bool ShouldFire() => InputFire && !_isFiring;
+        public bool ShouldFire() => InputFire && IsTriggerReleased;
         public bool ShouldReload() => InputReload;
+
+        // fire
+        public void FireRoundRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.2f, 0.3f);
+        public void EmptyChamberRumble() => GameInputWrapper.SetVibration(0f, 0f, 0f, 0.4f);
+        // reload
+        public void EjectRumble() => GameInputWrapper.SetVibration(0f, 1f, 0f, 0f);
+        public void InsertRumble() => GameInputWrapper.SetVibration(1f, 0f, 0f, 0f);
+        public void ChamberLoadRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.5f, 0f);
+        public void CancelRumble() => GameInputWrapper.SetVibration(0f, 0f, 0f, 0f);
+
+        public void StopRumble(float delay) => ExecuteCoroutine(StopSetMotorRumble(delay));
+
+        IEnumerator StopSetMotorRumble(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            GameInputWrapper.SetVibration(0f, 0f, 0f, 0f);
+
+            // var gamepad = Gamepad.current;
+            // if (gamepad == null)
+            //     yield break;
+
+            // gamepad.SetMotorSpeeds(0f, 0f);
+        }
 
 
         // 카메라 전환 요청
@@ -289,7 +310,7 @@ namespace David6.ShooterCore.Context
             return Instantiate(prefab, position, Quaternion.LookRotation(normal));
         }
 
-        public GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)
+        public GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             GameObject vfx = DGamePool.Instance.Get(vfxPrefab, VFXHolder);
             vfx.transform.position = position;
@@ -303,6 +324,15 @@ namespace David6.ShooterCore.Context
 
             return vfx;
         }
+        public GameObject SpawnTrail(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)
+        {
+            GameObject vfx = DGamePool.Instance.Get(vfxPrefab, VFXHolder);
+            vfx.transform.position = position;
+            vfx.transform.rotation = rotation;
+
+            return vfx;
+        }
+
     }
     /*
 

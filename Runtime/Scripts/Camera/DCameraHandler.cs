@@ -43,6 +43,7 @@ namespace David6.ShooterCore.Look
 
         Dictionary<EDCameraType, GameObject> _cameraMap;
         Camera _lookCamera;
+        public Camera LookCamera => _lookCamera;
         public LayerMask HitMask;
 
         void Awake()

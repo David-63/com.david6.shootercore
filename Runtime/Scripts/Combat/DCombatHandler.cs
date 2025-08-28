@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.FX;
 using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XInput;
 
 namespace David6.ShooterCore.Combat
 {
@@ -42,8 +45,11 @@ namespace David6.ShooterCore.Combat
         // 총기 관련 변수
 
         bool _chamberLoaded = false;
+        public bool ChamberLoaded { get => _chamberLoaded; }
         int _reserveAmmo; // maxReserveAmmo (_magazineCapacity * 4)
         int _currentMagazine; // _magazineCapacity
+
+        float _fireRate;
 
 
         public DCombatHandler(IDContextProvider context)
@@ -79,11 +85,19 @@ namespace David6.ShooterCore.Combat
             }
             instance.WeaponFrame = instance.WeaponObject.GetComponent<DWeaponFrame>();
 
+            _context.AnimatorProvider.SetFireRate(instance.WeaponFrame.FireRate);
+
 
             // 탄약 세팅 (나중에 딕셔너리로 캐싱하기)
             _chamberLoaded = true;
             _reserveAmmo = instance.WeaponFrame.MaxReserveAmmo;
             _currentMagazine = instance.WeaponFrame.MagazineCapacity - 1;
+
+
+            float rps = 60 / instance.WeaponFrame.FireRate / 60f;
+            float targetPeriod = 1f / rps;
+            float originalClipLength = 0.15f;
+            _fireRate = originalClipLength / targetPeriod;
         }
 
         public bool Fire()
@@ -101,49 +115,53 @@ namespace David6.ShooterCore.Combat
                 return false;
             }
 
+            Vector3 intendedPoint = CalculateIntendedPoint();
 
-            // 이펙트
-            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
-            Transform chamberTransform = currentWeapon.WeaponFrame.ChamberTransform;
+            ScheduleHit(currentWeapon, intendedPoint);
 
-            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_MuzzleFlash, muzzleTransform.position, muzzleTransform.rotation);
-            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_ChamberCase, chamberTransform.position, chamberTransform.rotation);
+            PlayFX(currentWeapon, intendedPoint);
 
-            // 사격 계산
-            Camera mainCamera = Camera.main;
+            ConsumeAmmo();
+
+            return true;
+        }
+
+        Vector3 CalculateIntendedPoint()
+        {
             Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+            Ray aimRay = _context.CameraHandlerProvider.LookCamera.ScreenPointToRay(screenCenter);
 
-            // Ray 생성
-            Ray aimRay = mainCamera.ScreenPointToRay(screenCenter);
-            Vector3 intendedPoint;
             if (Physics.Raycast(aimRay, out var camHit, MAX_DISTANCE, _hitMask))
             {
-                intendedPoint = camHit.point;
-            }
-            else
-            {
-                intendedPoint = aimRay.GetPoint(MAX_DISTANCE);
+                return camHit.point;
             }
 
+            return aimRay.GetPoint(MAX_DISTANCE);
+        }
+
+        void ScheduleHit(DWeaponInstance currentWeapon, Vector3 intendedPoint)
+        {
+            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
             float travelDistance = Vector3.Distance(muzzleTransform.position, intendedPoint);
             float delay = travelDistance / currentWeapon.WeaponFrame.ProjectileSpeed;
-            Vector3 direction = (intendedPoint - muzzleTransform.position).normalized;
 
-            // 명중판정 코루틴
             _context.ExecuteCoroutine(DelayedHit(muzzleTransform.position, intendedPoint, delay));
-
-            // 투사체 렌더링 오브젝트
+        }
+        void PlayFX(DWeaponInstance currentWeapon, Vector3 intendedPoint)
+        {
+            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
+            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_MuzzleFlash, muzzleTransform.position, muzzleTransform.rotation);
+            Transform chamberTransform = currentWeapon.WeaponFrame.ChamberTransform;
+            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_ChamberCase, chamberTransform.position, chamberTransform.rotation);
             if (_currentMagazine % 2 == 0)
             {
-                GameObject bullet = _context.SpawnVFX(currentWeapon.WeaponFrame.FX_BulletTrace, muzzleTransform.position, Quaternion.LookRotation(direction));
-                ParticleSystem trace = bullet.GetComponent<ParticleSystem>();
-                var emitParams = new ParticleSystem.EmitParams();
-                emitParams.velocity = direction * currentWeapon.WeaponFrame.ProjectileSpeed;
-                emitParams.startLifetime = delay;
-                trace.Emit(emitParams, 1);
+                GameObject tracerObj = _context.SpawnTrail(currentWeapon.WeaponFrame.FX_BulletTrail, muzzleTransform.position, muzzleTransform.rotation);
+                DTrailHander tracer = tracerObj.GetComponent<DTrailHander>();
+                tracer.Init(muzzleTransform.position, intendedPoint, currentWeapon.WeaponFrame.ProjectileSpeed);
             }
-
-            // 제어 로직
+        }
+        void ConsumeAmmo()
+        {
             if (_currentMagazine <= 0)
             {
                 _chamberLoaded = false;
@@ -152,9 +170,6 @@ namespace David6.ShooterCore.Combat
             {
                 --_currentMagazine;
             }
-            Log.WhatHappend(_currentMagazine);
-
-            return true;
         }
 
         IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
@@ -170,9 +185,6 @@ namespace David6.ShooterCore.Combat
             // 한번 더 레이케스팅
             if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, MAX_DISTANCE, _hitMask))
             {
-                // 타격 이펙트
-                Debug.DrawLine(beginPoint, hit.point, Color.blue, 1f);
-
                 var damageable = hit.collider.GetComponent<IDDamageable>();
                 if (damageable != null)
                 {
@@ -182,25 +194,29 @@ namespace David6.ShooterCore.Combat
                 var currentWeapon = _weapons[_currentType];
                 if (currentWeapon != null)
                 {
-                    _context.SpawnVFX(currentWeapon.WeaponFrame.FX_ImpactShard, hit.point, Quaternion.LookRotation(hit.normal));
+                    _context.SpawnParticle(currentWeapon.WeaponFrame.FX_ImpactShard, hit.point, Quaternion.LookRotation(hit.normal));
                 }
             }
         }
 
-
         public void OnEjectMagazine(AnimationEvent animationEvent)
         {
-            // 무기 가져오기
             Log.WhatHappend("Eject!!");
+
             var currentWeapon = _weapons[_currentType];
             if (currentWeapon == null)
             {
                 Log.WhatHappend("무기 업승");
                 return;
             }
-            Transform magazineTransform = currentWeapon.WeaponFrame.MagazineTransform;
 
-            _context.SpawnVFX(currentWeapon.WeaponFrame.FX_MagazineEject, magazineTransform.position, magazineTransform.rotation);
+            // 게임패드
+            _context.EjectRumble();
+            _context.StopRumble(0.25f);
+
+            // 이펙트
+            Transform magazineTransform = currentWeapon.WeaponFrame.MagazineTransform;
+            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_MagazineEject, magazineTransform.position, magazineTransform.rotation);
 
             // 매쉬 숨기기
             currentWeapon.WeaponFrame.MagazineObject.SetActive(false);
@@ -209,7 +225,6 @@ namespace David6.ShooterCore.Combat
         }
         public void OnInsertMagazine(AnimationEvent animationEvent)
         {
-            // 무기 가져오기
             Log.WhatHappend("Insert!!");
             var currentWeapon = _weapons[_currentType];
             if (currentWeapon == null)
@@ -217,6 +232,10 @@ namespace David6.ShooterCore.Combat
                 Log.WhatHappend("무기 업승");
                 return;
             }
+
+            _context.InsertRumble();
+            _context.StopRumble(0.25f);
+
             // 매쉬 드러내기
             currentWeapon.WeaponFrame.MagazineObject.SetActive(true);
             // 로직 처리
@@ -233,12 +252,43 @@ namespace David6.ShooterCore.Combat
                 Log.WhatHappend("무기 업승");
                 return;
             }
+
+            _context.ChamberLoadRumble();
+            _context.StopRumble(0.25f);
             // 로직 처리
             --_currentMagazine;
             _chamberLoaded = true;
         }
 
-
     }
+    
+
+    // var gamepad = Gamepad.current;
+    //         if (gamepad != null)
+    //         {
+    //             // Example: Activate left impulse trigger on left trigger press
+    //             if (gamepad.leftTrigger.isPressed)
+    //             {
+    //                 // Set left trigger rumble magnitude (0.0 to 1.0)
+    //                 gamepad.SetMotorSpeeds(0f, 0f, 0.5f, 0f); 
+    //             }
+    //             else
+    //             {
+    //                 // Stop rumble when not pressed
+    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0f); 
+    //             }
+
+    //             // Example: Activate right impulse trigger on right trigger press
+    //             if (gamepad.rightTrigger.isPressed)
+    //             {
+    //                 // Set right trigger rumble magnitude (0.0 to 1.0)
+    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0.5f); 
+    //             }
+    //             else
+    //             {
+    //                 // Stop rumble when not pressed
+    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0f); 
+    //             }
+    //         }
 
 }

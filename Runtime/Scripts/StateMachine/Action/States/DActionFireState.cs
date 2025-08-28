@@ -7,6 +7,7 @@ namespace David6.ShooterCore.StateMachine.Action
 {
     public class DActionFireState : DBaseState
     {
+        bool _shouldLeave = false;
         const string FIRE_KEY = "Action.Fire";
 
         public DActionFireState(IDContextProvider context, IDStateMachineProvider stateMachine)
@@ -14,46 +15,72 @@ namespace David6.ShooterCore.StateMachine.Action
 
         public override void EnterState()
         {
-            Context.IsFiring = true;
+            // 무기 없으면 되돌아가기
+            if (Context.CombatHandler.GetCurrentWeapon == null)
+            {
+                _shouldLeave = true;
+                return;
+            }
+            Context.IsTriggerReleased = false;
 
-            // 무기에 따라 초기에 속도 세팅해줌
-            Context.AnimatorProvider.SetFireRate(Context.CombatHandler.GetCurrentWeapon.WeaponFrame.FireRate);
-            TryFire();
+            if (Context.CombatHandler.ChamberLoaded)
+            {
+                Context.CombatHandler.Fire();
+                ActionFire();
+                Context.FireRoundRumble();
+            }
+            else
+            {
+                Context.EmptyChamberRumble();
+                _shouldLeave = true;
+            }
         }
 
         public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
 
-            if (Context.CooldownProvider.IsReady(FIRE_KEY))
-            {                
-                TryFire();
+            if (!Context.CooldownProvider.IsReady(FIRE_KEY)) return;
+
+            if (Context.CombatHandler.ChamberLoaded)
+            {
+                Context.CombatHandler.Fire();
+                ActionFire();
+            }
+            else
+            {
+                Context.EmptyChamberRumble();
+                _shouldLeave = true;
+            }
+
+            if (!Context.InputFire)
+            {
+                Context.IsTriggerReleased = true;
+                _shouldLeave = true;
             }
         }
 
         public override void ExitState()
         {
-            Context.IsFiring = false;
+            _shouldLeave = false;
         }
 
         public override void CheckTransition()
         {
-            if (!Context.InputFire)
+            // 트리거 여부와 상관없이 Idle로 전환 가능
+            if (_shouldLeave)
             {
+                Context.StopRumble(0.1f);
                 SwitchState(StateMachine.Factory.GetState(typeof(DActionIdleState)));
             }
         }
         public override void InitializeSubState() { }
 
-        void TryFire()
+        void ActionFire()
         {
-            // 쿨다운은 CombatHandler 에 위임하기
-            if (Context.CombatHandler.Fire())
-            {
-                Context.StartFocus();
-                Context.AnimatorProvider.SetFire();
-                Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.GetCurrentWeapon.WeaponFrame.FireRate);
-            }
+            Context.StartFocus();
+            Context.AnimatorProvider.SetFire();
+            Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.GetCurrentWeapon.WeaponFrame.FireRate);
         }
     }
 }

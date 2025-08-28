@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace David6.ShooterCore.FX
 {
-    public class DFXHander : MonoBehaviour
+    public class DParticleHander : MonoBehaviour
     {
-        private ParticleSystem _particleSystem;
+        ParticleSystem _particleSystem;
         void Awake() => _particleSystem = GetComponent<ParticleSystem>();
 
         void OnDisable()

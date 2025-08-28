@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4229492833503751335}
   - component: {fileID: 4920319466592839171}
+  - component: {fileID: 8318049072672990611}
   m_Layer: 0
   m_Name: vfx_BulletTrail
   m_TagString: Untagged
@@ -41,7 +42,7 @@ TrailRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7775583715503321618}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -58,7 +59,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f367db622e0ccfe4db576da2b1b0cb9a, type: 2}
+  - {fileID: 2100000, guid: e8372afb14717b34f985abcd2ff3f6fd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,28 +92,28 @@ TrailRenderer:
       - serializedVersion: 3
         time: 0
         value: 0
-        inSlope: 0.21876769
-        outSlope: 0.21876769
+        inSlope: 0.39600468
+        outSlope: 0.39600468
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.15762272
+        outWeight: 0.20474778
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: -0.15164569
-        outSlope: -0.15164569
+        inSlope: -1.7515587
+        outSlope: -1.7515587
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.113695145
+        inWeight: 0.07715136
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.6376342, b: 0.3915094, a: 1}
-      key1: {r: 1, g: 0.9063241, b: 0.4481132, a: 0.627451}
+      key0: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 1}
+      key1: {r: 0.9622642, g: 0.9622642, b: 0.9622642, a: 0.627451}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -151,3 +152,15 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &8318049072672990611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7775583715503321618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb5fb847fadff35419e0594f898776c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.FX.DTrailHander

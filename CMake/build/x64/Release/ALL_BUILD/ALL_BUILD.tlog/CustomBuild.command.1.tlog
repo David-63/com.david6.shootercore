@@ -1,0 +1,10 @@
+^E:\WORKSPACE\UNITY\SHOOTERCORE\PACKAGES\COM.DAVID6.SHOOTERCORE\CMAKE\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SE:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake -BE:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake/build --check-stamp-file E:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

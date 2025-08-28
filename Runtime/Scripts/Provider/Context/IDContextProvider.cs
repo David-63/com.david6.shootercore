@@ -87,15 +87,26 @@ namespace David6.ShooterCore.Provider
         void StartFocus();
         void RequestCameraTransition(EDCameraType camera);
 
+        bool IsTriggerReleased { get; set; }
 
-        bool IsFiring { get; set; }
         bool ShouldFire();
         bool ShouldReload();
+
+        void FireRoundRumble();
+        void EmptyChamberRumble();
+        
+        void EjectRumble();
+        void InsertRumble();
+        void ChamberLoadRumble();
+        void CancelRumble();
+
+        void StopRumble(float delay);
 
         GameObject MakeObject(GameObject prefab, Transform target);
         GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal);
 
-        GameObject SpawnVFX(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
+        GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
+        GameObject SpawnTrail(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
 
 
     }

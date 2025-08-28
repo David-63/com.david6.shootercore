@@ -13,10 +13,7 @@ namespace David6.ShooterCore.Animation
         IDContextProvider _context;
         Animator _animator;
 
-        [Header("Resource")]
-        public AudioClip LandingAudioClip;
-        public AudioClip[] FootstepAudioClips;
-        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+        
 
 
 
@@ -99,24 +96,7 @@ namespace David6.ShooterCore.Animation
         */
 
 
-        public void OnFootstep(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                if (FootstepAudioClips.Length > 0)
-                {
-                    var index = Random.Range(0, FootstepAudioClips.Length);
-                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], _context.CharacterTransform.TransformPoint(_context.Controller.center), FootstepAudioVolume);
-                }
-            }
-        }
-        public void OnLand(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, _context.CharacterTransform.TransformPoint(_context.Controller.center), FootstepAudioVolume);
-            }
-        }
+        
 
     }
 }

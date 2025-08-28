@@ -24,9 +24,5 @@ namespace David6.ShooterCore.Provider
 
         void ActiveUpperbodyLayer();
         void InactiveUpperbodyLayer();
-
-
-        void OnFootstep(AnimationEvent animationEvent);
-        void OnLand(AnimationEvent animationEvent);
     }
 }

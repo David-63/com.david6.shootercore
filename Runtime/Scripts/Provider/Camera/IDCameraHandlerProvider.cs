@@ -10,6 +10,8 @@ namespace David6.ShooterCore.Provider
     {
         Vector2 InputLook { get; }
         float YawAngle { get; } // 카메라의 수평 회전 각도 제공
+        Camera LookCamera { get; }
+
 
         bool SetCameraHolder(GameObject cameraHolder); // Follow Target
         void HandleLookInput(Vector2 input);

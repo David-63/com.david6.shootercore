@@ -15,6 +15,11 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
+
+            if (!Context.InputFire)
+            {
+                Context.IsTriggerReleased = true;
+            }
         }
 
         public override void ExitState()
@@ -22,7 +27,8 @@ namespace David6.ShooterCore.StateMachine.Action
         }
         public override void CheckTransition()
         {
-            // 전투 입력 체크
+            // 현재 조건은 InputFire가 눌린 여부
+            // Fire <-> Idle 상태가 계속 왔다갔다 할 수 있음
             if (Context.ShouldFire())
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DActionFireState)));

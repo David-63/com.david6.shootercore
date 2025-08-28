@@ -16,7 +16,8 @@ public class DWeaponFrame : MonoBehaviour
     [SerializeField] Transform _magazineTransform;
     [SerializeField] GameObject _fxMagazineEject;
     [SerializeField] GameObject _magazineObject;
-    [SerializeField] GameObject _fxBulletTrace;
+
+    [SerializeField] GameObject _fxBulletTrail;
 
 
 
@@ -44,7 +45,8 @@ public class DWeaponFrame : MonoBehaviour
     public Transform MagazineTransform => _magazineTransform;
     public GameObject FX_MagazineEject => _fxMagazineEject;
     public GameObject MagazineObject => _magazineObject;
-    public GameObject FX_BulletTrace => _fxBulletTrace;
+
+    public GameObject FX_BulletTrail => _fxBulletTrail;
 
 
     public GameObject FX_ImpactShard => _fxImpactShard;
@@ -53,6 +55,8 @@ public class DWeaponFrame : MonoBehaviour
     public float FireRate => _fireRate;
     public float ProjectileSpeed => _projectileSpeed;
     public int MagazineCapacity => _magazineCapacity;
+
+    // 이건 Inventory에 있어야하는 개념
     public int MaxReserveAmmo => _maxReserveAmmo;
 
 }

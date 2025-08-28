@@ -1,0 +1,10 @@
+^E:\WORKSPACE\UNITY\SHOOTERCORE\PACKAGES\COM.DAVID6.SHOOTERCORE\CMAKE\BUILD\CMAKEFILES\572229536561D924470DD2B8582900BA\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SE:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake -BE:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/WorkSpace/Unity/ShooterCore/Packages/com.david6.shootercore/CMake/build/GameInputWrapper.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
