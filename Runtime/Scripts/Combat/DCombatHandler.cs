@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using David6.ShooterCore.Data.Enum;
@@ -6,6 +7,7 @@ using David6.ShooterCore.FX;
 using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XInput;
@@ -24,19 +26,12 @@ namespace David6.ShooterCore.Combat
         // 무기나 장비를 알고 있어야함
 
         // 외부에서 호출함
-        Camera _mainCamera;
         IDContextProvider _context;
         Dictionary<EDGearType, DWeaponInstance> _weapons = new();
         EDGearType _currentType;
 
-        public DWeaponInstance GetCurrentWeapon => _weapons[_currentType];
-
-
-        // 아직 안쓰는 기능
-        public EDGearType CurrentType { get => _currentType; set => _currentType = value; }
-
-
         // 제어 변수
+        public float CurrentFireRate { get; private set; }
         const float MAX_DISTANCE = 500.0f;
         LayerMask _hitMask;
 
@@ -45,12 +40,19 @@ namespace David6.ShooterCore.Combat
         // 총기 관련 변수
 
         bool _chamberLoaded = false;
-        public bool ChamberLoaded { get => _chamberLoaded; }
         int _reserveAmmo; // maxReserveAmmo (_magazineCapacity * 4)
         int _currentMagazine; // _magazineCapacity
 
-        float _fireRate;
 
+        // focus
+
+        const string FOCUS_KEY = "Focus";
+        const float FOCUS_DURATION = 5.5f;
+        public float GetFocusDuration => FOCUS_DURATION;
+        public bool IsFocus { get; private set; } = false;
+
+        public event Action OnFocusActive;
+        public event Action OnFocusInactive;
 
         public DCombatHandler(IDContextProvider context)
         {
@@ -58,68 +60,94 @@ namespace David6.ShooterCore.Combat
 
             for (EDGearType type = EDGearType.Primary; type <= EDGearType.Sidearm; ++type)
             {
-                if (!_weapons.ContainsKey(type))
-                {
-                    _weapons[type] = null;
-                }
+                _weapons[type] = null;
             }
 
             _hitMask.value = 1;
         }
 
+        public void OnUpdate()
+        {
+            if (!IsFocus) return;
+
+            if (_context.CooldownProvider.IsReady(FOCUS_KEY))
+            {
+                IsFocus = false;
+                OnFocusInactive?.Invoke();
+            }
+        }
+
+        public void RequestFocus(float duration = FOCUS_DURATION)
+        {
+            IsFocus = true;
+            _context.CooldownProvider.StartCooldown(FOCUS_KEY, duration);
+            OnFocusActive?.Invoke();
+            _context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, true);
+        }
+        public void LockFocus()
+        {
+            _context.CooldownProvider.LockCooldown(FOCUS_KEY);
+        }
+        public void UnlockFocus()
+        {
+            _context.CooldownProvider.UnlockCooldown(FOCUS_KEY);
+        }
+        public void CancelFocus()
+        {
+            IsFocus = false;
+            _context.CooldownProvider.CancelCooldown(FOCUS_KEY);
+            OnFocusInactive?.Invoke();
+            _context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, false);
+        }
+
         public void SetWeapon(EDGearType type, DGearData data)
         {
-
             // Weapon 인스턴스 등록
             if (!_weapons.TryGetValue(type, out var instance) || instance == null)
             {
-                instance = new DWeaponInstance();
-                _weapons[type] = instance;
+                instance = _weapons[type] = new DWeaponInstance();
             }
-            _currentType = type;
 
+            _currentType = type;
             instance.GearData = data;
+
             if (instance.WeaponObject == null)
             {
                 instance.WeaponObject = _context.MakeObject(data.GearPrefab, _context.WeaponSocket);
             }
+
             instance.WeaponFrame = instance.WeaponObject.GetComponent<DWeaponFrame>();
-
-            _context.AnimatorProvider.SetFireRate(instance.WeaponFrame.FireRate);
-
+            CurrentFireRate = instance.WeaponFrame.FireRate;
+            _context.AnimatorProvider.SetFireRate(CurrentFireRate);
 
             // 탄약 세팅 (나중에 딕셔너리로 캐싱하기)
             _chamberLoaded = true;
             _reserveAmmo = instance.WeaponFrame.MaxReserveAmmo;
             _currentMagazine = instance.WeaponFrame.MagazineCapacity - 1;
-
-
-            float rps = 60 / instance.WeaponFrame.FireRate / 60f;
-            float targetPeriod = 1f / rps;
-            float originalClipLength = 0.15f;
-            _fireRate = originalClipLength / targetPeriod;
         }
 
-        public bool Fire()
+        public bool TryFire()
         {
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return false;
+
             if (!_chamberLoaded)
             {
-                // no clip 사운드
+                _context.EmptyChamberRumble();
+                _context.StopRumble(0.1f);
                 return false;
             }
-            // 일단 무기 정보 필요함
-            var currentWeapon = _weapons[_currentType];
-            if (currentWeapon == null)
+            else
             {
-                Log.WhatHappend("무기 업승");
-                return false;
+                _context.FireRoundRumble();
             }
+
+            _context.AnimatorProvider.SetFire();
 
             Vector3 intendedPoint = CalculateIntendedPoint();
-
             ScheduleHit(currentWeapon, intendedPoint);
 
-            PlayFX(currentWeapon, intendedPoint);
+            WeaponFireFX(currentWeapon, intendedPoint);
 
             ConsumeAmmo();
 
@@ -147,7 +175,7 @@ namespace David6.ShooterCore.Combat
 
             _context.ExecuteCoroutine(DelayedHit(muzzleTransform.position, intendedPoint, delay));
         }
-        void PlayFX(DWeaponInstance currentWeapon, Vector3 intendedPoint)
+        void WeaponFireFX(DWeaponInstance currentWeapon, Vector3 intendedPoint)
         {
             Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
             _context.SpawnParticle(currentWeapon.WeaponFrame.FX_MuzzleFlash, muzzleTransform.position, muzzleTransform.rotation);
@@ -201,15 +229,9 @@ namespace David6.ShooterCore.Combat
 
         public void OnEjectMagazine(AnimationEvent animationEvent)
         {
-            Log.WhatHappend("Eject!!");
-
-            var currentWeapon = _weapons[_currentType];
-            if (currentWeapon == null)
-            {
-                Log.WhatHappend("무기 업승");
-                return;
-            }
-
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return;
+            
             // 게임패드
             _context.EjectRumble();
             _context.StopRumble(0.25f);
@@ -225,13 +247,8 @@ namespace David6.ShooterCore.Combat
         }
         public void OnInsertMagazine(AnimationEvent animationEvent)
         {
-            Log.WhatHappend("Insert!!");
-            var currentWeapon = _weapons[_currentType];
-            if (currentWeapon == null)
-            {
-                Log.WhatHappend("무기 업승");
-                return;
-            }
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return;
 
             _context.InsertRumble();
             _context.StopRumble(0.25f);
@@ -245,13 +262,7 @@ namespace David6.ShooterCore.Combat
 
         public void OnChamberLoad(AnimationEvent animationEvent)
         {
-            Log.WhatHappend("Load!!");
-            var currentWeapon = _weapons[_currentType];
-            if (currentWeapon == null)
-            {
-                Log.WhatHappend("무기 업승");
-                return;
-            }
+            if (!IsArmed()) return;
 
             _context.ChamberLoadRumble();
             _context.StopRumble(0.25f);
@@ -260,35 +271,44 @@ namespace David6.ShooterCore.Combat
             _chamberLoaded = true;
         }
 
+
+        public bool IsArmed()
+        {
+            return _weapons[_currentType] != null;
+        }
+        public bool IsChamberLoaded()
+        {
+            return _chamberLoaded;
+        }
+
+        /// <summary>
+        /// 현재 무기 존재 여부 체크 + 로그, 호출자에게 바로 반환
+        /// </summary>
+        /// <returns>null이면 무기 없음, 아니면 현재 무기 반환</returns>
+        public DWeaponInstance GetWeapon()
+        {
+            var weapon = _weapons[_currentType];
+            if (weapon == null)
+            {
+                Log.WhatHappend("무기 업승");
+            }
+            return weapon;
+        }
+
+        /// <summary>
+        /// 무기 체크 후 성공 여부와 weapon 반환 (튜플 버전)
+        /// </summary>
+        public (bool success, DWeaponInstance weapon) TryGetWeapon()
+        {
+            var weapon = _weapons[_currentType];
+            if (weapon == null)
+            {
+                Log.WhatHappend("무기 업승");
+                return (false, null);
+            }
+            return (true, weapon);
+        }
+
     }
-    
-
-    // var gamepad = Gamepad.current;
-    //         if (gamepad != null)
-    //         {
-    //             // Example: Activate left impulse trigger on left trigger press
-    //             if (gamepad.leftTrigger.isPressed)
-    //             {
-    //                 // Set left trigger rumble magnitude (0.0 to 1.0)
-    //                 gamepad.SetMotorSpeeds(0f, 0f, 0.5f, 0f); 
-    //             }
-    //             else
-    //             {
-    //                 // Stop rumble when not pressed
-    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0f); 
-    //             }
-
-    //             // Example: Activate right impulse trigger on right trigger press
-    //             if (gamepad.rightTrigger.isPressed)
-    //             {
-    //                 // Set right trigger rumble magnitude (0.0 to 1.0)
-    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0.5f); 
-    //             }
-    //             else
-    //             {
-    //                 // Stop rumble when not pressed
-    //                 gamepad.SetMotorSpeeds(0f, 0f, 0f, 0f); 
-    //             }
-    //         }
 
 }

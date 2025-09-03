@@ -97,11 +97,26 @@ namespace David6.ShooterCore.Context
 
             void InitailzeAnimEvent()
             {
+                // 애니메이션 이벤트 연결
                 _animationEventProxy.OnFootstepEvent += OnFootstep;
                 _animationEventProxy.OnLandEvent += OnLand;
                 _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
                 _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
                 _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
+
+                DActionReloadState actionReload = _actionStateMachine.Factory.GetState(typeof(DActionReloadState)) as DActionReloadState;
+                _animationEventProxy.OnChamberLoadEvent += actionReload.OnChamberLoad;
+
+                // focus 이벤트 연결
+                DExplorationState explorationState = _locomotionStateMachine.Factory.GetState(typeof(DExplorationState)) as DExplorationState;
+                DFocusState focusState = _locomotionStateMachine.Factory.GetState(typeof(DFocusState)) as DFocusState;
+
+                _combatHandler.OnFocusActive += _animatorHandler.FocusOn;
+                _combatHandler.OnFocusActive += explorationState.OnFocusActive;
+                _combatHandler.OnFocusActive += focusState.OnFocusActive;
+                _combatHandler.OnFocusInactive += _animatorHandler.FocusOff;
+                _combatHandler.OnFocusInactive += explorationState.OnFocusInactive;
+                _combatHandler.OnFocusInactive += focusState.OnFocusInactive;
             }
         }
 
@@ -116,14 +131,13 @@ namespace David6.ShooterCore.Context
 
         public void Tick(float deltaTime)
         {
-            FocusCheck();
             GroundCheck();
 
+            _combatHandler.OnUpdate();
             _locomotionStateMachine.OnUpdate(deltaTime);
             _actionStateMachine.OnUpdate(deltaTime);
 
             ApplyMovement();
-            CameraTransitionCheck();
         }
 
         public void OnFootstep(AnimationEvent animationEvent)

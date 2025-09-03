@@ -19,6 +19,10 @@ namespace David6.ShooterCore.UI.Equipment
         // 현재 선택중인 타입
         EDGearType _selectedGearType;
 
+
+        // 보유중인 자원
+        //public Dictionary<> Ammunition { get; private set; } = new();
+
         public DEquipmentModel()
         {
             Equipped.Clear();

@@ -16,5 +16,6 @@ namespace David6.ShooterCore.Provider
         bool SetCameraHolder(GameObject cameraHolder); // Follow Target
         void HandleLookInput(Vector2 input);
         void ActivateCamera(EDCameraType type);
+        void SetLayerActive(EDCameraLayer layer, bool active);
     }
 }

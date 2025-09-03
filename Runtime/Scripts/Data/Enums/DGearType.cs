@@ -12,4 +12,13 @@ namespace David6.ShooterCore.Data.Enum
         GadgetA,
         GadgetB,
     }
+
+    public enum EDAmmoType
+    {
+        None = -1,
+        HighVelocity,
+        LowVelocity,
+        Energy,
+        Rockets,
+    }
 }

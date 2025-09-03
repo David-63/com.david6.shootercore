@@ -13,11 +13,6 @@ namespace David6.ShooterCore.Animation
         IDContextProvider _context;
         Animator _animator;
 
-        
-
-
-
-
         const int UPPERBODY_LAYER = 1;
         const int HAND_LAYER = 2;
 
@@ -50,10 +45,6 @@ namespace David6.ShooterCore.Animation
             _animator.SetFloat("DirectionX", direction.x);
             _animator.SetFloat("DirectionY", direction.y);
         }
-        public void SetFocus(bool isFocus)
-        {
-            _animator.SetBool("Focus", isFocus);
-        }
         public void SetFire()
         {
             _animator.Play("Fire", UPPERBODY_LAYER, 0.0f);
@@ -63,6 +54,15 @@ namespace David6.ShooterCore.Animation
             _animator.SetTrigger("Reload");
         }
         #endregion
+
+        public void FocusOn()
+        {
+            _animator.SetBool("Focus", true);
+        }
+        public void FocusOff()
+        {
+            _animator.SetBool("Focus", false);
+        }
 
         public void SetFireRate(float rpm)
         {

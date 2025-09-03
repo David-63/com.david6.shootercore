@@ -6,7 +6,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 {
     public class DExplorationState : DBaseState
     {
-        // 내부에 서브 스테이트 머신 달기?
+        bool _focusOn = false;
         public DExplorationState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { IsRoot = true; }
 
@@ -23,7 +23,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         public override void ExitState() { }
         public override void CheckTransition()
         {
-            if (Context.IsFocus)
+            if (_focusOn)
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DFocusState)));
             }
@@ -47,5 +47,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 SubState.EnterState();
             }
         }
+
+        public void OnFocusActive() => _focusOn = true;
+        public void OnFocusInactive() => _focusOn = false;
     }
 }

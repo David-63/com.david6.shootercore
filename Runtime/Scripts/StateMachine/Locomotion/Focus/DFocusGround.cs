@@ -50,7 +50,6 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         protected void SetAnimationDirection(float deltaTime)
         {
             // 입력 방향 (카메라 기준 변환 가능)
-            // Quaternion.Euler(0f, Context.YawAngle, 0f) * 
             Vector3 rawDirection = Context.InputDirection;
             rawDirection.Normalize();
             // TargetSpeed 비율 (RunSpeed = 1 기준)

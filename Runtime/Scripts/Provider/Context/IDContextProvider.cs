@@ -82,11 +82,6 @@ namespace David6.ShooterCore.Provider
         bool ShouldJump();
         bool ShouldGrounded();
 
-        bool IsFocus { get; set; }
-
-        void StartFocus();
-        void RequestCameraTransition(EDCameraType camera);
-
         bool IsTriggerReleased { get; set; }
 
         bool ShouldFire();

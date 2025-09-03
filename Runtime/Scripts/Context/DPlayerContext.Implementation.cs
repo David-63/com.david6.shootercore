@@ -74,8 +74,19 @@ namespace David6.ShooterCore.Context
         public void HandleStopJumpInput() => InputJump = false;
         public void HandleStartSprintInput() => InputSprint = true;
         public void HandleStopSprintInput() => InputSprint = false;
-        public void HandleStartAimInput() => InputAim = true;
-        public void HandleStopAimInput() => InputAim = false;
+        public void HandleStartAimInput()
+        {
+            InputAim = true;
+            _combatHandler.RequestFocus(_combatHandler.GetFocusDuration);
+            _combatHandler.LockFocus();
+            _cameraHandler.SetLayerActive(EDCameraLayer.Aim, true);
+        }
+        public void HandleStopAimInput()
+        {
+            InputAim = false;
+            _combatHandler.UnlockFocus();
+            _cameraHandler.SetLayerActive(EDCameraLayer.Aim, false);
+        }
         public void HandleStartFireInput() => InputFire = true;
         public void HandleStopFireInput() => InputFire = false;
         public void HandleStartReloadInput() => InputReload = true;
@@ -86,15 +97,10 @@ namespace David6.ShooterCore.Context
 
         public void HandlePauseInput()
         {
-            // focus 해제
-            _cooldownHandler.CancelCooldown(FOCUS_KEY);
-            IsFocus = false;
+            if (_combatHandler.IsFocus) _combatHandler.CancelFocus();
 
-            // 카메라 변경
-            RequestCameraTransition(EDCameraType.Pause);
-
-            // ui 활성화
             _rootPanelController.HandlePause();
+            _cameraHandler.SetLayerActive(EDCameraLayer.Pause, true);
         }
         public void HandleResumeInput()
         {
@@ -110,7 +116,7 @@ namespace David6.ShooterCore.Context
         #region Events
         public void HandleCloseUI()
         {
-            RequestCameraTransition(EDCameraType.Exploration);
+            _cameraHandler.SetLayerActive(EDCameraLayer.Pause, false);
         }
         public void OnGearEquipped(EDGearType type, DGearData data)
         {
@@ -142,11 +148,7 @@ namespace David6.ShooterCore.Context
         public float HorizontalSpeed
         {
             get => _horizontalSpeed;
-            set
-            {
-                _horizontalSpeed = value;
-                //Log.WhatHappend("_horizontalSpeed 세팅되는 값: "+ value);
-            }
+            set => _horizontalSpeed = value;
         }
 
         Vector3 _finalMoveDirection;
@@ -194,36 +196,7 @@ namespace David6.ShooterCore.Context
 
         #region Action Control
 
-        bool _isFocus = false;
-        const string FOCUS_KEY = "State.Focus";
-        float _focusDuration = 5.0f;
-
-        public bool IsFocus
-        {
-            get
-            {
-                return _isFocus;
-            }
-            set
-            {
-                _isFocus = value;
-                AnimatorProvider.SetFocus(_isFocus);
-                if (_isFocus)
-                {
-                    RequestCameraTransition(EDCameraType.Focus);
-                }
-                else
-                {
-                    RequestCameraTransition(EDCameraType.Exploration);
-                }
-            }
-        }
-
-        public void StartFocus()
-        {
-            _cooldownHandler.StartCooldown(FOCUS_KEY, _focusDuration);
-            IsFocus = true;
-        }
+        //public bool IsAiming() => InputAim;
 
         bool _isTriggerReleased = true;
         public bool IsTriggerReleased { get => _isTriggerReleased; set => _isTriggerReleased = value; }
@@ -254,21 +227,6 @@ namespace David6.ShooterCore.Context
 
             // gamepad.SetMotorSpeeds(0f, 0f);
         }
-
-
-        // 카메라 전환 요청
-        bool _cameraSwapFlag = false;
-        EDCameraType _cameraStateType = EDCameraType.None;
-
-        /// <summary>
-        /// 카메라 변경은 이 함수를 통해서만 가능
-        /// </summary>
-        /// <param name="camera"></param>
-        public void RequestCameraTransition(EDCameraType camera)
-        {
-            _cameraSwapFlag = true;
-            _cameraStateType = camera;
-        }
         #endregion
 
         #region Tick Method
@@ -282,21 +240,6 @@ namespace David6.ShooterCore.Context
         {
             Vector3 velocity = _finalMoveDirection * _horizontalSpeed + Vector3.up * _verticalSpeed;
             _characterController.Move(velocity * Time.deltaTime);
-        }
-        void FocusCheck()
-        {
-            if (!IsFocus) return;
-
-            if (_cooldownHandler.IsReady(FOCUS_KEY))
-            {
-                IsFocus = false;
-            }
-        }
-        void CameraTransitionCheck()
-        {
-            if (!_cameraSwapFlag) return;
-
-            _cameraHandler.ActivateCamera(_cameraStateType);
         }
 
         #endregion

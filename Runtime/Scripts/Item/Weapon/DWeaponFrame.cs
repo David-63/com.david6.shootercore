@@ -27,7 +27,7 @@ public class DWeaponFrame : MonoBehaviour
 
     // 무기 스텟 (Structure or Scriptable)
     [SerializeField] readonly float _fireRate = 720f;
-    [SerializeField] readonly float _projectileSpeed = 400.0f;
+    [SerializeField] readonly float _projectileSpeed = 100.0f;
     [SerializeField] readonly int _magazineCapacity = 25;
     [SerializeField] readonly int _maxReserveAmmo = 100;
 

@@ -6,6 +6,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
     public class DFocusState : DBaseState
     {
         const int _upperBodyLayer = 1;
+        bool _focusOff = false;
         public DFocusState(IDContextProvider context, IDStateMachineProvider stateMachine)
          : base(context, stateMachine) { IsRoot = true; }
 
@@ -18,7 +19,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
 
         public override void UpdateSelf(float deltaTime)
         {
-            CheckTransition();            
+            CheckTransition();
         }
 
         public override void ExitState()
@@ -28,7 +29,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         }
         public override void CheckTransition()
         {
-            if (!Context.IsFocus)
+            if (_focusOff)
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DExplorationState)));
             }
@@ -52,5 +53,8 @@ namespace David6.ShooterCore.StateMachine.Locomotion
                 SubState.EnterState();
             }
         }
+
+        public void OnFocusInactive() => _focusOff = true;
+        public void OnFocusActive() => _focusOff = false;
     }
 }

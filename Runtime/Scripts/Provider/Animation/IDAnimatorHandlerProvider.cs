@@ -15,7 +15,9 @@ namespace David6.ShooterCore.Provider
         void SetGrounded(bool isGrounded);
         void SetFreeFall(bool isFreeFall);
         void SetDirection(Vector2 direction);
-        void SetFocus(bool isFocus);
+
+        void FocusOn();
+        void FocusOff();
 
         void SetFire();
         void SetFireRate(float rpm);

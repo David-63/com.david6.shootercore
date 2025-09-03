@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using David6.ShooterCore.Context;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Data.Enum;
@@ -6,22 +8,21 @@ using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
 
 namespace David6.ShooterCore.Look
 {
-    
+
     public class DCameraHandler : MonoBehaviour, IDCameraHandlerProvider, IDLateTickable
     {
-        // ScriptableObject로 설정할 수 있는 카메라 프로필        
+        // ScriptableObject로 설정할 수 있는 카메라 프로필
         [Tooltip("Camera Profile")]
         [SerializeField] DCameraLookProfile CameraLookProfile;
         [Header("Camera Prefabs")]
         [SerializeField] GameObject ExplorationCamera;
         [SerializeField] GameObject FocusCamera;
+        [SerializeField] GameObject AimCamera;
         [SerializeField] GameObject MenuCamera;
         [SerializeField] GameObject AimTarget;
-
 
         /// <summary>
         /// 메인 카메라의 Transform
@@ -41,10 +42,15 @@ namespace David6.ShooterCore.Look
         float _cameraPitch = 0.0f;
         const float _threshold = 0.01f; // 카메라 회전 임계값
 
-        Dictionary<EDCameraType, GameObject> _cameraMap;
         Camera _lookCamera;
         public Camera LookCamera => _lookCamera;
         public LayerMask HitMask;
+
+
+        // 카메라 종류 관리
+        Dictionary<EDCameraType, GameObject> _cameraMap;
+        Dictionary<EDCameraLayer, bool> _cameraLayer = new();
+        EDCameraLayer _currentCameraLayer = EDCameraLayer.Exploration;
 
         void Awake()
         {
@@ -55,8 +61,15 @@ namespace David6.ShooterCore.Look
             {
                 { EDCameraType.Exploration, ExplorationCamera },
                 { EDCameraType.Focus, FocusCamera },
+                { EDCameraType.Aim, AimCamera },
                 { EDCameraType.Pause, MenuCamera }
             };
+
+            foreach (EDCameraLayer layer in System.Enum.GetValues(typeof(EDCameraLayer)))
+            {
+                _cameraLayer[layer] = false;
+            }
+            _cameraLayer[EDCameraLayer.Exploration] = true;
         }
 
         void Start()
@@ -69,6 +82,8 @@ namespace David6.ShooterCore.Look
         {
             DGameLoop.Instance.Unregister(this);
         }
+
+
 
         public bool SetCameraHolder(GameObject cameraHolder)
         {
@@ -95,10 +110,12 @@ namespace David6.ShooterCore.Look
         {
             LookRotation();
 
-            // RaycastHit 구하는 로직 추가
-            // IK에 사용할 예정
+            AimFollow();
+        }
 
-            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));            
+        private void AimFollow()
+        {
+            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
 
             RaycastHit hit;
 
@@ -109,15 +126,6 @@ namespace David6.ShooterCore.Look
             else
             {
                 AimTarget.transform.position = _lookCamera.transform.position + _lookCamera.transform.forward * CameraLookProfile.MaxLookRange;
-            }
-        }
-
-        public void ActivateCamera(EDCameraType type)
-        {
-            foreach (var kvp in _cameraMap)
-            {
-                bool active = kvp.Key == type;
-                kvp.Value.SetActive(active);
             }
         }
 
@@ -141,6 +149,61 @@ namespace David6.ShooterCore.Look
             if (lfAngle < -360f) lfAngle += 360f;
             if (lfAngle > 360f) lfAngle -= 360f;
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
+        }
+
+
+        public void ActivateCamera(EDCameraType type)
+        {
+            foreach (var kvp in _cameraMap)
+            {
+                bool active = kvp.Key == type;
+                kvp.Value.SetActive(active);
+            }
+        }
+
+        public void SetLayerActive(EDCameraLayer layer, bool active)
+        {
+            if (_cameraLayer.ContainsKey(layer))
+            {
+                _cameraLayer[layer] = active;
+                CameraUpdate();
+            }
+        }
+
+        void CameraUpdate()
+        {
+            // 카메라 우선순위 계산
+            var highest = _cameraLayer.Where(kvp => kvp.Value)
+                .OrderByDescending(kvp => kvp.Key)
+                .Select(kvp => kvp.Key).FirstOrDefault();
+
+            if (highest != _currentCameraLayer)
+            {
+                _currentCameraLayer = highest;
+                SwitchCamera(_currentCameraLayer);
+
+            }
+        }
+
+        void SwitchCamera(EDCameraLayer cameraLayer)
+        {
+            foreach (var kvp in _cameraMap)
+            {
+                bool active = kvp.Key == ConvertToType(cameraLayer);
+                kvp.Value.SetActive(active);
+            }
+        }
+
+        EDCameraType ConvertToType(EDCameraLayer cameraLayer)
+        {
+            return cameraLayer switch
+            {
+                EDCameraLayer.Exploration => EDCameraType.Exploration,
+                EDCameraLayer.Focus => EDCameraType.Focus,
+                EDCameraLayer.Aim => EDCameraType.Aim,
+                EDCameraLayer.Pause => EDCameraType.Pause,
+                _ => EDCameraType.Exploration
+            };
         }
     }
 }
