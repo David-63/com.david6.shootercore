@@ -1,7 +1,8 @@
 using System.Collections;
 using David6.ShooterCore.Data;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item;
+using David6.ShooterCore.Item.Weapon;
+using David6.ShooterCore.Look;
 using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
@@ -118,10 +119,11 @@ namespace David6.ShooterCore.Context
         {
             _cameraHandler.SetLayerActive(EDCameraLayer.Pause, false);
         }
-        public void OnGearEquipped(EDGearType type, DGearData data)
+        public void OnGearEquipped(EDGearSlot type, DGear data)
         {
             _combatHandler.SetWeapon(type, data);
-            _rigHandler.SetupRigIK(data.GearPrefab.GetComponent<DWeaponFrame>());
+            
+            _rigHandler.SetupRigIK(data.GetModule<DFrameModule>().BasePrefab.GetComponent<DFrameHandler>());
         }
         #endregion
 
@@ -251,6 +253,32 @@ namespace David6.ShooterCore.Context
         public GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal)
         {
             return Instantiate(prefab, position, Quaternion.LookRotation(normal));
+        }
+        public GameObject AssembleWeapon(DGear gear, Transform socket)
+        {
+            if (gear == null) return null;
+
+            // Frame 구성
+            GameObject frameObject = Instantiate(gear.GetModule<DFrameModule>().BasePrefab, socket);
+            DFrameHandler frameScript = frameObject.GetComponent<DFrameHandler>();
+            GameObject moduleAttachment;
+
+
+            // 나머지 모듈 구성
+            DMuzzleModule muzzleModule = gear.GetModule<DMuzzleModule>();
+            if (muzzleModule != null)
+            {
+                moduleAttachment = Instantiate(muzzleModule.BasePrefab, frameScript.MuzzleSocket);
+            }
+
+            DMagazineModule magazineModule = gear.GetModule<DMagazineModule>();
+            if (magazineModule != null)
+            {
+                moduleAttachment = Instantiate(magazineModule.BasePrefab, frameScript.MagazineSocket);                
+            }
+
+
+            return frameObject;
         }
 
         public GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)

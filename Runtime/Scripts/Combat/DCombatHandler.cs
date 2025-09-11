@@ -1,24 +1,19 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
-using David6.ShooterCore.FX;
-using David6.ShooterCore.Pool;
+using David6.ShooterCore.Item;
+using David6.ShooterCore.Item.Weapon;
+using David6.ShooterCore.Look;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.XInput;
 
 namespace David6.ShooterCore.Combat
 {
     public class DWeaponInstance
     {
-        public DGearData GearData;
-        public GameObject WeaponObject;
-        public DWeaponFrame WeaponFrame;
+        public DGear Gear;
+        public GameObject Prefab;
+        public DFrameHandler FrameHandler;
     }
 
     public class DCombatHandler : IDCombatHandler
@@ -27,22 +22,13 @@ namespace David6.ShooterCore.Combat
 
         // 외부에서 호출함
         IDContextProvider _context;
-        Dictionary<EDGearType, DWeaponInstance> _weapons = new();
-        EDGearType _currentType;
+        Dictionary<EDGearSlot, DWeaponInstance> _weapons = new();
+        EDGearSlot _currentType;
 
         // 제어 변수
         public float CurrentFireRate { get; private set; }
         const float MAX_DISTANCE = 500.0f;
         LayerMask _hitMask;
-
-
-
-        // 총기 관련 변수
-
-        bool _chamberLoaded = false;
-        int _reserveAmmo; // maxReserveAmmo (_magazineCapacity * 4)
-        int _currentMagazine; // _magazineCapacity
-
 
         // focus
 
@@ -58,7 +44,7 @@ namespace David6.ShooterCore.Combat
         {
             _context = context;
 
-            for (EDGearType type = EDGearType.Primary; type <= EDGearType.Sidearm; ++type)
+            for (EDGearSlot type = EDGearSlot.Primary; type <= EDGearSlot.Sidearm; ++type)
             {
                 _weapons[type] = null;
             }
@@ -77,6 +63,7 @@ namespace David6.ShooterCore.Combat
             }
         }
 
+        #region Focus Control
         public void RequestFocus(float duration = FOCUS_DURATION)
         {
             IsFocus = true;
@@ -99,59 +86,55 @@ namespace David6.ShooterCore.Combat
             OnFocusInactive?.Invoke();
             _context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, false);
         }
+        #endregion
 
-        public void SetWeapon(EDGearType type, DGearData data)
+        public void SetWeapon(EDGearSlot type, DGear data)
         {
             // Weapon 인스턴스 등록
+            InstanceSetup(type, data);
+
+            _context.AnimatorProvider.SetFireRate(CurrentFireRate);
+        }
+
+        private void InstanceSetup(EDGearSlot type, DGear item)
+        {
             if (!_weapons.TryGetValue(type, out var instance) || instance == null)
             {
                 instance = _weapons[type] = new DWeaponInstance();
             }
 
             _currentType = type;
-            instance.GearData = data;
+            instance.Gear = item;
 
-            if (instance.WeaponObject == null)
+            if (instance.Prefab == null)
             {
-                instance.WeaponObject = _context.MakeObject(data.GearPrefab, _context.WeaponSocket);
+                //AssembleWeapon
+                instance.Prefab = _context.AssembleWeapon(item, _context.WeaponSocket);
             }
 
-            instance.WeaponFrame = instance.WeaponObject.GetComponent<DWeaponFrame>();
-            CurrentFireRate = instance.WeaponFrame.FireRate;
-            _context.AnimatorProvider.SetFireRate(CurrentFireRate);
+            instance.FrameHandler = instance.Prefab.GetComponent<DFrameHandler>();
 
-            // 탄약 세팅 (나중에 딕셔너리로 캐싱하기)
-            _chamberLoaded = true;
-            _reserveAmmo = instance.WeaponFrame.MaxReserveAmmo;
-            _currentMagazine = instance.WeaponFrame.MagazineCapacity - 1;
+            instance.FrameHandler.Initialize(_context, item);
         }
 
-        public bool TryFire()
+        public void TryFire()
         {
             var (success, currentWeapon) = TryGetWeapon();
-            if (!success) return false;
+            if (!success) return;
 
-            if (!_chamberLoaded)
-            {
-                _context.EmptyChamberRumble();
-                _context.StopRumble(0.1f);
-                return false;
-            }
-            else
+            Vector3 intendedPoint = CalculateIntendedPoint();
+
+            if (currentWeapon.FrameHandler.Shoot(intendedPoint))
             {
                 _context.FireRoundRumble();
             }
+            else
+            {
+                _context.EmptyChamberRumble();
+                _context.StopRumble(0.1f);
+            }
 
             _context.AnimatorProvider.SetFire();
-
-            Vector3 intendedPoint = CalculateIntendedPoint();
-            ScheduleHit(currentWeapon, intendedPoint);
-
-            WeaponFireFX(currentWeapon, intendedPoint);
-
-            ConsumeAmmo();
-
-            return true;
         }
 
         Vector3 CalculateIntendedPoint()
@@ -167,66 +150,6 @@ namespace David6.ShooterCore.Combat
             return aimRay.GetPoint(MAX_DISTANCE);
         }
 
-        void ScheduleHit(DWeaponInstance currentWeapon, Vector3 intendedPoint)
-        {
-            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
-            float travelDistance = Vector3.Distance(muzzleTransform.position, intendedPoint);
-            float delay = travelDistance / currentWeapon.WeaponFrame.ProjectileSpeed;
-
-            _context.ExecuteCoroutine(DelayedHit(muzzleTransform.position, intendedPoint, delay));
-        }
-        void WeaponFireFX(DWeaponInstance currentWeapon, Vector3 intendedPoint)
-        {
-            Transform muzzleTransform = currentWeapon.WeaponFrame.MuzzleTransform;
-            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_MuzzleFlash, muzzleTransform.position, muzzleTransform.rotation);
-            Transform chamberTransform = currentWeapon.WeaponFrame.ChamberTransform;
-            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_ChamberCase, chamberTransform.position, chamberTransform.rotation);
-            if (_currentMagazine % 2 == 0)
-            {
-                GameObject tracerObj = _context.SpawnTrail(currentWeapon.WeaponFrame.FX_BulletTrail, muzzleTransform.position, muzzleTransform.rotation);
-                DTrailHander tracer = tracerObj.GetComponent<DTrailHander>();
-                tracer.Init(muzzleTransform.position, intendedPoint, currentWeapon.WeaponFrame.ProjectileSpeed);
-            }
-        }
-        void ConsumeAmmo()
-        {
-            if (_currentMagazine <= 0)
-            {
-                _chamberLoaded = false;
-            }
-            else
-            {
-                --_currentMagazine;
-            }
-        }
-
-        IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
-        {
-            yield return new WaitForSeconds(delay);
-
-            Vector3 direction = targetPoint - beginPoint;
-            float maxDistance = direction.magnitude;
-            if (maxDistance <= 0.001f) yield break;
-
-            direction.Normalize();
-
-            // 한번 더 레이케스팅
-            if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, MAX_DISTANCE, _hitMask))
-            {
-                var damageable = hit.collider.GetComponent<IDDamageable>();
-                if (damageable != null)
-                {
-                    damageable.Hit();
-                }
-
-                var currentWeapon = _weapons[_currentType];
-                if (currentWeapon != null)
-                {
-                    _context.SpawnParticle(currentWeapon.WeaponFrame.FX_ImpactShard, hit.point, Quaternion.LookRotation(hit.normal));
-                }
-            }
-        }
-
         public void OnEjectMagazine(AnimationEvent animationEvent)
         {
             var (success, currentWeapon) = TryGetWeapon();
@@ -236,14 +159,7 @@ namespace David6.ShooterCore.Combat
             _context.EjectRumble();
             _context.StopRumble(0.25f);
 
-            // 이펙트
-            Transform magazineTransform = currentWeapon.WeaponFrame.MagazineTransform;
-            _context.SpawnParticle(currentWeapon.WeaponFrame.FX_MagazineEject, magazineTransform.position, magazineTransform.rotation);
-
-            // 매쉬 숨기기
-            currentWeapon.WeaponFrame.MagazineObject.SetActive(false);
-            // 로직 처리
-            _currentMagazine = 0;
+            currentWeapon.FrameHandler.EjectMagazine();
         }
         public void OnInsertMagazine(AnimationEvent animationEvent)
         {
@@ -253,32 +169,26 @@ namespace David6.ShooterCore.Combat
             _context.InsertRumble();
             _context.StopRumble(0.25f);
 
-            // 매쉬 드러내기
-            currentWeapon.WeaponFrame.MagazineObject.SetActive(true);
-            // 로직 처리
-            _currentMagazine = currentWeapon.WeaponFrame.MagazineCapacity;
-
+            currentWeapon.FrameHandler.InsertMagazine();
         }
 
         public void OnChamberLoad(AnimationEvent animationEvent)
         {
-            if (!IsArmed()) return;
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return;
 
             _context.ChamberLoadRumble();
             _context.StopRumble(0.25f);
-            // 로직 처리
-            --_currentMagazine;
-            _chamberLoaded = true;
+
+            currentWeapon.FrameHandler.ChamberLoad();
         }
 
-
-        public bool IsArmed()
-        {
-            return _weapons[_currentType] != null;
-        }
         public bool IsChamberLoaded()
         {
-            return _chamberLoaded;
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return false;
+
+            return currentWeapon.FrameHandler.IsChamberLoaded();
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 using System.Collections;
 using David6.ShooterCore.Data;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
@@ -57,7 +56,7 @@ namespace David6.ShooterCore.Provider
 
         // 이벤트 바인딩
         void HandleCloseUI();
-        void OnGearEquipped(EDGearType type, DGearData data);
+        void OnGearEquipped(EDGearSlot type, DGear data);
 
         // Movement 변수
         float HorizontalSpeed { get; set; }
@@ -99,6 +98,8 @@ namespace David6.ShooterCore.Provider
 
         GameObject MakeObject(GameObject prefab, Transform target);
         GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal);
+
+        GameObject AssembleWeapon(DGear gear, Transform socket);
 
         GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
         GameObject SpawnTrail(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);

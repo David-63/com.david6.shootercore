@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using David6.ShooterCore.Context;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
-using David6.ShooterCore.Item.Gear;
+using David6.ShooterCore.Data.Inventory;
+using David6.ShooterCore.Item;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using David6.ShooterCore.UI.Equipment;
@@ -22,11 +21,6 @@ namespace David6.ShooterCore.UI
         public DEquipmentFactory EquipmentFactory => _equipmentFactory;
 
         [SerializeField] DEquipmentDatabase _equipmentDatabase;
-
-
-
-        [SerializeField] List<DEquipmentItem> TestItem;
-
 
         void Awake()
         {
@@ -67,7 +61,6 @@ namespace David6.ShooterCore.UI
             }
         }
 
-        // tab 입력을 받을 경우
         public void HandleResume()
         {
             ClearAllPanel();
@@ -115,7 +108,7 @@ namespace David6.ShooterCore.UI
         }
         #endregion
 
-        public void RegisterOnEquip(Action<EDGearType, DGearData> callback)
+        public void RegisterOnEquip(Action<EDGearSlot, DGear> callback)
         {
             _equipmentModel.OnGearChanged += callback;
         }

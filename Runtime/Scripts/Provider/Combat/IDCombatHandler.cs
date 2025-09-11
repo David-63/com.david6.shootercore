@@ -1,7 +1,6 @@
 using System;
 using David6.ShooterCore.Combat;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider
@@ -22,14 +21,13 @@ namespace David6.ShooterCore.Provider
         void CancelFocus();
 
         float CurrentFireRate { get; }
-        void SetWeapon(EDGearType type, DGearData data);
-        bool TryFire();
+        void SetWeapon(EDGearSlot type, DGear data);
+        void TryFire();
 
         void OnEjectMagazine(AnimationEvent animationEvent);
         void OnInsertMagazine(AnimationEvent animationEvent);
         void OnChamberLoad(AnimationEvent animationEvent);
 
-        bool IsArmed();
         bool IsChamberLoaded();
         DWeaponInstance GetWeapon();
         (bool success, DWeaponInstance weapon) TryGetWeapon();

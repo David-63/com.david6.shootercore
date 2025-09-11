@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf0d159dc1c64ea47a2f9510ac1d8797, type: 3}
+  m_Name: Primary_Rifle
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DGear
+  GearSlot: 0
+  BaseData: {fileID: 11400000, guid: 4e66191e08ef7344380b1e70a2c1ac50, type: 2}
+  Modules:
+  - {fileID: 11400000, guid: c51a8716aaa2b2743b1077a9f7705909, type: 2}
+  - {fileID: 11400000, guid: e09940721ef8fb548bbdb3622e4623d2, type: 2}
+  - {fileID: 11400000, guid: 38b5afd1aeeb13248afb5b31525197f6, type: 2}

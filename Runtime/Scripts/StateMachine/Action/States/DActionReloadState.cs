@@ -10,7 +10,7 @@ namespace David6.ShooterCore.StateMachine.Action
     */
     public class DActionReloadState : DBaseState
     {
-        float _reloadTime = 1.5f;
+        //float _reloadTime = 1.5f;
 
         bool _reloadFinished = false;
 

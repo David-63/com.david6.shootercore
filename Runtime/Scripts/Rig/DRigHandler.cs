@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using David6.ShooterCore.Context;
+using David6.ShooterCore.Item.Weapon;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -37,15 +38,13 @@ namespace David6.ShooterCore.Animation
             bootstrapper.Register<IDRigHandlerProvider>(this);
         }
 
-        public void SetupRigIK(DWeaponFrame weaponFrame)
+        public void SetupRigIK(DFrameHandler weaponFrame)
         {
             _IKHandLeft = weaponFrame.GripLeft;
             _IKHandRight = weaponFrame.GripRight;
-            _IKAimOffset = weaponFrame.AimRigOffset;
+            _IKAimOffset = weaponFrame.RigAimOffset;
             RigOverride();
         }
-
-
 
 
         void RigOverride()

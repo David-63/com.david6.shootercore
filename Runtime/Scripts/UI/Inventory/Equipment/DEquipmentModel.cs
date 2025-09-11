@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item;
 using David6.ShooterCore.Tools;
 
 namespace David6.ShooterCore.UI.Equipment
@@ -9,51 +8,53 @@ namespace David6.ShooterCore.UI.Equipment
     public class DEquipmentModel
     {
         // 장비중인 아이템
-        public Dictionary<EDGearType, DGearData> Equipped { get; private set; } = new();
+        public Dictionary<EDGearSlot, DGear> Equipped { get; private set; } = new();
         // 보유중인 아이템
-        public Dictionary<EDGearType, List<DGearData>> EquipmentItems { get; set; } = new();
+        public Dictionary<EDGearSlot, List<DGear>> EquipmentItems { get; set; } = new();
         // 장비 변경 이벤트
-        public event Action<EDGearType, DGearData> OnGearChanged;
-        public event Action<DGearData> OnGearEquipped;
+        public event Action<EDGearSlot, DGear> OnGearChanged;
+        public event Action<DGear> OnGearEquipped;
 
         // 현재 선택중인 타입
-        EDGearType _selectedGearType;
+        EDGearSlot _selectedGearType;
 
 
         // 보유중인 자원
-        //public Dictionary<> Ammunition { get; private set; } = new();
+        public Dictionary<EDAmmoType, float> Ammunition { get; private set; } = new();
 
         public DEquipmentModel()
         {
             Equipped.Clear();
             EquipmentItems.Clear();
-            foreach (EDGearType gearType in Enum.GetValues(typeof(EDGearType)))
+            foreach (EDGearSlot gearType in Enum.GetValues(typeof(EDGearSlot)))
             {
-                if (gearType == EDGearType.None) continue;
+                if (gearType == EDGearSlot.None) continue;
 
-                Equipped[gearType] = DGearData.Empty;
-                EquipmentItems[gearType] = new List<DGearData>();
+                Equipped[gearType] = DGear.Empty;
+                EquipmentItems[gearType] = new List<DGear>();
             }
         }
 
-        public void Initialize(List<DEquipmentItem> items)
+        public void Initialize(List<DGear> items)
         {
             foreach (var item in items)
             {
-                if (item == null || item.GearData == null) continue;
+                if (item == null || item.BaseData == null) continue;
+                if (item.GearSlot == EDGearSlot.None) continue;
 
-                if (!EquipmentItems.ContainsKey(item.GearType))
+                if (!EquipmentItems.ContainsKey(item.GearSlot))
                 {
-                    EquipmentItems[item.GearType] = new List<DGearData>();
+                    EquipmentItems[item.GearSlot] = new List<DGear>();
                 }
 
-                EquipmentItems[item.GearType].Add(item.GearData);
+                EquipmentItems[item.GearSlot].Add(item);
             }
         }
 
-        public void EquipGear(EDGearType gearType, DGearData gearData)
+        public void EquipGear(EDGearSlot gearType, DGear gearData)
         {
             if (!Equipped.ContainsKey(gearType)) return;
+            Log.WhatHappend($"Equip Gear {gearType} : {gearData.DisplayName}");
 
             Equipped[gearType] = gearData;
 
@@ -61,21 +62,27 @@ namespace David6.ShooterCore.UI.Equipment
             OnGearEquipped?.Invoke(gearData);           // 외부
         }
 
-        public void AddItem(EDGearType type, DGearData gearData)
+        public void AddItem(EDGearSlot type, DGear gearData)
         {
-
+            if (gearData.GearSlot != type)
+            {
+                Log.WhatHappend($"장비 타입 불일치 {type} != {gearData.GearSlot}");
+                return;
+            }
             if (!EquipmentItems.ContainsKey(type))
             {
-                EquipmentItems[type] = new List<DGearData>();
+                EquipmentItems[type] = new List<DGear>();
             }
+
+            Log.WhatHappend($"Add Item {type} : {gearData.DisplayName}");
 
             EquipmentItems[type].Add(gearData);
         }
 
-        public List<DGearData> GetItems(EDGearType type) => EquipmentItems.TryGetValue(type, out var list) ? list : new List<DGearData>();
-        public DGearData GetEquippedGear(EDGearType gearType) => Equipped.TryGetValue(gearType, out var item) ? item : DGearData.Empty;
-        public void SetListDisplayGearType(EDGearType type) => _selectedGearType = type;
-        public EDGearType GetListDisplayGearType() => _selectedGearType;
+        public List<DGear> GetItems(EDGearSlot type) => EquipmentItems.TryGetValue(type, out var list) ? list : new List<DGear>();
+        public DGear GetEquippedGear(EDGearSlot gearType) => Equipped.TryGetValue(gearType, out var item) ? item : DGear.Empty;
+        public void SetListDisplayGearType(EDGearSlot type) => _selectedGearType = type;
+        public EDGearSlot GetListDisplayGearType() => _selectedGearType;
 
 
     }

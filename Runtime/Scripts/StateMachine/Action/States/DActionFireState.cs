@@ -15,7 +15,8 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void EnterState()
         {
             // 무기 없으면 되돌아가기
-            if (!Context.CombatHandler.IsArmed()) return;
+            var (success, currentWeapon) = Context.CombatHandler.TryGetWeapon();
+            if (!success) return;
 
             DoFire();
             // 트리거 상태 갱신

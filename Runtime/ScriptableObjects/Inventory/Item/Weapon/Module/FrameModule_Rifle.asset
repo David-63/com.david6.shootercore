@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99d49aabf8d05a54aa091a9f57229dfa, type: 3}
+  m_Name: FrameModule_Rifle
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DFrameModule
+  BasePrefab: {fileID: 308849673433135438, guid: 2e35c7a18cf6fa1429eabe73bafc3fee, type: 3}
+  ChamberTransform: {fileID: 0}

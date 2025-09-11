@@ -1,4 +1,4 @@
-using David6.ShooterCore.Data.Enum;
+using David6.ShooterCore.Look;
 using UnityEngine;
 
 namespace David6.ShooterCore.Provider

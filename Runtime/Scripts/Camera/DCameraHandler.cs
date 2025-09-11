@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using David6.ShooterCore.Context;
 using David6.ShooterCore.Data;
-using David6.ShooterCore.Data.Enum;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.TickSystem;
 using David6.ShooterCore.Tools;
@@ -11,7 +9,21 @@ using UnityEngine;
 
 namespace David6.ShooterCore.Look
 {
-
+    public enum EDCameraType
+    {
+        None = -1,
+        Exploration,
+        Focus,
+        Aim,
+        Pause,
+    }
+    public enum EDCameraLayer
+    {
+        Exploration = 0,
+        Focus = 10,
+        Aim = 15,
+        Pause = 50,
+    }
     public class DCameraHandler : MonoBehaviour, IDCameraHandlerProvider, IDLateTickable
     {
         // ScriptableObject로 설정할 수 있는 카메라 프로필

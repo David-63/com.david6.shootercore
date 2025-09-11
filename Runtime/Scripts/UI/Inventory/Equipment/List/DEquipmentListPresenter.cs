@@ -1,5 +1,4 @@
-using David6.ShooterCore.Data.Enum;
-using David6.ShooterCore.Data.Gear;
+using David6.ShooterCore.Item;
 using David6.ShooterCore.Provider;
 
 namespace David6.ShooterCore.UI.Equipment
@@ -19,13 +18,13 @@ namespace David6.ShooterCore.UI.Equipment
 
         void SetGearType()
         {
-            EDGearType currentType = _equipmentModel.GetListDisplayGearType();
+            EDGearSlot currentType = _equipmentModel.GetListDisplayGearType();
             DEquipmentScrollView scrollview = _panelView.GetScrollView();
             scrollview.SetItems(_equipmentModel.GetItems(currentType), EquipGear);
             scrollview.SetScrollViewText(currentType);
         }
 
-        public void EquipGear(DGearData data)
+        public void EquipGear(DGear data)
         {
             _equipmentModel.EquipGear(_panelView.GetScrollView().CurrentType, data);
         }

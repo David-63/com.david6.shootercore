@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9712e20650c6474ba9a257d52737f7c, type: 3}
+  m_Name: WeaponData_Rifle
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DWeaponData
+  ItemName: Rifle
+  ItemDescription: module weapon sample
+  ItemIcon: {fileID: 21300000, guid: 5c4c3115867d5dc47bf263736643c6c5, type: 3}
+  FirePower: 5
+  FireRate: 450
+  MagazineCapacity: 25
+  ProjectileSpeed: 100
+  Range: 60
