@@ -22,13 +22,15 @@ namespace David6.ShooterCore.Provider
 
         float CurrentFireRate { get; }
         void SetWeapon(EDGearSlot type, DGear data);
-        void TryFire();
+        void TryShoot();
 
         void OnEjectMagazine(AnimationEvent animationEvent);
         void OnInsertMagazine(AnimationEvent animationEvent);
         void OnChamberLoad(AnimationEvent animationEvent);
 
         bool IsChamberLoaded();
+        int GetCurrentRounds();
+
         DWeaponInstance GetWeapon();
         (bool success, DWeaponInstance weapon) TryGetWeapon();
     }

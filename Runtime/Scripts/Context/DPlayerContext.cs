@@ -172,6 +172,5 @@ namespace David6.ShooterCore.Context
                 new Vector3(transform.position.x, transform.position.y - _movementProfile.GroundedOffset, transform.position.z),
                 _movementProfile.GroundedRadius);
         }
-
     }
 }

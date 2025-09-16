@@ -1,6 +1,7 @@
 using System.Collections;
 using David6.ShooterCore.FX;
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
 using UnityEngine;
 
 namespace David6.ShooterCore.Item.Weapon
@@ -27,38 +28,39 @@ namespace David6.ShooterCore.Item.Weapon
 
 
 
-
         IDContextProvider _context;
-        DGear _gear;
         DWeaponData _weaponData;
         const float MAX_DISTANCE = 500.0f;
         LayerMask HitMask;
         int _currentMagazine;
         bool _chamberLoaded = false;
 
-
-        public void AttachMuzzle(Transform muzzleObject)
+        public void AttachMuzzle(DMuzzleModule module)
         {
-            muzzleObject.transform.SetParent(MuzzleSocket);
-            muzzleObject.transform.localPosition = Vector3.zero;
-            muzzleObject.transform.localRotation = Quaternion.identity;
+            MuzzleModule = module;
         }
-        public void AttachMagazine(GameObject magazineObject)
+        public void AttachMagazine(DMagazineModule module)
         {
-            magazineObject.transform.SetParent(MagazineSocket);
-            magazineObject.transform.localPosition = Vector3.zero;
-            magazineObject.transform.localRotation = Quaternion.identity;
+            MagazineModule = module;
         }
 
+        // public void AttachMuzzle(Transform muzzleObject)
+        // {
+        //     muzzleObject.transform.SetParent(MuzzleSocket);
+        //     muzzleObject.transform.localPosition = Vector3.zero;
+        //     muzzleObject.transform.localRotation = Quaternion.identity;
+        // }
+        // public void AttachMagazine(GameObject magazineObject)
+        // {
+        //     magazineObject.transform.SetParent(MagazineSocket);
+        //     magazineObject.transform.localPosition = Vector3.zero;
+        //     magazineObject.transform.localRotation = Quaternion.identity;
+        // }
 
-        public void Initialize(IDContextProvider context, DGear gear)
+        public void Initialize(IDContextProvider context, DWeaponData gearData)
         {
             _context = context;
-            _gear = gear;
-
-            _weaponData = _gear.BaseData as DWeaponData;
-            MuzzleModule = _gear.GetModule<DMuzzleModule>();
-            MagazineModule = _gear.GetModule<DMagazineModule>();
+            _weaponData = gearData;
         }
 
         public bool Shoot(Vector3 intendedPoint)
@@ -66,12 +68,12 @@ namespace David6.ShooterCore.Item.Weapon
             if (!_chamberLoaded)
             {
                 // 빈 클립 사운드 재생
+                Log.WhatHappend("no clip");
 
                 return false;
             }
-
-
             float travelDistance = Vector3.Distance(MuzzleTransform.position, intendedPoint);
+
             float delay = travelDistance / _weaponData.ProjectileSpeed;
 
             WeaponFireFX(intendedPoint);
@@ -106,17 +108,23 @@ namespace David6.ShooterCore.Item.Weapon
         void WeaponFireFX(Vector3 intendedPoint)
         {
             _context.SpawnParticle(MuzzleModule.MuzzleFlashFX, MuzzleTransform.position, MuzzleTransform.rotation);
+
             _context.SpawnParticle(MagazineModule.ChamberCaseFX, ChamberTransform.position, ChamberTransform.rotation);
+
             GameObject tracerObj = _context.SpawnTrail(MagazineModule.BulletTrailFX, MuzzleTransform.position, MuzzleTransform.rotation);
             DTrailHander tracer = tracerObj.GetComponent<DTrailHander>();
+
+            if (tracer == null)
+            {
+                Log.AttentionPlease("BulletFX: Trail 컴포넌트가 없음!!");
+            }
+
             tracer.Init(MuzzleTransform.position, intendedPoint, _weaponData.ProjectileSpeed);
         }
 
         public void EjectMagazine()
         {
             _context.SpawnParticle(MagazineModule.MagazineEjectFX, MagazineTransform.position, MagazineTransform.rotation);
-
-            // 매쉬 숨기기
             MagazineSocket.gameObject.SetActive(false);
             _currentMagazine = 0;
         }
@@ -146,6 +154,7 @@ namespace David6.ShooterCore.Item.Weapon
         }
 
         public bool IsChamberLoaded() => _chamberLoaded;
+        public int GetCurrentRounds() => _currentMagazine;
 
     }
 }

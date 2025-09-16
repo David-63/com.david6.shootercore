@@ -13,9 +13,7 @@ MonoBehaviour:
   m_Name: MagazineModule_Rifle
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DMagazineModule
   BasePrefab: {fileID: 5151436326578538746, guid: e396fc30c8ac71e4fa3faf0df9f2008a, type: 3}
-  MagazineTransform: {fileID: 0}
-  MagazineObject: {fileID: 0}
   MagazineEjectFX: {fileID: 6434636049029769855, guid: e9b965862a10ce84f8f64b063a190fee, type: 3}
   ChamberCaseFX: {fileID: 6434636049029769855, guid: ca4b5258379c38b499a85a5875a55111, type: 3}
-  BulletTrailFX: {fileID: 7775583715503321618, guid: 4f8098cc47613fd4d9a97aa972d3cf2e, type: 3}
+  BulletTrailFX: {fileID: 7775583715503321618, guid: 88bd44d685dce1e4fa24a3cad900877f, type: 3}
   ImpactShardFX: {fileID: 2758620328231288098, guid: 24ca3287ee5e77d498bb8413e188f178, type: 3}

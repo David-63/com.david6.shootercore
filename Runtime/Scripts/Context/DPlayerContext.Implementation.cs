@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using David6.ShooterCore.Data;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Item.Weapon;
@@ -6,6 +7,7 @@ using David6.ShooterCore.Look;
 using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace David6.ShooterCore.Context
@@ -28,6 +30,10 @@ namespace David6.ShooterCore.Context
 
         [SerializeField] Transform VFXHolder;
 
+        public Dictionary<EDGearSlot, GameObject> EquipmentGear = new();
+
+
+        #region Setup
         public void ActiveStateDebugMode()
         {
             _locomotionStateMachine.ActiveStateDebugMode();
@@ -61,6 +67,22 @@ namespace David6.ShooterCore.Context
             }
             return flag;
         }
+
+        public bool SetRigHandler(IDRigHandlerProvider rigHandler)
+        {
+            bool flag = true;
+            if (rigHandler != null)
+            {
+                _rigHandler = rigHandler;
+            }
+            else
+            {
+                flag = false;
+            }
+            return flag;
+        }
+
+        #endregion
 
         #region Input caching
 
@@ -122,26 +144,10 @@ namespace David6.ShooterCore.Context
         public void OnGearEquipped(EDGearSlot type, DGear data)
         {
             _combatHandler.SetWeapon(type, data);
-            
             _rigHandler.SetupRigIK(data.GetModule<DFrameModule>().BasePrefab.GetComponent<DFrameHandler>());
         }
         #endregion
 
-
-
-        public bool SetRigHandler(IDRigHandlerProvider rigHandler)
-        {
-            bool flag = true;
-            if (rigHandler != null)
-            {
-                _rigHandler = rigHandler;
-            }
-            else
-            {
-                flag = false;
-            }
-            return flag;
-        }
 
 
         #region Movement
@@ -246,6 +252,7 @@ namespace David6.ShooterCore.Context
 
         #endregion
 
+        #region Create
         public GameObject MakeObject(GameObject prefab, Transform target)
         {
             return Instantiate(prefab, target);
@@ -253,32 +260,6 @@ namespace David6.ShooterCore.Context
         public GameObject MakeObject(GameObject prefab, Vector3 position, Vector3 normal)
         {
             return Instantiate(prefab, position, Quaternion.LookRotation(normal));
-        }
-        public GameObject AssembleWeapon(DGear gear, Transform socket)
-        {
-            if (gear == null) return null;
-
-            // Frame 구성
-            GameObject frameObject = Instantiate(gear.GetModule<DFrameModule>().BasePrefab, socket);
-            DFrameHandler frameScript = frameObject.GetComponent<DFrameHandler>();
-            GameObject moduleAttachment;
-
-
-            // 나머지 모듈 구성
-            DMuzzleModule muzzleModule = gear.GetModule<DMuzzleModule>();
-            if (muzzleModule != null)
-            {
-                moduleAttachment = Instantiate(muzzleModule.BasePrefab, frameScript.MuzzleSocket);
-            }
-
-            DMagazineModule magazineModule = gear.GetModule<DMagazineModule>();
-            if (magazineModule != null)
-            {
-                moduleAttachment = Instantiate(magazineModule.BasePrefab, frameScript.MagazineSocket);                
-            }
-
-
-            return frameObject;
         }
 
         public GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null)
@@ -304,11 +285,61 @@ namespace David6.ShooterCore.Context
             return vfx;
         }
 
+        #endregion
+
+        #region Equipment
+        public GameObject AssembleWeapon(DGear gear, Transform socket)
+        {
+            if (gear == null) return null;
+            var slot = gear.GearSlot;
+
+            UnEquip(slot);
+
+            // if (EquipmentGear.TryGetValue(gear.GearSlot, out var existing) && existing != null)
+            // {
+            //     Destroy(existing);
+            //     EquipmentGear[slot] = null;
+            // }
+
+            // Frame 구성
+            GameObject frameObject = Instantiate(gear.GetModule<DFrameModule>().BasePrefab, socket);
+            DFrameHandler frameScript = frameObject.GetComponent<DFrameHandler>();
+
+            EquipmentGear[slot] = frameObject;
+
+
+            // 나머지 모듈 구성
+            DMuzzleModule muzzleModule = gear.GetModule<DMuzzleModule>();
+            if (muzzleModule != null)
+            {
+                frameScript.AttachMuzzle(muzzleModule);
+                Instantiate(muzzleModule.BasePrefab, frameScript.MuzzleSocket);
+            }
+
+            DMagazineModule magazineModule = gear.GetModule<DMagazineModule>();
+            if (magazineModule != null)
+            {
+                frameScript.AttachMagazine(magazineModule);
+                Instantiate(magazineModule.BasePrefab, frameScript.MagazineSocket);
+            }
+
+            return frameObject;
+        }
+
+        public GameObject GetEquipped(EDGearSlot slot)
+        {
+            EquipmentGear.TryGetValue(slot, out var gear);
+            return gear;
+        }
+        public void UnEquip(EDGearSlot slot)
+        {
+            if (EquipmentGear.TryGetValue(slot, out var gear) && gear != null)
+            {
+                Destroy(gear);
+                EquipmentGear[slot] = null;
+            }
+        }
+        
+        #endregion
     }
-    /*
-
-        Focus 관련해서 전용 클래스를 하나 만들어야할 것 같음
-        이것과 연관된 코드 로직도 많기 때문에, Context 내부에서 Focus 관련 로직을 구성하면 복잡하게 꼬여버리는 듯 함
-
-    */
 }

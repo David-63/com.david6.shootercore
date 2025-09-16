@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cb8f1e188499704f9fce1ba227fdb1d, type: 3}
+  m_Name: MagazineModule_Rifle 1
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DMagazineModule
+  BasePrefab: {fileID: 5151436326578538746, guid: 4e90f0992797d6f44985f7ab97e438bf, type: 3}
+  MagazineEjectFX: {fileID: 6434636049029769855, guid: e9b965862a10ce84f8f64b063a190fee, type: 3}
+  ChamberCaseFX: {fileID: 6434636049029769855, guid: ca4b5258379c38b499a85a5875a55111, type: 3}
+  BulletTrailFX: {fileID: 7775583715503321618, guid: 88bd44d685dce1e4fa24a3cad900877f, type: 3}
+  ImpactShardFX: {fileID: 2758620328231288098, guid: 24ca3287ee5e77d498bb8413e188f178, type: 3}

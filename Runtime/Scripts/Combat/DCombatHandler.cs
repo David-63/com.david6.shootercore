@@ -11,7 +11,6 @@ namespace David6.ShooterCore.Combat
 {
     public class DWeaponInstance
     {
-        public DGear Gear;
         public GameObject Prefab;
         public DFrameHandler FrameHandler;
     }
@@ -32,6 +31,7 @@ namespace David6.ShooterCore.Combat
 
         // focus
 
+        #region Focus value
         const string FOCUS_KEY = "Focus";
         const float FOCUS_DURATION = 5.5f;
         public float GetFocusDuration => FOCUS_DURATION;
@@ -39,6 +39,11 @@ namespace David6.ShooterCore.Combat
 
         public event Action OnFocusActive;
         public event Action OnFocusInactive;
+
+        #endregion
+
+        public Dictionary<EDGearSlot, GameObject> EquipmentGear = new();
+
 
         public DCombatHandler(IDContextProvider context)
         {
@@ -92,32 +97,50 @@ namespace David6.ShooterCore.Combat
         {
             // Weapon 인스턴스 등록
             InstanceSetup(type, data);
-
-            _context.AnimatorProvider.SetFireRate(CurrentFireRate);
         }
 
-        private void InstanceSetup(EDGearSlot type, DGear item)
+        void InstanceSetup(EDGearSlot type, DGear item)
         {
+            /*
+                ## 무기 인스턴스 생성 ##
+
+                1. SO 객체의 데이터를 알고있음
+                2. 프리팹으로 생성한 객체임
+                3. 프리팹의 스크립트를 캐싱함
+            */
+
             if (!_weapons.TryGetValue(type, out var instance) || instance == null)
             {
                 instance = _weapons[type] = new DWeaponInstance();
             }
 
             _currentType = type;
-            instance.Gear = item;
+            var weaponData = item.BaseData as DWeaponData;
 
+
+            /*
+                ## AssembleWeapon ##
+                Context에서 SO 데이터에 있는 모듈을 생성하여 조립
+                FrameHandler에 나머지 모듈 부착됨
+            */
             if (instance.Prefab == null)
             {
-                //AssembleWeapon
                 instance.Prefab = _context.AssembleWeapon(item, _context.WeaponSocket);
             }
 
             instance.FrameHandler = instance.Prefab.GetComponent<DFrameHandler>();
 
-            instance.FrameHandler.Initialize(_context, item);
+            instance.FrameHandler.Initialize(_context, weaponData);
+            instance.FrameHandler.InsertMagazine();
+            instance.FrameHandler.ChamberLoad();
+
+            // 이부분은 이벤트 전달로 애니메이터가 알아서 세팅하도록 해야함
+            Log.WhatHappend($"FireRate: {weaponData.FireRate}");
+            CurrentFireRate = weaponData.FireRate;
+            _context.AnimatorProvider.SetFireRate(weaponData.FireRate);
         }
 
-        public void TryFire()
+        public void TryShoot()
         {
             var (success, currentWeapon) = TryGetWeapon();
             if (!success) return;
@@ -189,6 +212,13 @@ namespace David6.ShooterCore.Combat
             if (!success) return false;
 
             return currentWeapon.FrameHandler.IsChamberLoaded();
+        }
+        public int GetCurrentRounds()
+        {
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return -1;
+
+            return currentWeapon.FrameHandler.GetCurrentRounds();
         }
 
         /// <summary>

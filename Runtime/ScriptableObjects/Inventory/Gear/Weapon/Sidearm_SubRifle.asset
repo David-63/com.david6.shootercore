@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf0d159dc1c64ea47a2f9510ac1d8797, type: 3}
-  m_Name: Primary_Rifle
+  m_Name: Sidearm_SubRifle
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DGear
-  GearSlot: 0
-  BaseData: {fileID: 11400000, guid: 4e66191e08ef7344380b1e70a2c1ac50, type: 2}
+  GearSlot: 1
+  BaseData: {fileID: 11400000, guid: 16ab915657c638a43a319d1f58e3115a, type: 2}
   Modules:
-  - {fileID: 11400000, guid: c51a8716aaa2b2743b1077a9f7705909, type: 2}
+  - {fileID: 11400000, guid: e0728e0fc4909de4b9cd5a555faccead, type: 2}
   - {fileID: 11400000, guid: 1247b9798eee6cd4cbe7dbf49355d247, type: 2}
   - {fileID: 11400000, guid: 4237514ef9471cc4597fc4e89b8f8bf9, type: 2}
