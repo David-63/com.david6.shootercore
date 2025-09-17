@@ -88,7 +88,7 @@ namespace David6.ShooterCore.Provider
 
         void FireRoundRumble();
         void EmptyChamberRumble();
-        
+
         void EjectRumble();
         void InsertRumble();
         void ChamberLoadRumble();
@@ -103,6 +103,7 @@ namespace David6.ShooterCore.Provider
 
         GameObject SpawnParticle(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
         GameObject SpawnTrail(GameObject vfxPrefab, Vector3 position, Quaternion rotation, Transform parent = null);
+        void DestroyPrefab(GameObject target);
 
 
     }

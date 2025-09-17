@@ -21,7 +21,7 @@ namespace David6.ShooterCore.Provider
         void CancelFocus();
 
         float CurrentFireRate { get; }
-        void SetWeapon(EDGearSlot type, DGear data);
+        void EquipWeapon(EDGearSlot slot, DGear item);
         void TryShoot();
 
         void OnEjectMagazine(AnimationEvent animationEvent);

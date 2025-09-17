@@ -143,7 +143,7 @@ namespace David6.ShooterCore.Context
         }
         public void OnGearEquipped(EDGearSlot type, DGear data)
         {
-            _combatHandler.SetWeapon(type, data);
+            _combatHandler.EquipWeapon(type, data);
             _rigHandler.SetupRigIK(data.GetModule<DFrameModule>().BasePrefab.GetComponent<DFrameHandler>());
         }
         #endregion
@@ -283,6 +283,11 @@ namespace David6.ShooterCore.Context
             vfx.transform.rotation = rotation;
 
             return vfx;
+        }
+
+        public void DestroyPrefab(GameObject target)
+        {
+            Destroy(target);
         }
 
         #endregion

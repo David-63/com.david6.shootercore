@@ -5,6 +5,7 @@ using David6.ShooterCore.Item.Weapon;
 using David6.ShooterCore.Look;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace David6.ShooterCore.Combat
@@ -17,12 +18,9 @@ namespace David6.ShooterCore.Combat
 
     public class DCombatHandler : IDCombatHandler
     {
-        // 무기나 장비를 알고 있어야함
-
-        // 외부에서 호출함
         IDContextProvider _context;
-        Dictionary<EDGearSlot, DWeaponInstance> _weapons = new();
-        EDGearSlot _currentType;
+        Dictionary<EDGearSlot, DWeaponInstance> _weaponInstances = new();
+        EDGearSlot _activeSlot;
 
         // 제어 변수
         public float CurrentFireRate { get; private set; }
@@ -51,7 +49,7 @@ namespace David6.ShooterCore.Combat
 
             for (EDGearSlot type = EDGearSlot.Primary; type <= EDGearSlot.Sidearm; ++type)
             {
-                _weapons[type] = null;
+                _weaponInstances[type] = null;
             }
 
             _hitMask.value = 1;
@@ -93,49 +91,90 @@ namespace David6.ShooterCore.Combat
         }
         #endregion
 
-        public void SetWeapon(EDGearSlot type, DGear data)
+        public void EquipWeapon(EDGearSlot slot, DGear item)
         {
-            // Weapon 인스턴스 등록
-            InstanceSetup(type, data);
+            // EquipWeapon | 비여있는 슬롯에 장착
+            if (!_weaponInstances.TryGetValue(slot, out var instance) || instance == null)
+            {
+                EquipNewWeapon(slot, item);                
+            }
+            // ReplaceWeapon | 같은 슬롯의 무기 교체
+            else if (slot == _activeSlot)
+            {
+                RepaceWeapon(slot, item);
+            }
+            // SwapWeapon | 다른 슬롯으로 무기 교체
+            else
+            {
+                SwapWeapon(slot, item);
+            }
         }
 
-        void InstanceSetup(EDGearSlot type, DGear item)
+        void EquipNewWeapon(EDGearSlot slot, DGear item)
         {
-            /*
-                ## 무기 인스턴스 생성 ##
-
-                1. SO 객체의 데이터를 알고있음
-                2. 프리팹으로 생성한 객체임
-                3. 프리팹의 스크립트를 캐싱함
-            */
-
-            if (!_weapons.TryGetValue(type, out var instance) || instance == null)
+            var currentInstance = _weaponInstances[_activeSlot];
+            if (currentInstance?.Prefab != null)
             {
-                instance = _weapons[type] = new DWeaponInstance();
+                currentInstance.Prefab.SetActive(false);
             }
 
-            _currentType = type;
+            var instance = new DWeaponInstance();
+            _weaponInstances[slot] = instance;
+
+            BuildWeaponInstance(item, instance);
+            _activeSlot = slot;
+        }
+
+        void RepaceWeapon(EDGearSlot slot, DGear item)
+        {
+            var instance = _weaponInstances[slot];
+            if (instance.Prefab != null)
+            {
+                _context.DestroyPrefab(instance.Prefab);
+            }
+            BuildWeaponInstance(item, instance);
+        }
+
+        void SwapWeapon(EDGearSlot slot, DGear item)
+        {
+            var currentInstance = _weaponInstances[_activeSlot];
+            if (currentInstance?.Prefab != null)
+            {
+                currentInstance.Prefab.SetActive(false);
+            }
+
+            if (!_weaponInstances.TryGetValue(slot, out var targetInstance) || targetInstance == null)
+            {
+                targetInstance = new DWeaponInstance();
+                _weaponInstances[slot] = targetInstance;
+                BuildWeaponInstance(item, targetInstance);
+            }
+
+            if (targetInstance.Prefab != null)
+            {
+                targetInstance.Prefab.SetActive(true);
+            }
+
+            var weaponData = item.BaseData as DWeaponData;
+            CurrentFireRate = weaponData.FireRate;
+            _context.AnimatorProvider.SetFireRate(weaponData.FireRate);
+
+            _activeSlot = slot;
+        }
+
+        void BuildWeaponInstance(DGear item, DWeaponInstance instance)
+        {
             var weaponData = item.BaseData as DWeaponData;
 
-
-            /*
-                ## AssembleWeapon ##
-                Context에서 SO 데이터에 있는 모듈을 생성하여 조립
-                FrameHandler에 나머지 모듈 부착됨
-            */
             if (instance.Prefab == null)
             {
                 instance.Prefab = _context.AssembleWeapon(item, _context.WeaponSocket);
             }
 
             instance.FrameHandler = instance.Prefab.GetComponent<DFrameHandler>();
-
             instance.FrameHandler.Initialize(_context, weaponData);
             instance.FrameHandler.InsertMagazine();
             instance.FrameHandler.ChamberLoad();
-
-            // 이부분은 이벤트 전달로 애니메이터가 알아서 세팅하도록 해야함
-            Log.WhatHappend($"FireRate: {weaponData.FireRate}");
             CurrentFireRate = weaponData.FireRate;
             _context.AnimatorProvider.SetFireRate(weaponData.FireRate);
         }
@@ -227,7 +266,7 @@ namespace David6.ShooterCore.Combat
         /// <returns>null이면 무기 없음, 아니면 현재 무기 반환</returns>
         public DWeaponInstance GetWeapon()
         {
-            var weapon = _weapons[_currentType];
+            var weapon = _weaponInstances[_activeSlot];
             if (weapon == null)
             {
                 Log.WhatHappend("무기 업승");
@@ -240,7 +279,7 @@ namespace David6.ShooterCore.Combat
         /// </summary>
         public (bool success, DWeaponInstance weapon) TryGetWeapon()
         {
-            var weapon = _weapons[_currentType];
+            var weapon = _weaponInstances[_activeSlot];
             if (weapon == null)
             {
                 Log.WhatHappend("무기 업승");
