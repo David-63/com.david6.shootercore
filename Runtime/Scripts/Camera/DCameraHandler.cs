@@ -88,6 +88,7 @@ namespace David6.ShooterCore.Look
         {
             DGameLoop.Instance.Register(this);
             _lookCamera = Camera.main;
+
         }
 
         void OnDestroy()
@@ -163,7 +164,7 @@ namespace David6.ShooterCore.Look
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
         }
 
-
+        // 카메라를 강제로 변경
         public void ActivateCamera(EDCameraType type)
         {
             foreach (var kvp in _cameraMap)
@@ -173,12 +174,15 @@ namespace David6.ShooterCore.Look
             }
         }
 
+        // 레이어를 우선도로 구분해서 카메라 변경
         public void SetLayerActive(EDCameraLayer layer, bool active)
         {
             if (_cameraLayer.ContainsKey(layer))
             {
+                Log.WhatHappend($"SetLayerActive: {layer} -> {active} (Before: {_cameraLayer[layer]})");
                 _cameraLayer[layer] = active;
                 CameraUpdate();
+                Log.WhatHappend($"After CameraUpdate: currentLayer={_currentCameraLayer}, {ConvertToType(_currentCameraLayer)} activeSelf={_cameraMap[ConvertToType(_currentCameraLayer)].activeSelf}");
             }
         }
 
@@ -192,8 +196,8 @@ namespace David6.ShooterCore.Look
             if (highest != _currentCameraLayer)
             {
                 _currentCameraLayer = highest;
+                Log.WhatHappend(_currentCameraLayer);
                 SwitchCamera(_currentCameraLayer);
-
             }
         }
 

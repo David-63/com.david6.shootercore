@@ -55,14 +55,12 @@ namespace David6.ShooterCore.StateMachine.Action
         {
             bool chamberLoad = Context.CombatHandler.IsChamberLoaded();
             int currentRounds = Context.CombatHandler.GetCurrentRounds();
-            Log.WhatHappend($"남은 장탄: {currentRounds}. | 약실: {chamberLoad}");
 
-            if (chamberLoad)
-            {
-                Context.CombatHandler.RequestFocus(Context.CombatHandler.GetFocusDuration);
-                Context.CombatHandler.TryShoot();
-                Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.CurrentFireRate);
-            }
+            Log.WhatHappend($"남은 장탄: {currentRounds}. | 약실: {chamberLoad}");
+            Context.CombatHandler.RequestFocus();
+            Context.CombatHandler.TryShoot();
+            Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.CurrentFireRate);
+
         }
 
     }

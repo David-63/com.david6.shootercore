@@ -23,8 +23,8 @@ namespace David6.ShooterCore.Item.Weapon
         public Transform ChamberTransform;
 
         // 다른 모듈 참조
-        DMuzzleModule MuzzleModule;
-        DMagazineModule MagazineModule;
+        DMuzzleModule _muzzleModule;
+        DMagazineModule _magazineModule;
 
 
 
@@ -35,28 +35,8 @@ namespace David6.ShooterCore.Item.Weapon
         int _currentMagazine;
         bool _chamberLoaded = false;
 
-        public void AttachMuzzle(DMuzzleModule module)
-        {
-            MuzzleModule = module;
-        }
-        public void AttachMagazine(DMagazineModule module)
-        {
-            MagazineModule = module;
-        }
-
-        // public void AttachMuzzle(Transform muzzleObject)
-        // {
-        //     muzzleObject.transform.SetParent(MuzzleSocket);
-        //     muzzleObject.transform.localPosition = Vector3.zero;
-        //     muzzleObject.transform.localRotation = Quaternion.identity;
-        // }
-        // public void AttachMagazine(GameObject magazineObject)
-        // {
-        //     magazineObject.transform.SetParent(MagazineSocket);
-        //     magazineObject.transform.localPosition = Vector3.zero;
-        //     magazineObject.transform.localRotation = Quaternion.identity;
-        // }
-
+        public void AttachMuzzle(DMuzzleModule module) => _muzzleModule = module;
+        public void AttachMagazine(DMagazineModule module) => _magazineModule = module;
         public void Initialize(IDContextProvider context, DWeaponData gearData)
         {
             _context = context;
@@ -81,6 +61,8 @@ namespace David6.ShooterCore.Item.Weapon
             _context.ExecuteCoroutine(DelayedHit(MuzzleTransform.position, intendedPoint, delay));
             ConsumeAmmo();
 
+            Log.WhatHappend("발사 됨");
+
             return true;
         }
         IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
@@ -101,17 +83,17 @@ namespace David6.ShooterCore.Item.Weapon
                 {
                     damageable.Hit();
                 }
-                _context.SpawnParticle(MagazineModule.ImpactShardFX, hit.point, Quaternion.LookRotation(hit.normal));
+                _context.SpawnParticle(_magazineModule.ImpactShardFX, hit.point, Quaternion.LookRotation(hit.normal));
             }
         }
 
         void WeaponFireFX(Vector3 intendedPoint)
         {
-            _context.SpawnParticle(MuzzleModule.MuzzleFlashFX, MuzzleTransform.position, MuzzleTransform.rotation);
+            _context.SpawnParticle(_muzzleModule.MuzzleFlashFX, MuzzleTransform.position, MuzzleTransform.rotation);
 
-            _context.SpawnParticle(MagazineModule.ChamberCaseFX, ChamberTransform.position, ChamberTransform.rotation);
+            _context.SpawnParticle(_magazineModule.ChamberCaseFX, ChamberTransform.position, ChamberTransform.rotation);
 
-            GameObject tracerObj = _context.SpawnTrail(MagazineModule.BulletTrailFX, MuzzleTransform.position, MuzzleTransform.rotation);
+            GameObject tracerObj = _context.SpawnTrail(_magazineModule.BulletTrailFX, MuzzleTransform.position, MuzzleTransform.rotation);
             DTrailHander tracer = tracerObj.GetComponent<DTrailHander>();
 
             if (tracer == null)
@@ -124,7 +106,7 @@ namespace David6.ShooterCore.Item.Weapon
 
         public void EjectMagazine()
         {
-            _context.SpawnParticle(MagazineModule.MagazineEjectFX, MagazineTransform.position, MagazineTransform.rotation);
+            _context.SpawnParticle(_magazineModule.MagazineEjectFX, MagazineTransform.position, MagazineTransform.rotation);
             MagazineSocket.gameObject.SetActive(false);
             _currentMagazine = 0;
         }
@@ -137,7 +119,6 @@ namespace David6.ShooterCore.Item.Weapon
         public void ChamberLoad()
         {
             ConsumeAmmo();
-            _chamberLoaded = true;
         }
 
 
@@ -150,6 +131,7 @@ namespace David6.ShooterCore.Item.Weapon
             else
             {
                 --_currentMagazine;
+                _chamberLoaded = true;
             }
         }
 

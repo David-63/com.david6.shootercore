@@ -5,7 +5,6 @@ using David6.ShooterCore.Item.Weapon;
 using David6.ShooterCore.Look;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace David6.ShooterCore.Combat
@@ -67,12 +66,11 @@ namespace David6.ShooterCore.Combat
         }
 
         #region Focus Control
-        public void RequestFocus(float duration = FOCUS_DURATION)
+        public void RequestFocus()
         {
             IsFocus = true;
-            _context.CooldownProvider.StartCooldown(FOCUS_KEY, duration);
+            _context.CooldownProvider.StartCooldown(FOCUS_KEY, FOCUS_DURATION);
             OnFocusActive?.Invoke();
-            _context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, true);
         }
         public void LockFocus()
         {
@@ -87,7 +85,6 @@ namespace David6.ShooterCore.Combat
             IsFocus = false;
             _context.CooldownProvider.CancelCooldown(FOCUS_KEY);
             OnFocusInactive?.Invoke();
-            _context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, false);
         }
         #endregion
 
@@ -109,7 +106,6 @@ namespace David6.ShooterCore.Combat
                 SwapWeapon(slot, item);
             }
         }
-
         void EquipNewWeapon(EDGearSlot slot, DGear item)
         {
             var currentInstance = _weaponInstances[_activeSlot];
@@ -124,7 +120,6 @@ namespace David6.ShooterCore.Combat
             BuildWeaponInstance(item, instance);
             _activeSlot = slot;
         }
-
         void RepaceWeapon(EDGearSlot slot, DGear item)
         {
             var instance = _weaponInstances[slot];
@@ -134,7 +129,6 @@ namespace David6.ShooterCore.Combat
             }
             BuildWeaponInstance(item, instance);
         }
-
         void SwapWeapon(EDGearSlot slot, DGear item)
         {
             var currentInstance = _weaponInstances[_activeSlot];
@@ -161,7 +155,6 @@ namespace David6.ShooterCore.Combat
 
             _activeSlot = slot;
         }
-
         void BuildWeaponInstance(DGear item, DWeaponInstance instance)
         {
             var weaponData = item.BaseData as DWeaponData;
@@ -192,9 +185,9 @@ namespace David6.ShooterCore.Combat
             }
             else
             {
-                _context.EmptyChamberRumble();
-                _context.StopRumble(0.1f);
+                _context.EmptyChamberRumble();                
             }
+            _context.StopRumble(0.25f);
 
             _context.AnimatorProvider.SetFire();
         }
@@ -217,7 +210,6 @@ namespace David6.ShooterCore.Combat
             var (success, currentWeapon) = TryGetWeapon();
             if (!success) return;
             
-            // 게임패드
             _context.EjectRumble();
             _context.StopRumble(0.25f);
 

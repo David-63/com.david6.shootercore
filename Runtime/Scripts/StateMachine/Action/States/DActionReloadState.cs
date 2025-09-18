@@ -20,7 +20,7 @@ namespace David6.ShooterCore.StateMachine.Action
         public override void EnterState()
         {
             _reloadFinished = false;
-            Context.CombatHandler.RequestFocus(Context.CombatHandler.GetFocusDuration);
+            Context.CombatHandler.RequestFocus();
             Context.CombatHandler.LockFocus();
             Context.AnimatorProvider.SetReload();
             Context.RigHandlerProvider.InactiveRig();

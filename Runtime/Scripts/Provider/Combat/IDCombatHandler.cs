@@ -15,7 +15,7 @@ namespace David6.ShooterCore.Provider
 
         void OnUpdate();
 
-        void RequestFocus(float duration);
+        void RequestFocus();
         void LockFocus();
         void UnlockFocus();
         void CancelFocus();

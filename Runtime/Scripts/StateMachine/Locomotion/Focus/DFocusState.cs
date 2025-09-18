@@ -1,3 +1,4 @@
+using David6.ShooterCore.Look;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 
@@ -15,6 +16,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
             InitializeSubState();
             Context.AnimatorProvider.ActiveUpperbodyLayer();
             Context.RigHandlerProvider.ActiveRig();
+            Context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, true);
         }
 
         public override void UpdateSelf(float deltaTime)
@@ -26,6 +28,7 @@ namespace David6.ShooterCore.StateMachine.Locomotion
         {
             Context.AnimatorProvider.InactiveUpperbodyLayer();
             Context.RigHandlerProvider.InactiveRig();
+            Context.CameraHandlerProvider.SetLayerActive(EDCameraLayer.Focus, false);
         }
         public override void CheckTransition()
         {
