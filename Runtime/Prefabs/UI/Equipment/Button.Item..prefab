@@ -108,9 +108,9 @@ GameObject:
   - component: {fileID: 4982612175268263907}
   - component: {fileID: 2062275483918283824}
   - component: {fileID: 2622908774818648930}
+  - component: {fileID: 8082674299508828655}
   - component: {fileID: 2323942364303703752}
   - component: {fileID: 7615934218805308549}
-  - component: {fileID: 8082674299508828655}
   m_Layer: 0
   m_Name: Button.Item.
   m_TagString: Untagged
@@ -199,10 +199,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_NormalColor: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.5792706, g: 1, b: 0.5330188, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -224,7 +224,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8082674299508828655}
         m_TargetAssemblyTypeName: David6.ShooterCore.UI.Equipment.DItemButton, shootercore.runtime
-        m_MethodName: HandleClick
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -234,6 +234,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &8082674299508828655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380972282449439266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93759c60276bbe143b2b900f1ad5a6c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.UI.Equipment.DItemButton
+  _itemName: {fileID: 7613733016372190465}
+  _gearImage: {fileID: 2295747256483867357}
 --- !u!114 &2323942364303703752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,20 +294,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &8082674299508828655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1380972282449439266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93759c60276bbe143b2b900f1ad5a6c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.UI.Equipment.DItemButton
-  _itemName: {fileID: 7613733016372190465}
-  _gearImage: {fileID: 2295747256483867357}
 --- !u!1 &5527302869700102575
 GameObject:
   m_ObjectHideFlags: 0

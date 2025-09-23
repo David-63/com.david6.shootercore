@@ -14,42 +14,54 @@ namespace David6.ShooterCore.Input
     {
         [SerializeField] DInputSettingProfile inputSettingProfile;
 
-        #region Events for External Subscribers
-        public event Action OnPause = delegate { };
-        public event Action OnResume = delegate { };
-        public event Action OnPop = delegate { };
+        InputActionMap _basicMap, _UIMap;
 
+        #region Locomotion Action
         public event Action<Vector2> OnMove = delegate { };
         public event Action<Vector2> OnLook = delegate { };
         public event Action OnStartJump = delegate { };
         public event Action OnStopJump = delegate { };
         public event Action OnStartRun = delegate { };
         public event Action OnStopRun = delegate { };
+
+        Action<InputAction.CallbackContext> _onStartJump, _onStopJump, _onStartRun, _onStopRun;
+        InputAction _moveAction, _lookAction, _jumpAction, _runAction;
+        #endregion
+
+
+        #region Focus Action
         public event Action OnStartAim = delegate { };
         public event Action OnStopAim = delegate { };
         public event Action OnStartFire = delegate { };
         public event Action OnStopFire = delegate { };
         public event Action OnStartReload = delegate { };
         public event Action OnStopReload = delegate { };
-
-        Action<InputAction.CallbackContext> _onPause, _onResume, _onPop;
-        Action<InputAction.CallbackContext> _onStartJump, _onStopJump, _onStartRun, _onStopRun;
         Action<InputAction.CallbackContext> _onStartAim, _onStopAim, _onStartFire, _onStopFire;
         Action<InputAction.CallbackContext> _onStartReload, _onStopReload;
-        
+        InputAction _aimAction, _fireAction, _reloadAction;
         #endregion
 
-        #region 내부 액션 참조
-        InputActionMap _basicMap, _UIMap;
-        InputAction _pauseAction, _resumeAction, _popAction;
-        InputAction _moveAction, _lookAction, _jumpAction, _runAction;
-        InputAction _aimAction, _fireAction, _reloadAction;
+
+
+        #region UI Action
+        public event Action OnPause = delegate { };
+        public event Action OnResume = delegate { };
+        public event Action OnCancelPress = delegate { };
+        public event Action OnCancelRelease = delegate { };
+        public event Action OnSubmitPress = delegate { };
+        public event Action OnSubmitRelease = delegate { };
+        public event Action<Vector2> OnNavigate = delegate { };
+
+        Action<InputAction.CallbackContext> _onPause, _onResume;
+        Action<InputAction.CallbackContext> _onCancelPress, _onSubmitPress;
+        Action<InputAction.CallbackContext> _onCancelRelease, _onSubmitRelease;
+        InputAction _pauseAction, _resumeAction, _cancelAction, _submitAction, _navigateAction;
         #endregion
 
 
         #region 캐싱
 
-        Vector2 _prevMove, _prevLook;
+        Vector2 _prevMove, _prevLook, _prevNavigate;
 
         #endregion
 
@@ -63,7 +75,9 @@ namespace David6.ShooterCore.Input
 
             _pauseAction = _basicMap.FindAction("Pause", throwIfNotFound: true);
             _resumeAction = _UIMap.FindAction("Resume", throwIfNotFound: true);
-            _popAction = _UIMap.FindAction("Pop", throwIfNotFound: true);
+            _cancelAction = _UIMap.FindAction("Cancel", throwIfNotFound: true);
+            _submitAction = _UIMap.FindAction("Submit", throwIfNotFound: true);
+            _navigateAction = _UIMap.FindAction("Navigate", throwIfNotFound: true);
 
             _moveAction = _basicMap.FindAction("Move", throwIfNotFound: true);
             _lookAction = _basicMap.FindAction("Look", throwIfNotFound: true);
@@ -157,13 +171,24 @@ namespace David6.ShooterCore.Input
         {
             _onResume = _ => OnResume();
             _resumeAction.performed += _onResume;
-            _onPop = _ => OnPop();
-            _popAction.performed += _onPop;
+
+            _onCancelPress = _ => OnCancelPress();
+            _cancelAction.performed += _onCancelPress;
+            _onCancelRelease = _ => OnCancelRelease();
+            _cancelAction.canceled += _onCancelRelease;
+
+            _onSubmitPress = _ => OnSubmitPress();
+            _submitAction.performed += _onSubmitPress;
+            _onSubmitRelease = _ => OnSubmitRelease();
+            _submitAction.canceled += _onSubmitRelease;
         }
         void UnsubscribeUIActions()
         {
             _resumeAction.performed -= _onResume;
-            _popAction.performed -= _onPop;
+            _cancelAction.performed -= _onCancelPress;
+            _cancelAction.canceled -= _onCancelRelease;
+            _submitAction.performed -= _onSubmitPress;
+            _submitAction.canceled -= _onSubmitRelease;
         }
 
         public void Tick(float deltaTime)
@@ -184,8 +209,15 @@ namespace David6.ShooterCore.Input
                     OnLook(lookValue);
                 }
             }
-
-            // UI map 에서 폴링이 필요하면 이곳에 액션 추가
+            else if (_UIMap.enabled)
+            {
+                Vector2 navigateValue = _navigateAction.ReadValue<Vector2>();
+                if (navigateValue != _prevNavigate)
+                {
+                    _prevNavigate = navigateValue;
+                    OnNavigate(navigateValue);
+                }
+            }
         }
 
         public void HandlePause()

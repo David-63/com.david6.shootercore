@@ -1,5 +1,7 @@
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Provider;
+using David6.ShooterCore.Tools;
+using UnityEngine.EventSystems;
 
 namespace David6.ShooterCore.UI.Equipment
 {
@@ -13,31 +15,51 @@ namespace David6.ShooterCore.UI.Equipment
         public override void Initialize()
         {
             _panelView = GetPanelView<DEquipmentListView>() as DEquipmentListView;
-            
         }
 
-        void SetGearType()
+        void RefreshScrollView()
         {
             EDGearSlot currentType = _equipmentModel.GetListDisplayGearType();
             DEquipmentScrollView scrollview = _panelView.GetScrollView();
-            scrollview.SetItems(_equipmentModel.GetItems(currentType), EquipGear);
+            scrollview.DisplayItemList(_equipmentModel.GetItems(currentType), OnItemButtonSelected);
             scrollview.SetScrollViewText(currentType);
+
+            var buttons = scrollview.GetItemButtons();
+            if (buttons.Count > 0)
+            {
+                EventSystem.current.SetSelectedGameObject(buttons[0].gameObject);
+            }
+            else if (buttons.Count == 0)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
         }
 
-        public void EquipGear(DGear data)
+        public void OnItemButtonSelected(DGear data)
         {
-            _equipmentModel.EquipGear(_panelView.GetScrollView().CurrentType, data);
+            _equipmentModel.SetEquippedGear(data);
         }
 
         public override void ShowPanel()
         {
             _panelView.ShowPanel();
 
-            SetGearType();
+            RefreshScrollView();
         }
         public override void HidePanel()
         {
             _panelView.HidePanel();
+        }
+
+        public override void OnSubmit()
+        {
+            var selected = EventSystem.current.currentSelectedGameObject;
+            if (selected == null) return;
+
+            if (selected.TryGetComponent<DItemButton>(out var button))
+            {
+                button.HandleSelectItem();
+            }
         }
     }
 }

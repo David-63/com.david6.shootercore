@@ -1,6 +1,7 @@
 using System;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.UI.Equipment;
+using UnityEngine;
 
 namespace David6.ShooterCore.Provider
 {
@@ -10,10 +11,16 @@ namespace David6.ShooterCore.Provider
         DEquipmentFactory EquipmentFactory { get; }
         void HandlePause();
         void HandleResume();
-        void HandlePop();
+        void HandleCancel();
+        void HandleSubmitPress();
+        void HandleSubmitRelease();
+        void HandleNavigate(Vector2 direction);
+
         void PushPanel(IDPanelPresenterProvider panel);
         void PopPanel();
 
-        void RegisterOnEquip(Action<EDGearSlot, DGear> callback);
+
+
+        void RegisterOnGearChanged(Action<DGear> callback);
     }
 }

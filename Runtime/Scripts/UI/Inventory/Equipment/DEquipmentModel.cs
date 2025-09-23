@@ -12,8 +12,7 @@ namespace David6.ShooterCore.UI.Equipment
         // 보유중인 아이템
         public Dictionary<EDGearSlot, List<DGear>> EquipmentItems { get; set; } = new();
         // 장비 변경 이벤트
-        public event Action<EDGearSlot, DGear> OnGearChanged;
-        public event Action<DGear> OnGearEquipped;
+        public event Action<DGear> OnGearChanged;
 
         // 현재 선택중인 타입
         EDGearSlot _selectedGearType;
@@ -51,32 +50,34 @@ namespace David6.ShooterCore.UI.Equipment
             }
         }
 
-        public void EquipGear(EDGearSlot gearType, DGear gearData)
+        public void SetEquippedGear(DGear gearData)
         {
+            var gearType = gearData.GearSlot;
             if (!Equipped.ContainsKey(gearType)) return;
+
             Log.WhatHappend($"Equip Gear {gearType} : {gearData.DisplayName}");
 
             Equipped[gearType] = gearData;
 
-            OnGearChanged?.Invoke(gearType, gearData);  // UI
-            OnGearEquipped?.Invoke(gearData);           // 외부
+            OnGearChanged?.Invoke(gearData);
         }
 
-        public void AddItem(EDGearSlot type, DGear gearData)
+        public void AddItem(DGear gearData)
         {
-            if (gearData.GearSlot != type)
+            var gearType = gearData.GearSlot;
+            if (gearData.GearSlot != gearType)
             {
-                Log.WhatHappend($"장비 타입 불일치 {type} != {gearData.GearSlot}");
+                Log.WhatHappend($"장비 타입 불일치 {gearType} != {gearData.GearSlot}");
                 return;
             }
-            if (!EquipmentItems.ContainsKey(type))
+            if (!EquipmentItems.ContainsKey(gearType))
             {
-                EquipmentItems[type] = new List<DGear>();
+                EquipmentItems[gearType] = new List<DGear>();
             }
 
-            Log.WhatHappend($"Add Item {type} : {gearData.DisplayName}");
+            Log.WhatHappend($"Add Item {gearType} : {gearData.DisplayName}");
 
-            EquipmentItems[type].Add(gearData);
+            EquipmentItems[gearType].Add(gearData);
         }
 
         public List<DGear> GetItems(EDGearSlot type) => EquipmentItems.TryGetValue(type, out var list) ? list : new List<DGear>();

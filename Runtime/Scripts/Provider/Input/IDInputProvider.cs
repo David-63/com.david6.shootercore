@@ -7,20 +7,17 @@ namespace David6.ShooterCore.Provider
     {
         event Action OnPause;
         event Action OnResume;
-        event Action OnPop;
+        event Action OnCancelPress, OnCancelRelease;
+        event Action OnSubmitPress, OnSubmitRelease;
+        event Action<Vector2> OnNavigate;
+
         event Action<Vector2> OnMove;
         event Action<Vector2> OnLook;
-        event Action OnStartJump;
-        event Action OnStopJump;
-        event Action OnStartRun;
-        event Action OnStopRun;
-        event Action OnStartAim;
-        event Action OnStopAim;
-        event Action OnStartFire;
-        event Action OnStopFire;
-        event Action OnStartReload;
-        event Action OnStopReload;
-
+        event Action OnStartJump, OnStopJump;
+        event Action OnStartRun, OnStopRun;
+        event Action OnStartAim, OnStopAim;
+        event Action OnStartFire, OnStopFire;
+        event Action OnStartReload, OnStopReload;
 
         void HandlePause();
         void HandleResume();

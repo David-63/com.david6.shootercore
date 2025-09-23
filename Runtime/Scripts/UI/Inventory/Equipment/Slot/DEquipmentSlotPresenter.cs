@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
+using UnityEngine.EventSystems;
 
 namespace David6.ShooterCore.UI.Equipment
 {
     public class DEquipmentSlotPresenter : DBaseEquipmentPresenter
     {
         DEquipmentSlotView _panelView;
-        Dictionary<EDGearSlot, DEquipmentSlotButton> _buttonMap = new();
+        Dictionary<EDGearSlot, DSlotButton> _buttonMap = new();
 
 
         public DEquipmentSlotPresenter(IDRootPanelControllerProvider rootPanelController, DEquipmentModel equipmentModel)
@@ -23,7 +24,7 @@ namespace David6.ShooterCore.UI.Equipment
                 return;
             }
 
-            _equipmentModel.OnGearChanged += ChangeSlotIcon;
+            _equipmentModel.OnGearChanged += RefrashSlotIcon;
 
             foreach (var button in _panelView.SlotButtons)
             {
@@ -35,35 +36,45 @@ namespace David6.ShooterCore.UI.Equipment
                     button.SlotIcon = slotData.BaseData.ItemIcon;
                 }
 
-                button.OnClicked += HandleSlotClicked;
+                button.OnSlotSelected += OnSlotButtonClicked;
 
                 _buttonMap[buttonSlot] = button;
             }
         }
 
-        void HandleSlotClicked(EDGearSlot gearType)
+        void OnSlotButtonClicked(EDGearSlot gearType)
         {
-            //선택중인 기어 타입 변경
             _equipmentModel.SetListDisplayGearType(gearType);
-            
             _rootPanelController.PushPanel(_rootPanelController.EquipmentFactory.PresenterCache[typeof(DEquipmentListPresenter)]);
         }
 
-        void ChangeSlotIcon(EDGearSlot slotType, DGear slotData)
+        void RefrashSlotIcon(DGear gear)
         {
-            if (_buttonMap.TryGetValue(slotType, out var button))
+            var gearData = gear.GearSlot;
+            if (_buttonMap.TryGetValue(gearData, out var button))
             {
-                button.SlotIcon = slotData.BaseData.ItemIcon;
+                button.SlotIcon = gear.BaseData.ItemIcon;
             }
         }
 
         public override void ShowPanel()
         {
             _panelView.ShowPanel();
+            EventSystem.current.SetSelectedGameObject(_buttonMap[EDGearSlot.Primary].gameObject);
         }
         public override void HidePanel()
         {
             _panelView.HidePanel();
+        }
+        public override void OnSubmit()
+        {
+            var selected = EventSystem.current.currentSelectedGameObject;
+            if (selected == null) return;
+
+            if (selected.TryGetComponent<DSlotButton>(out var button))
+            {
+                button.HandleClick();
+            }
         }
     }
 }

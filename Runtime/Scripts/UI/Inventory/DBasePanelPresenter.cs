@@ -18,9 +18,8 @@ namespace David6.ShooterCore.UI
         public abstract void Initialize();
         public abstract void ShowPanel();
         public abstract void HidePanel();
+        public abstract void OnSubmit();
 
-
-        
         protected IDPanelViewProvider GetPanelView<T>()
         {
             return _rootPanelController.EquipmentFactory.ViewCache[typeof(T)];

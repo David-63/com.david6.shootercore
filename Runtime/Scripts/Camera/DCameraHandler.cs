@@ -179,10 +179,8 @@ namespace David6.ShooterCore.Look
         {
             if (_cameraLayer.ContainsKey(layer))
             {
-                Log.WhatHappend($"SetLayerActive: {layer} -> {active} (Before: {_cameraLayer[layer]})");
                 _cameraLayer[layer] = active;
                 CameraUpdate();
-                Log.WhatHappend($"After CameraUpdate: currentLayer={_currentCameraLayer}, {ConvertToType(_currentCameraLayer)} activeSelf={_cameraMap[ConvertToType(_currentCameraLayer)].activeSelf}");
             }
         }
 

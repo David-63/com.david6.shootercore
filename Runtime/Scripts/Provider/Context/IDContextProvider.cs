@@ -50,13 +50,13 @@ namespace David6.ShooterCore.Provider
         // UI 입력
         void HandlePauseInput();
         void HandleResumeInput();
-        void HandlePopInput();
+        void HandleCancelInput();
 
         #endregion
 
         // 이벤트 바인딩
         void HandleCloseUI();
-        void OnGearEquipped(EDGearSlot type, DGear data);
+        void OnGearEquipped(DGear data);
 
         // Movement 변수
         float HorizontalSpeed { get; set; }

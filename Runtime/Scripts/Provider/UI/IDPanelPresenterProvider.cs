@@ -5,5 +5,6 @@ namespace David6.ShooterCore.Provider
         void Initialize();
         void ShowPanel();
         void HidePanel();
+        void OnSubmit();
     }
 }

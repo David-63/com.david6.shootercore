@@ -7,14 +7,10 @@ using David6.ShooterCore.Look;
 using David6.ShooterCore.Pool;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace David6.ShooterCore.Context
 {
-    /// <summary>
-    /// Represents the player's movement component.
-    /// </summary>
     public partial class DPlayerContext : MonoBehaviour, IDContextProvider
     {
         public IDAnimatorHandlerProvider AnimatorProvider => _animatorHandler;
@@ -129,9 +125,9 @@ namespace David6.ShooterCore.Context
         {
             _rootPanelController.HandleResume();
         }
-        public void HandlePopInput()
+        public void HandleCancelInput()
         {
-            _rootPanelController.HandlePop();
+            _rootPanelController.HandleCancel();
         }
 
         #endregion
@@ -141,9 +137,10 @@ namespace David6.ShooterCore.Context
         {
             _cameraHandler.SetLayerActive(EDCameraLayer.Pause, false);
         }
-        public void OnGearEquipped(EDGearSlot type, DGear data)
+        public void OnGearEquipped(DGear data)
         {
-            _combatHandler.EquipWeapon(type, data);
+            var gearType = data.GearSlot;
+            _combatHandler.EquipWeapon(gearType, data);
             _rigHandler.SetupRigIK(data.GetModule<DFrameModule>().BasePrefab.GetComponent<DFrameHandler>());
         }
         #endregion

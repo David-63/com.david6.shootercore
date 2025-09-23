@@ -19,9 +19,6 @@ namespace David6.ShooterCore.Context
         [Header("Debug Settings")]
         [SerializeField] private bool StateDebugLog = false;
 
-
-
-
         #region Providers
         readonly Dictionary<Type, IDProvider> _providers = new();
         public void Register<T>(T provider) where T : class, IDProvider => _providers[typeof(T)] = provider;
@@ -59,7 +56,7 @@ namespace David6.ShooterCore.Context
 
             // 이벤트 바인딩
             InputBinding();
-            panelController.RegisterOnEquip(context.OnGearEquipped);
+            panelController.RegisterOnGearChanged(context.OnGearEquipped);
 
             if (StateDebugLog)
             {
@@ -90,7 +87,7 @@ namespace David6.ShooterCore.Context
 
             input.OnPause -= context.HandlePauseInput;
             input.OnResume -= context.HandleResumeInput;
-            input.OnPop -= context.HandlePopInput;
+            input.OnCancelPress -= context.HandleCancelInput;
 
             var panelController = Resolve<IDRootPanelControllerProvider>();
             if (panelController == null) return;
@@ -99,7 +96,9 @@ namespace David6.ShooterCore.Context
             panelController.OnCloseUI -= context.HandleCloseUI;
         }
 
-
+        /// <summary>
+        /// UI 제어 인풋은 Context가 받고, Context의 이벤트를 UI가 구독하는 방식과 혼용
+        /// </summary>
         void InputBinding()
         {
             var input = Resolve<IDInputProvider>();
@@ -122,13 +121,17 @@ namespace David6.ShooterCore.Context
 
             input.OnPause += context.HandlePauseInput;
             input.OnResume += context.HandleResumeInput;
-            input.OnPop += context.HandlePopInput;
-            
+            input.OnCancelPress += context.HandleCancelInput;
+
             var panelController = Resolve<IDRootPanelControllerProvider>();
             if (panelController == null) return;
 
             panelController.OnCloseUI += input.HandleResume;
             panelController.OnCloseUI += context.HandleCloseUI;
+
+            input.OnSubmitPress += panelController.HandleSubmitPress;
+            input.OnSubmitRelease += panelController.HandleSubmitRelease;
+            input.OnNavigate += panelController.HandleNavigate;
         }
     }
 }

@@ -3,11 +3,12 @@ using David6.ShooterCore.Item;
 using David6.ShooterCore.Tools;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace David6.ShooterCore.UI.Equipment
 {
-    public class DItemButton : MonoBehaviour
+    public class DItemButton : MonoBehaviour, IPointerClickHandler
     {
         DGear _gearData;
         public DGear Gear { get => _gearData; set => _gearData = value; }
@@ -26,15 +27,13 @@ namespace David6.ShooterCore.UI.Equipment
                 }
             }
         }
-        // 버튼에서 타입을 반환 안해도 되긴하는데
-        public event Action<DGear> OnClicked;
 
-        // Unity Inspector에서 이 함수 연결
-        public void HandleClick()
-        {
-            Log.WhatHappend("ItemClicked");
-            OnClicked?.Invoke(Gear);
-        }
+
+        #region Button Event
+        public event Action<DGear> OnItemSelected;
+        public void HandleSelectItem() => OnItemSelected?.Invoke(Gear);
+        public void OnPointerClick(PointerEventData eventdata) => OnItemSelected?.Invoke(Gear);
+        #endregion
 
     }
 }
