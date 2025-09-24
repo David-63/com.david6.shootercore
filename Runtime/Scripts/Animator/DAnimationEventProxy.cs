@@ -10,6 +10,7 @@ namespace David6.ShooterCore.Animation
         public event Action<AnimationEvent> OnEjectMagazineEvent;
         public event Action<AnimationEvent> OnInsertMagazineEvent;
         public event Action<AnimationEvent> OnChamberLoadEvent;
+        public event Action<AnimationEvent> OnPullTriggerEvent;
 
         public void OnFootstep(AnimationEvent animationEvent)
         {
@@ -31,6 +32,9 @@ namespace David6.ShooterCore.Animation
         {
             OnChamberLoadEvent?.Invoke(animationEvent);
         }
-        
+        public void OnPullTrigger(AnimationEvent animationEvent)
+        {
+            OnPullTriggerEvent?.Invoke(animationEvent);
+        }
     }
 }

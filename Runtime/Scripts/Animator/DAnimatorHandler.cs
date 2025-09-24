@@ -45,11 +45,11 @@ namespace David6.ShooterCore.Animation
             _animator.SetFloat("DirectionX", direction.x);
             _animator.SetFloat("DirectionY", direction.y);
         }
-        public void SetFire()
+        public void PlayFire()
         {
             _animator.Play("Fire", UPPERBODY_LAYER, 0.0f);
         }
-        public void SetReload()
+        public void PlayReload()
         {
             _animator.SetTrigger("Reload");
         }
@@ -66,11 +66,18 @@ namespace David6.ShooterCore.Animation
 
         public void SetFireRate(float rpm)
         {
-            float rps = rpm / 60f;
-            float targetPeriod = 1f / rps;
-            float originalClipLength = 0.15f;
-            float fireRate = originalClipLength / targetPeriod;
-            _animator.SetFloat("FireRate", fireRate);
+            float rps = rpm / 60f;                                  // 초당 발사 횟수
+            float targetPeriod = 1f / rps;                          // 발사 간격
+            float originalClipLength = 0.15f;                       // 원본 클립 길이
+            float fireRate = originalClipLength / targetPeriod;     // 배속 조절
+            if (originalClipLength <= fireRate)
+            {
+                _animator.SetFloat("FireRate", 1);
+            }
+            else
+            {
+                _animator.SetFloat("FireRate", fireRate);
+            }
         }
 
         // 이건 안씀

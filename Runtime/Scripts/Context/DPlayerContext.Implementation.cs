@@ -210,12 +210,12 @@ namespace David6.ShooterCore.Context
         public bool ShouldReload() => InputReload;
 
         // fire
-        public void FireRoundRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.1f, 0.1f);
+        public void FireRoundRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.05f, 0.05f);
         public void EmptyChamberRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.05f, 0.05f);
         // reload
-        public void EjectRumble() => GameInputWrapper.SetVibration(0f, 0.2f, 0.2f, 0f);
-        public void InsertRumble() => GameInputWrapper.SetVibration(0f, 0.2f, 0f, 0f);
-        public void ChamberLoadRumble() => GameInputWrapper.SetVibration(0f, 0.2f, 0f, 0.2f);
+        public void EjectRumble() => GameInputWrapper.SetVibration(0.0f, 0.0f, 0.0f, 0f);
+        public void InsertRumble() => GameInputWrapper.SetVibration(0.2f, 0.2f, 0f, 0f);
+        public void ChamberLoadRumble() => GameInputWrapper.SetVibration(0.2f, 0.2f, 0.2f, 0.2f);
         public void CancelRumble() => GameInputWrapper.SetVibration(0f, 0f, 0f, 0f);
 
         public void StopRumble(float delay) => ExecuteCoroutine(StopSetMotorRumble(delay));

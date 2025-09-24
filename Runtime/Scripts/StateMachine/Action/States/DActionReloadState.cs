@@ -22,7 +22,7 @@ namespace David6.ShooterCore.StateMachine.Action
             _reloadFinished = false;
             Context.CombatHandler.RequestFocus();
             Context.CombatHandler.LockFocus();
-            Context.AnimatorProvider.SetReload();
+            Context.AnimatorProvider.PlayReload();
             Context.RigHandlerProvider.InactiveRig();
         }
 
@@ -38,6 +38,13 @@ namespace David6.ShooterCore.StateMachine.Action
         }
         public override void CheckTransition()
         {
+            if (Context.ShouldFire())
+            {
+                SwitchState(StateMachine.Factory.GetState(typeof(DActionFireState)));
+            }
+
+            // 무기 교체시 Idle로 변경하는 기능 추가할것!!
+            
             if (_reloadFinished)
             {
                 SwitchState(StateMachine.Factory.GetState(typeof(DActionIdleState)));

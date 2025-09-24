@@ -19,9 +19,9 @@ namespace David6.ShooterCore.Provider
         void FocusOn();
         void FocusOff();
 
-        void SetFire();
+        void PlayFire();
         void SetFireRate(float rpm);
-        void SetReload();
+        void PlayReload();
         void SetAnimationLayerWeight(int index, float weight);
 
         void ActiveUpperbodyLayer();

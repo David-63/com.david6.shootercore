@@ -27,8 +27,6 @@ namespace David6.ShooterCore.StateMachine.Action
         {
             CheckTransition();
 
-            if (!Context.CooldownProvider.IsReady(FIRE_KEY)) return;
-
             DoFire();
 
             if (!Context.InputFire)
@@ -53,6 +51,8 @@ namespace David6.ShooterCore.StateMachine.Action
 
         void DoFire()
         {
+            if (!Context.CooldownProvider.IsReady(FIRE_KEY)) return;
+
             bool chamberLoad = Context.CombatHandler.IsChamberLoaded();
             int currentRounds = Context.CombatHandler.GetCurrentRounds();
 

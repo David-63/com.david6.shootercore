@@ -20,6 +20,7 @@ namespace David6.ShooterCore.Combat
         IDContextProvider _context;
         Dictionary<EDGearSlot, DWeaponInstance> _weaponInstances = new();
         EDGearSlot _activeSlot;
+        DWeaponInstance _activeWeapon;
 
         // 제어 변수
         public float CurrentFireRate { get; private set; }
@@ -90,12 +91,12 @@ namespace David6.ShooterCore.Combat
 
         public void EquipWeapon(EDGearSlot slot, DGear item)
         {
-            // EquipWeapon | 비여있는 슬롯에 장착
+            // EquipWeapon | 새 무기를 비여있는 슬롯에 장착
             if (!_weaponInstances.TryGetValue(slot, out var instance) || instance == null)
             {
                 EquipNewWeapon(slot, item);                
             }
-            // ReplaceWeapon | 같은 슬롯의 무기 교체
+            // ReplaceWeapon | 새 무기를 동일한 슬롯에 대체
             else if (slot == _activeSlot)
             {
                 RepaceWeapon(slot, item);
@@ -119,6 +120,7 @@ namespace David6.ShooterCore.Combat
 
             BuildWeaponInstance(item, instance);
             _activeSlot = slot;
+            _activeWeapon = instance;
         }
         void RepaceWeapon(EDGearSlot slot, DGear item)
         {
@@ -128,6 +130,7 @@ namespace David6.ShooterCore.Combat
                 _context.DestroyPrefab(instance.Prefab);
             }
             BuildWeaponInstance(item, instance);
+            _activeWeapon = instance;
         }
         void SwapWeapon(EDGearSlot slot, DGear item)
         {
@@ -154,6 +157,7 @@ namespace David6.ShooterCore.Combat
             _context.AnimatorProvider.SetFireRate(weaponData.FireRate);
 
             _activeSlot = slot;
+            _activeWeapon = targetInstance;
         }
         void BuildWeaponInstance(DGear item, DWeaponInstance instance)
         {
@@ -177,19 +181,19 @@ namespace David6.ShooterCore.Combat
             var (success, currentWeapon) = TryGetWeapon();
             if (!success) return;
 
-            Vector3 intendedPoint = CalculateIntendedPoint();
+            _context.AnimatorProvider.PlayFire();
 
-            if (currentWeapon.FrameHandler.Shoot(intendedPoint))
-            {
-                _context.FireRoundRumble();
-            }
-            else
-            {
-                _context.EmptyChamberRumble();                
-            }
-            _context.StopRumble(0.25f);
+            // Vector3 intendedPoint = CalculateIntendedPoint();
 
-            _context.AnimatorProvider.SetFire();
+            // if (currentWeapon.FrameHandler.Shoot(intendedPoint))
+            // {
+            //     _context.FireRoundRumble();
+            // }
+            // else
+            // {
+            //     _context.EmptyChamberRumble();                
+            // }
+            // _context.StopRumble(0.25f);
         }
 
         Vector3 CalculateIntendedPoint()
@@ -209,7 +213,17 @@ namespace David6.ShooterCore.Combat
         {
             var (success, currentWeapon) = TryGetWeapon();
             if (!success) return;
-            
+            Vector3 intendedPoint = CalculateIntendedPoint();
+
+            if (currentWeapon.FrameHandler.Shoot(intendedPoint))
+            {
+                _context.FireRoundRumble();
+            }
+            else
+            {
+                _context.EmptyChamberRumble();                
+            }
+            _context.StopRumble(0.25f);
             _context.EjectRumble();
             _context.StopRumble(0.25f);
 
@@ -235,6 +249,24 @@ namespace David6.ShooterCore.Combat
             _context.StopRumble(0.25f);
 
             currentWeapon.FrameHandler.ChamberLoad();
+        }
+
+        public void OnShot(AnimationEvent animationEvent)
+        {
+            var (success, currentWeapon) = TryGetWeapon();
+            if (!success) return;
+
+            Vector3 intendedPoint = CalculateIntendedPoint();
+
+            if (currentWeapon.FrameHandler.Shoot(intendedPoint))
+            {
+                _context.FireRoundRumble();
+            }
+            else
+            {
+                _context.EmptyChamberRumble();                
+            }
+            _context.StopRumble(0.25f);
         }
 
         public bool IsChamberLoaded()

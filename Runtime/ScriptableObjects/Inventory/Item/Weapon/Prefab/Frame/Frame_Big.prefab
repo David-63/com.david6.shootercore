@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6095608221912069778}
   - component: {fileID: 6125305731266522791}
   m_Layer: 0
-  m_Name: RifleFrame 1
+  m_Name: Frame_Big
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

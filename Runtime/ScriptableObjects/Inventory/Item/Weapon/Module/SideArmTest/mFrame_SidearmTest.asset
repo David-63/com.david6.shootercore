@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99d49aabf8d05a54aa091a9f57229dfa, type: 3}
-  m_Name: FrameModule_Rifle 1
+  m_Name: mFrame_SidearmTest
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DFrameModule
   BasePrefab: {fileID: 308849673433135438, guid: b35d593d895b8184e8b6babdc9affd72, type: 3}

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9712e20650c6474ba9a257d52737f7c, type: 3}
-  m_Name: WeaponData_Rifle
+  m_Name: WeaponData_Sidearm
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DWeaponData
-  ItemName: Standard
+  ItemName: Sidearm
   ItemDescription: module weapon sample
-  ItemIcon: {fileID: 21300000, guid: 5c4c3115867d5dc47bf263736643c6c5, type: 3}
+  ItemIcon: {fileID: 21300000, guid: 1d1617fff394c0a489a775e39a56c163, type: 3}
   FirePower: 5
-  FireRate: 900
-  MagazineCapacity: 60
-  ProjectileSpeed: 100
+  FireRate: 150
+  MagazineCapacity: 10
+  ProjectileSpeed: 200
   Range: 60

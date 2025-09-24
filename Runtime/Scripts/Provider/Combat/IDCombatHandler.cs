@@ -27,6 +27,7 @@ namespace David6.ShooterCore.Provider
         void OnEjectMagazine(AnimationEvent animationEvent);
         void OnInsertMagazine(AnimationEvent animationEvent);
         void OnChamberLoad(AnimationEvent animationEvent);
+        void OnShot(AnimationEvent animationEvent);
 
         bool IsChamberLoaded();
         int GetCurrentRounds();

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9712e20650c6474ba9a257d52737f7c, type: 3}
-  m_Name: WeaponData_Rifle 1
+  m_Name: WeaponData_LowRPM
   m_EditorClassIdentifier: shootercore.runtime::David6.ShooterCore.Item.DWeaponData
-  ItemName: Rifle
+  ItemName: LowRPM
   ItemDescription: module weapon sample
-  ItemIcon: {fileID: 21300000, guid: 1d1617fff394c0a489a775e39a56c163, type: 3}
+  ItemIcon: {fileID: 21300000, guid: 8429260144fc42e408588b2190aa50f3, type: 3}
   FirePower: 5
-  FireRate: 150
-  MagazineCapacity: 10
-  ProjectileSpeed: 200
+  FireRate: 75
+  MagazineCapacity: 6
+  ProjectileSpeed: 400
   Range: 60
