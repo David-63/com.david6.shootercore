@@ -31,32 +31,24 @@ namespace David6.ShooterCore.Context
             GameInputWrapper.InitGameInput();
         }
 
+        // 여기서 순서대로 초기화 세팅
         void Start()
         {
-            var context = Resolve<IDContextProvider>();
-            var panelController = Resolve<IDRootPanelControllerProvider>();
+            IDContextProvider context = InitializeContext();
 
-            if (!context.SetCameraHandler(Resolve<IDCameraHandlerProvider>()))
-            {
-                Log.ErrorAlert("Failed to setup camera in context");
-            }
-            if (!context.SetRigHandler(Resolve<IDRigHandlerProvider>()))
-            {
-                Log.ErrorAlert("Failed to setup camera in context");
-            }            
-            if (!context.SetRootPanelController(panelController))
-            {
-                Log.WhatHappend("Failed to setup root panel controller in context");
-            }
+
+            // 카메라가 연결 되어야 할 내용
             if (!Resolve<IDCameraHandlerProvider>().SetCameraHolder(CameraHolder))
             {
-                Log.WhatHappend("Failed to setup CameraHolder in CameraHandler");
+                Log.ErrorAlert("Failed to setup CameraHolder in CameraHandler");
             }
 
 
-            // 이벤트 바인딩
+            // 입력 이벤트 연결
             InputBinding();
-            panelController.RegisterOnGearChanged(context.OnGearEquipped);
+
+
+            Log.WhatHappend("Bootstrapper work finished.");
 
             if (StateDebugLog)
             {
@@ -64,7 +56,55 @@ namespace David6.ShooterCore.Context
             }
         }
 
-        
+        private IDContextProvider InitializeContext()
+        {
+            var context = Resolve<IDContextProvider>();
+            /*
+                ================================
+                == context가 연결 되어야 할 내용 ==
+                ================================
+                1. 카메라 (초기화 의존도 X)
+                2. Rig (초기화 의존도 X)
+                3. Equipment UI (초기화 의존도 X)
+                4. Focus UI (압도적으로 필요!!!)
+
+            */
+
+            if (!context.SetCameraHandler(Resolve<IDCameraHandlerProvider>()))
+            {
+                Log.ErrorAlert("Failed to setup camera in context");
+            }
+            
+            if (!context.SetRigHandler(Resolve<IDRigHandlerProvider>()))
+            {
+                Log.ErrorAlert("Failed to setup camera in context");
+            }
+            
+            var equipmentUIController = Resolve<IDEquipmentUIControllerProvider>();
+            if (context.SetEquipmentUIController(equipmentUIController))
+            {
+                equipmentUIController.RegisterOnGearChanged(context.OnGearEquipped);
+            }
+            else
+            {
+                Log.ErrorAlert("Failed to setup root panel controller in context");
+            }
+            
+            // 4. Focus UI
+            var focusUIController = Resolve<IDFocusUIControllerProvider>();
+            if (context.SetFocusUIController(focusUIController))
+            {
+                context.CombatHandler.OnFocusActive += focusUIController.HandleFocusOn;
+                context.CombatHandler.OnFocusInactive += focusUIController.HandleFocusOff;
+            }
+            else
+            {
+                Log.ErrorAlert("Failed to setup root panel controller in context");
+            }
+
+            return context;
+        }
+
         void OnDestroy()
         {
             var input = Resolve<IDInputProvider>();
@@ -89,7 +129,7 @@ namespace David6.ShooterCore.Context
             input.OnResume -= context.HandleResumeInput;
             input.OnCancelPress -= context.HandleCancelInput;
 
-            var panelController = Resolve<IDRootPanelControllerProvider>();
+            var panelController = Resolve<IDEquipmentUIControllerProvider>();
             if (panelController == null) return;
 
             panelController.OnCloseUI -= input.HandleResume;
@@ -123,7 +163,7 @@ namespace David6.ShooterCore.Context
             input.OnResume += context.HandleResumeInput;
             input.OnCancelPress += context.HandleCancelInput;
 
-            var panelController = Resolve<IDRootPanelControllerProvider>();
+            var panelController = Resolve<IDEquipmentUIControllerProvider>();
             if (panelController == null) return;
 
             panelController.OnCloseUI += input.HandleResume;

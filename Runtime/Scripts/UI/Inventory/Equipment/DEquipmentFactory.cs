@@ -6,14 +6,14 @@ namespace David6.ShooterCore.UI.Equipment
 {
     public class DEquipmentFactory
     {
-        IDRootPanelControllerProvider _rootPanelController;
+        IDEquipmentUIControllerProvider _rootPanelController;
         DEquipmentModel _equipmentModel;
         public DEquipmentModel EquipmentModel { get => _equipmentModel; }
 
         public Dictionary<Type, IDPanelViewProvider> ViewCache = new();
         public Dictionary<Type, IDPanelPresenterProvider> PresenterCache = new();
 
-        public void Initialize(IDRootPanelControllerProvider rootPanelControllerProvider, DEquipmentModel equipmentModel, DEquipmentSlotView slotPanelView, DEquipmentListView listPanelView)
+        public void Initialize(IDEquipmentUIControllerProvider rootPanelControllerProvider, DEquipmentModel equipmentModel, DEquipmentSlotView slotPanelView, DEquipmentListView listPanelView)
         {
             _rootPanelController = rootPanelControllerProvider;
             _equipmentModel = equipmentModel;

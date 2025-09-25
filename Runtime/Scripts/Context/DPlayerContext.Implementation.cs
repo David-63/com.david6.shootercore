@@ -50,17 +50,28 @@ namespace David6.ShooterCore.Context
             }
             return flag;
         }
-        public bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController)
+        public bool SetEquipmentUIController(IDEquipmentUIControllerProvider uiControllerProvider)
         {
-            bool flag = true;
-            if (rootPanelController != null)
+            bool flag = false;
+
+            if (uiControllerProvider != null)
             {
-                _rootPanelController = rootPanelController;
+                _equipmentUIController = uiControllerProvider;
+                flag = true;
             }
-            else
+
+            return flag;
+        }
+        public bool SetFocusUIController(IDFocusUIControllerProvider uiControllerProvider)
+        {
+            bool flag = false;
+
+            if (uiControllerProvider != null)
             {
-                flag = false;
+                _focusUIController = uiControllerProvider;
+                flag = true;
             }
+
             return flag;
         }
 
@@ -112,22 +123,23 @@ namespace David6.ShooterCore.Context
         public void HandleStopReloadInput() => InputReload = false;
 
 
-        public IDRootPanelControllerProvider RootPanelController => _rootPanelController;
+        public IDEquipmentUIControllerProvider EquipmentUIController => _equipmentUIController;
+        public IDFocusUIControllerProvider FocusUIController => _focusUIController;
 
         public void HandlePauseInput()
         {
             if (_combatHandler.IsFocus) _combatHandler.CancelFocus();
 
-            _rootPanelController.HandlePause();
+            _equipmentUIController.HandlePause();
             _cameraHandler.SetLayerActive(EDCameraLayer.Pause, true);
         }
         public void HandleResumeInput()
         {
-            _rootPanelController.HandleResume();
+            _equipmentUIController.HandleResume();
         }
         public void HandleCancelInput()
         {
-            _rootPanelController.HandleCancel();
+            _equipmentUIController.HandleCancel();
         }
 
         #endregion

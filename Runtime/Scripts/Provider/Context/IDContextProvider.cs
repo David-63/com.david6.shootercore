@@ -19,7 +19,9 @@ namespace David6.ShooterCore.Provider
         IDCombatHandler CombatHandler { get; }
 
         bool SetCameraHandler(IDCameraHandlerProvider cameraHandler);
-        bool SetRootPanelController(IDRootPanelControllerProvider rootPanelController);
+        bool SetEquipmentUIController(IDEquipmentUIControllerProvider uiController);
+        bool SetFocusUIController(IDFocusUIControllerProvider uiController);
+        
         bool SetRigHandler(IDRigHandlerProvider rigHandler);
 
         /// <summary>

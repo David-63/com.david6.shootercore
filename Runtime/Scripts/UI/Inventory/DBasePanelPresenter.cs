@@ -5,11 +5,11 @@ namespace David6.ShooterCore.UI
 {
     public abstract class DBaseEquipmentPresenter : IDPanelPresenterProvider
     {
-        protected IDRootPanelControllerProvider _rootPanelController;
+        protected IDEquipmentUIControllerProvider _rootPanelController;
         protected DEquipmentModel _equipmentModel;
 
 
-        public DBaseEquipmentPresenter(IDRootPanelControllerProvider rootPanelController, DEquipmentModel equipmentModel)
+        public DBaseEquipmentPresenter(IDEquipmentUIControllerProvider rootPanelController, DEquipmentModel equipmentModel)
         {
             _rootPanelController = rootPanelController;
             _equipmentModel = equipmentModel;

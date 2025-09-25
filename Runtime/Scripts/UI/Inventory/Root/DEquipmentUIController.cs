@@ -5,15 +5,14 @@ using David6.ShooterCore.Data.Inventory;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
-using David6.ShooterCore.UI.Equipment;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace David6.ShooterCore.UI
+namespace David6.ShooterCore.UI.Equipment
 {
-    public class DRootPanelController : MonoBehaviour, IDRootPanelControllerProvider
+    public class DEquipmentUIController : MonoBehaviour, IDEquipmentUIControllerProvider
     {
-        [SerializeField] DRootPanelView _rootPanelView;
+        [SerializeField] DEquipmentView _equipmentPanelView;
         [SerializeField] DEquipmentSlotView _slotPanelView;
         [SerializeField] DEquipmentListView _listPanelView;
         [SerializeField] DEquipmentDatabase _equipmentDatabase;
@@ -28,7 +27,7 @@ namespace David6.ShooterCore.UI
         void Awake()
         {
             var root = GetComponent<DPlayerBootstrapper>();
-            root.Register<IDRootPanelControllerProvider>(this);
+            root.Register<IDEquipmentUIControllerProvider>(this);
 
             _equipmentModel = new DEquipmentModel();
 
@@ -53,7 +52,7 @@ namespace David6.ShooterCore.UI
 
         public void HandlePause()
         {
-            _rootPanelView?.ShowPanel();
+            _equipmentPanelView?.ShowPanel();
             if (_panelStack.Count == 0 || _currentPanel == null)
             {
                 PushPanel(_equipmentFactory.PresenterCache[typeof(DEquipmentSlotPresenter)]);
@@ -109,7 +108,7 @@ namespace David6.ShooterCore.UI
         void ClearPanel()
         {
             _currentPanel?.HidePanel();
-            _rootPanelView?.HidePanel();
+            _equipmentPanelView?.HidePanel();
             _panelStack.Clear();
             _currentPanel = null;
             OnCloseUI?.Invoke();
@@ -122,7 +121,7 @@ namespace David6.ShooterCore.UI
                 panel?.HidePanel();
             }
             _currentPanel = null;
-            _rootPanelView?.HidePanel();
+            _equipmentPanelView?.HidePanel();
             OnCloseUI?.Invoke();
         }
         #endregion

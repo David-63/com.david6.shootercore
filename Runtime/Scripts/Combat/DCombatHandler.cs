@@ -182,18 +182,6 @@ namespace David6.ShooterCore.Combat
             if (!success) return;
 
             _context.AnimatorProvider.PlayFire();
-
-            // Vector3 intendedPoint = CalculateIntendedPoint();
-
-            // if (currentWeapon.FrameHandler.Shoot(intendedPoint))
-            // {
-            //     _context.FireRoundRumble();
-            // }
-            // else
-            // {
-            //     _context.EmptyChamberRumble();                
-            // }
-            // _context.StopRumble(0.25f);
         }
 
         Vector3 CalculateIntendedPoint()

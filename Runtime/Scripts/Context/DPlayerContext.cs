@@ -29,7 +29,8 @@ namespace David6.ShooterCore.Context
         IDCombatHandler _combatHandler;
 
         // 외부 컴포넌트
-        IDRootPanelControllerProvider _rootPanelController;
+        IDEquipmentUIControllerProvider _equipmentUIController;
+        IDFocusUIControllerProvider _focusUIController;
         IDCameraHandlerProvider _cameraHandler;
         IDRigHandlerProvider _rigHandler;
 
@@ -68,7 +69,8 @@ namespace David6.ShooterCore.Context
 
             _animatorHandler.SetGrounded(true);
             InitializeCharacterController();
-            InitailzeAnimEvent();
+            BindAnimEventProxy();
+            BindFocusEvent();
 
 
             if (DGameLoop.Instance != null)
@@ -76,48 +78,48 @@ namespace David6.ShooterCore.Context
                 DGameLoop.Instance.Register(this);
                 DGameLoop.Instance.Register(_cooldownHandler);
             }
+        }
 
+        void BindAnimEventProxy()
+        {
+            _animationEventProxy.OnFootstepEvent += OnFootstep;
+            _animationEventProxy.OnLandEvent += OnLand;
+            _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
+            _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
+            _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
+            _animationEventProxy.OnPullTriggerEvent += _combatHandler.OnShot;
 
-            void InitializeCharacterController()
+            DActionReloadState actionReload = _actionStateMachine.Factory.GetState(typeof(DActionReloadState)) as DActionReloadState;
+            _animationEventProxy.OnChamberLoadEvent += actionReload.OnChamberLoad;
+        }
+
+        private void BindFocusEvent()
+        {
+            DExplorationState explorationState = _locomotionStateMachine.Factory.GetState(typeof(DExplorationState)) as DExplorationState;
+            DFocusState focusState = _locomotionStateMachine.Factory.GetState(typeof(DFocusState)) as DFocusState;
+
+            _combatHandler.OnFocusActive += _animatorHandler.FocusOn;
+            _combatHandler.OnFocusActive += explorationState.OnFocusActive;
+            _combatHandler.OnFocusActive += focusState.OnFocusActive;
+            _combatHandler.OnFocusInactive += _animatorHandler.FocusOff;
+            _combatHandler.OnFocusInactive += explorationState.OnFocusInactive;
+            _combatHandler.OnFocusInactive += focusState.OnFocusInactive;
+        }
+
+        void InitializeCharacterController()
+        {
+            gameObject.layer = 3;
+            if (_characterController == null)
             {
-                gameObject.layer = 3;
-                if (_characterController == null)
+                _characterController.stepOffset = 0.25f;
+                _characterController.skinWidth = 0.02f;
+                _characterController.minMoveDistance = 0;
+                _characterController.center = new Vector3(0, 0.93f, 0);
+                if (MovementProfile)
                 {
-                    _characterController.stepOffset = 0.25f;
-                    _characterController.skinWidth = 0.02f;
-                    _characterController.minMoveDistance = 0;
-                    _characterController.center = new Vector3(0, 0.93f, 0);
-                    if (MovementProfile)
-                    {
-                        _characterController.radius = MovementProfile.GroundedRadius;
-                    }
-                    _characterController.height = 1.8f;
+                    _characterController.radius = MovementProfile.GroundedRadius;
                 }
-            }
-
-            void InitailzeAnimEvent()
-            {
-                // 애니메이션 이벤트 연결
-                _animationEventProxy.OnFootstepEvent += OnFootstep;
-                _animationEventProxy.OnLandEvent += OnLand;
-                _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
-                _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
-                _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
-                _animationEventProxy.OnPullTriggerEvent += _combatHandler.OnShot;
-
-                DActionReloadState actionReload = _actionStateMachine.Factory.GetState(typeof(DActionReloadState)) as DActionReloadState;
-                _animationEventProxy.OnChamberLoadEvent += actionReload.OnChamberLoad;
-
-                // focus 이벤트 연결
-                DExplorationState explorationState = _locomotionStateMachine.Factory.GetState(typeof(DExplorationState)) as DExplorationState;
-                DFocusState focusState = _locomotionStateMachine.Factory.GetState(typeof(DFocusState)) as DFocusState;
-
-                _combatHandler.OnFocusActive += _animatorHandler.FocusOn;
-                _combatHandler.OnFocusActive += explorationState.OnFocusActive;
-                _combatHandler.OnFocusActive += focusState.OnFocusActive;
-                _combatHandler.OnFocusInactive += _animatorHandler.FocusOff;
-                _combatHandler.OnFocusInactive += explorationState.OnFocusInactive;
-                _combatHandler.OnFocusInactive += focusState.OnFocusInactive;
+                _characterController.height = 1.8f;
             }
         }
 

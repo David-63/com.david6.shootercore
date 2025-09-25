@@ -12,7 +12,7 @@ namespace David6.ShooterCore.UI.Equipment
         Dictionary<EDGearSlot, DSlotButton> _buttonMap = new();
 
 
-        public DEquipmentSlotPresenter(IDRootPanelControllerProvider rootPanelController, DEquipmentModel equipmentModel)
+        public DEquipmentSlotPresenter(IDEquipmentUIControllerProvider rootPanelController, DEquipmentModel equipmentModel)
         : base(rootPanelController, equipmentModel) { }
 
         public override void Initialize()

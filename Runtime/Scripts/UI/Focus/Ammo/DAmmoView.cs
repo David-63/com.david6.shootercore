@@ -1,13 +1,13 @@
-using System.Collections.Generic;
-using David6.ShooterCore.Tools;
+using TMPro;
 using UnityEngine;
 
-namespace David6.ShooterCore.UI.Equipment
+namespace David6.ShooterCore.UI.Focus
 {
-    public class DEquipmentSlotView : DBasePanelView
+    public class DAmmoView : DBasePanelView
     {
-        [SerializeField] List<DSlotButton> _equipSlotButtons;
-        public IReadOnlyList<DSlotButton> SlotButtons => _equipSlotButtons;
+        [SerializeField] TMP_Text _current;
+        [SerializeField] TMP_Text _chamber;
+        [SerializeField] TMP_Text _storage;
 
         public override void ShowPanel()
         {
@@ -23,5 +23,6 @@ namespace David6.ShooterCore.UI.Equipment
             _canvasGroup.interactable = false;
             _layoutElement.ignoreLayout = true;
         }
+
     }
 }

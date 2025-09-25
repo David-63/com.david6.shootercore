@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace David6.ShooterCore.Provider
 {
-    public interface IDRootPanelControllerProvider : IDProvider
+    public interface IDEquipmentUIControllerProvider : IDProvider
     {
         event Action OnCloseUI;
         DEquipmentFactory EquipmentFactory { get; }

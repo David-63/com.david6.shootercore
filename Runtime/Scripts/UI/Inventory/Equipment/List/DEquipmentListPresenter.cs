@@ -9,7 +9,7 @@ namespace David6.ShooterCore.UI.Equipment
     {
         DEquipmentListView _panelView;
 
-        public DEquipmentListPresenter(IDRootPanelControllerProvider rootPanelController, DEquipmentModel equipmentModel)
+        public DEquipmentListPresenter(IDEquipmentUIControllerProvider rootPanelController, DEquipmentModel equipmentModel)
         : base(rootPanelController, equipmentModel) { }
 
         public override void Initialize()

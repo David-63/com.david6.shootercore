@@ -1,10 +1,9 @@
 using David6.ShooterCore.Tools;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace David6.ShooterCore.UI
+namespace David6.ShooterCore.UI.Equipment
 {
-    public class DRootPanelView : DBasePanelView
+    public class DEquipmentView : DBasePanelView
     {
         protected override void Awake()
         {
