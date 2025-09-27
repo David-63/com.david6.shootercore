@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Tools;
+using Mono.Cecil.Cil;
+using UnityEngine;
 
 namespace David6.ShooterCore.UI.Equipment
 {
@@ -16,10 +18,7 @@ namespace David6.ShooterCore.UI.Equipment
 
         // 현재 선택중인 타입
         EDGearSlot _selectedGearType;
-
-
-        // 보유중인 자원
-        public Dictionary<EDAmmoType, float> Ammunition { get; private set; } = new();
+        public Dictionary<EDAmmoType, int> Ammunition { get; private set; } = new();
 
         public DEquipmentModel()
         {
@@ -31,6 +30,12 @@ namespace David6.ShooterCore.UI.Equipment
 
                 Equipped[gearType] = DGear.Empty;
                 EquipmentItems[gearType] = new List<DGear>();
+            }
+
+            foreach (EDAmmoType ammoType in Enum.GetValues(typeof(EDAmmoType)))
+            {
+                if (ammoType == EDAmmoType.None) continue;
+                Ammunition[ammoType] = 1200;
             }
         }
 
@@ -85,6 +90,19 @@ namespace David6.ShooterCore.UI.Equipment
         public void SetListDisplayGearType(EDGearSlot type) => _selectedGearType = type;
         public EDGearSlot GetListDisplayGearType() => _selectedGearType;
 
+        public int CountingAmmunition(EDAmmoType type)
+        {
+            return Ammunition[type];
+        }
 
+        public int ConsumeAmmunition(EDAmmoType type, int rounds)
+        {
+            if (!Ammunition.TryGetValue(type, out int ammo) || ammo <= 0) return 0;
+
+            int consumed = (rounds > ammo) ? ammo : rounds;
+            Ammunition[type] = ammo - consumed;
+
+            return consumed;
+        }
     }
 }

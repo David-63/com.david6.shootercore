@@ -87,7 +87,7 @@ namespace David6.ShooterCore.Context
             _animationEventProxy.OnEjectMagazineEvent += _combatHandler.OnEjectMagazine;
             _animationEventProxy.OnInsertMagazineEvent += _combatHandler.OnInsertMagazine;
             _animationEventProxy.OnChamberLoadEvent += _combatHandler.OnChamberLoad;
-            _animationEventProxy.OnPullTriggerEvent += _combatHandler.OnShot;
+            _animationEventProxy.OnPullTriggerEvent += _combatHandler.OnShoot;
 
             DActionReloadState actionReload = _actionStateMachine.Factory.GetState(typeof(DActionReloadState)) as DActionReloadState;
             _animationEventProxy.OnChamberLoadEvent += actionReload.OnChamberLoad;

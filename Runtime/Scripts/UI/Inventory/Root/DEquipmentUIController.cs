@@ -19,6 +19,7 @@ namespace David6.ShooterCore.UI.Equipment
 
         DEquipmentModel _equipmentModel;
         DEquipmentFactory _equipmentFactory;
+        public DEquipmentModel EquipmentModel => _equipmentModel;
         public DEquipmentFactory EquipmentFactory => _equipmentFactory;
 
         bool _canSubmit = true;

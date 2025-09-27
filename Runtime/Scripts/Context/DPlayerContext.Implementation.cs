@@ -219,7 +219,28 @@ namespace David6.ShooterCore.Context
         public bool IsTriggerReleased { get => _isTriggerReleased; set => _isTriggerReleased = value; }
 
         public bool ShouldFire() => InputFire && IsTriggerReleased;
-        public bool ShouldReload() => InputReload;
+
+        public int AmmunitionCount(EDAmmoType type)
+        {
+            return _equipmentUIController.EquipmentModel.CountingAmmunition(type);
+        }
+        public int ConsumeAmmunition(EDAmmoType type, int capacity)
+        {
+            return _equipmentUIController.EquipmentModel.ConsumeAmmunition(type, capacity);
+        }
+
+        // 조건 추가되어야함
+        public bool ShouldReload()
+        {
+            if (!InputReload) return false;
+
+            var (success, currentWeapon) = _combatHandler.TryGetWeaponHandler();
+            if (!success) return false;
+
+            int ammoCount = AmmunitionCount(currentWeapon.WeaponData.AmmoType);
+
+            return ammoCount > 0;
+        }
 
         // fire
         public void FireRoundRumble() => GameInputWrapper.SetVibration(0f, 0f, 0.05f, 0.05f);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using David6.ShooterCore.FX;
 using David6.ShooterCore.Provider;
@@ -26,14 +27,16 @@ namespace David6.ShooterCore.Item.Weapon
         DMuzzleModule _muzzleModule;
         DMagazineModule _magazineModule;
 
-
-
         IDContextProvider _context;
         DWeaponData _weaponData;
+        public DWeaponData WeaponData => _weaponData;
         const float MAX_DISTANCE = 500.0f;
         LayerMask HitMask;
-        int _currentMagazine;
         bool _chamberLoaded = false;
+        public bool ChamberLoaded => _chamberLoaded;
+        int _currentRounds;
+        public int CurrentRounds => _currentRounds;
+        public Action<bool, int> OnConsumeAmmo;
 
         public void AttachMuzzle(DMuzzleModule module) => _muzzleModule = module;
         public void AttachMagazine(DMagazineModule module) => _magazineModule = module;
@@ -41,28 +44,21 @@ namespace David6.ShooterCore.Item.Weapon
         {
             _context = context;
             _weaponData = gearData;
+            _currentRounds = _weaponData.MagazineCapacity;
         }
 
         public bool Shoot(Vector3 intendedPoint)
         {
             if (!_chamberLoaded)
             {
-                // 빈 클립 사운드 재생
-                Log.WhatHappend("no clip");
-
                 return false;
             }
+
             float travelDistance = Vector3.Distance(MuzzleTransform.position, intendedPoint);
-
             float delay = travelDistance / _weaponData.ProjectileSpeed;
-
-            WeaponFireFX(intendedPoint);
-
             _context.ExecuteCoroutine(DelayedHit(MuzzleTransform.position, intendedPoint, delay));
+            WeaponFireFX(intendedPoint);
             ConsumeAmmo();
-
-            Log.WhatHappend("발사 됨");
-
             return true;
         }
         IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
@@ -90,7 +86,6 @@ namespace David6.ShooterCore.Item.Weapon
         void WeaponFireFX(Vector3 intendedPoint)
         {
             _context.SpawnParticle(_muzzleModule.MuzzleFlashFX, MuzzleTransform.position, MuzzleTransform.rotation);
-
             _context.SpawnParticle(_magazineModule.ChamberCaseFX, ChamberTransform.position, ChamberTransform.rotation);
 
             GameObject tracerObj = _context.SpawnTrail(_magazineModule.BulletTrailFX, MuzzleTransform.position, MuzzleTransform.rotation);
@@ -108,35 +103,34 @@ namespace David6.ShooterCore.Item.Weapon
         {
             _context.SpawnParticle(_magazineModule.MagazineEjectFX, MagazineTransform.position, MagazineTransform.rotation);
             MagazineSocket.gameObject.SetActive(false);
-            _currentMagazine = 0;
+            _currentRounds = 0;
         }
 
-        public void InsertMagazine()
+        public void InsertMagazine(int ammo)
         {
             MagazineSocket.gameObject.SetActive(true);
-            _currentMagazine = _weaponData.MagazineCapacity;
+            _currentRounds = ammo;
         }
+
         public void ChamberLoad()
         {
             ConsumeAmmo();
         }
 
-
-        void ConsumeAmmo()
+        public void ConsumeAmmo()
         {
-            if (_currentMagazine <= 0)
+            if (_currentRounds <= 0)
             {
+                _currentRounds = 0;
                 _chamberLoaded = false;
             }
             else
             {
-                --_currentMagazine;
+                --_currentRounds;
                 _chamberLoaded = true;
             }
+            OnConsumeAmmo?.Invoke(_chamberLoaded, _currentRounds);
         }
-
-        public bool IsChamberLoaded() => _chamberLoaded;
-        public int GetCurrentRounds() => _currentMagazine;
 
     }
 }

@@ -16,7 +16,8 @@ MonoBehaviour:
   ItemDescription: module weapon sample
   ItemIcon: {fileID: 21300000, guid: 8429260144fc42e408588b2190aa50f3, type: 3}
   FirePower: 5
-  FireRate: 75
-  MagazineCapacity: 6
-  ProjectileSpeed: 400
+  FireRate: 125
   Range: 60
+  ProjectileSpeed: 400
+  MagazineCapacity: 6
+  AmmoType: 3

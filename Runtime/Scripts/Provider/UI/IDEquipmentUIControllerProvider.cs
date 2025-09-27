@@ -8,7 +8,9 @@ namespace David6.ShooterCore.Provider
     public interface IDEquipmentUIControllerProvider : IDProvider
     {
         event Action OnCloseUI;
+        DEquipmentModel EquipmentModel { get; }
         DEquipmentFactory EquipmentFactory { get; }
+
         void HandlePause();
         void HandleResume();
         void HandleCancel();

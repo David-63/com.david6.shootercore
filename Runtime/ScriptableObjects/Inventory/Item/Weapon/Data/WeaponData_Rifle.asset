@@ -17,6 +17,7 @@ MonoBehaviour:
   ItemIcon: {fileID: 21300000, guid: 5c4c3115867d5dc47bf263736643c6c5, type: 3}
   FirePower: 5
   FireRate: 900
-  MagazineCapacity: 60
-  ProjectileSpeed: 100
   Range: 60
+  ProjectileSpeed: 100
+  MagazineCapacity: 25
+  AmmoType: 2

@@ -1,3 +1,4 @@
+using System;
 using David6.ShooterCore.Context;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
@@ -9,6 +10,10 @@ namespace David6.ShooterCore.UI.Focus
     {
         // DAmmoView _ammoView;
         [SerializeField] DFocusView _focusPanelView;
+        [SerializeField] DAmmoView _ammoPanelView;
+
+        //public event Action<bool, int> OnConsumeAmmo;
+
 
         void Awake()
         {
@@ -28,10 +33,19 @@ namespace David6.ShooterCore.UI.Focus
         public void HandleFocusOn()
         {
             _focusPanelView?.ShowPanel();
+            _ammoPanelView?.ShowPanel();
         }
         public void HandleFocusOff()
         {
             _focusPanelView?.HidePanel();
+        }
+        public void CountingRounds(bool chamber, int rounds)
+        {
+            _ammoPanelView.ApplyCurrentRounds(chamber, rounds);
+        }
+        public void CountingAmmunition(int ammo)
+        {
+            _ammoPanelView.ApplyCurrentStorage(ammo);
         }
     }
 

@@ -5,5 +5,7 @@ namespace David6.ShooterCore.Provider
     {
         void HandleFocusOn();
         void HandleFocusOff();
+        void CountingRounds(bool chamber, int rounds);
+        void CountingAmmunition(int ammo);
     }
 }

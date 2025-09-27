@@ -84,6 +84,8 @@ namespace David6.ShooterCore.Provider
         bool ShouldGrounded();
 
         bool IsTriggerReleased { get; set; }
+        int AmmunitionCount(EDAmmoType type);
+        int ConsumeAmmunition(EDAmmoType type, int capacity);
 
         bool ShouldFire();
         bool ShouldReload();
