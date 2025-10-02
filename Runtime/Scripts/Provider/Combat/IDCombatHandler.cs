@@ -13,8 +13,10 @@ namespace David6.ShooterCore.Provider
 
         event Action OnFocusActive;
         event Action OnFocusInactive;
-        event Action<bool, int> OnConsumeRounds;
+        event Action<bool, int> OnCountingRounds;
         event Action<int> OnCountingAmmunition;
+        public event Action<float> OnSpreedChanged;
+
 
         void OnUpdate();
 
@@ -22,6 +24,9 @@ namespace David6.ShooterCore.Provider
         void LockFocus();
         void UnlockFocus();
         void CancelFocus();
+
+        void AimStart();
+        void AimStop();
 
         float CurrentFireRate { get; }
         void EquipWeapon(EDGearSlot slot, DGear item);
@@ -35,6 +40,7 @@ namespace David6.ShooterCore.Provider
         bool IsChamberLoaded();
         int GetCurrentRounds();
 
+        bool EquippedWeapon();
         DWeaponInstance GetWeapon();
         (bool success, DWeaponInstance weapon) TryGetWeapon();
         (bool success, DFrameHandler handler) TryGetWeaponHandler();

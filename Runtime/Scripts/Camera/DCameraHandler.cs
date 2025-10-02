@@ -128,18 +128,20 @@ namespace David6.ShooterCore.Look
 
         private void AimFollow()
         {
-            Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
+            // Ray ray = _lookCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
 
-            RaycastHit hit;
+            // RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, CameraLookProfile.MaxLookRange, HitMask))
-            {
-                AimTarget.transform.position = hit.point;
-            }
-            else
-            {
-                AimTarget.transform.position = _lookCamera.transform.position + _lookCamera.transform.forward * CameraLookProfile.MaxLookRange;
-            }
+            // if (Physics.Raycast(ray, out hit, CameraLookProfile.MaxLookRange, HitMask))
+            // {
+            //     AimTarget.transform.position = hit.point;
+            // }
+            // else
+            // {
+            //     AimTarget.transform.position = _lookCamera.transform.position + _lookCamera.transform.forward * CameraLookProfile.MaxLookRange;
+            // }
+
+            AimTarget.transform.position = _lookCamera.transform.position + _lookCamera.transform.forward * 6f;
         }
 
         void LookRotation()
@@ -194,7 +196,7 @@ namespace David6.ShooterCore.Look
             if (highest != _currentCameraLayer)
             {
                 _currentCameraLayer = highest;
-                Log.WhatHappend(_currentCameraLayer);
+                //Log.WhatHappend(_currentCameraLayer);
                 SwitchCamera(_currentCameraLayer);
             }
         }

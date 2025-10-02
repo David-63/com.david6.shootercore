@@ -88,7 +88,10 @@ namespace David6.ShooterCore.Animation
 
         public void ActiveUpperbodyLayer()
         {
-            _animator.SetLayerWeight(UPPERBODY_LAYER, 1);
+            if (_context.CombatHandler.EquippedWeapon())
+            {
+                _animator.SetLayerWeight(UPPERBODY_LAYER, 1);
+            }
         }
         public void InactiveUpperbodyLayer()
         {

@@ -90,11 +90,13 @@ namespace David6.ShooterCore.UI.Equipment
         public void SetListDisplayGearType(EDGearSlot type) => _selectedGearType = type;
         public EDGearSlot GetListDisplayGearType() => _selectedGearType;
 
+        // 타입에 맞는 탄약 수
         public int CountingAmmunition(EDAmmoType type)
         {
             return Ammunition[type];
         }
 
+        // 장전에 필요한 탄약 소모
         public int ConsumeAmmunition(EDAmmoType type, int rounds)
         {
             if (!Ammunition.TryGetValue(type, out int ammo) || ammo <= 0) return 0;

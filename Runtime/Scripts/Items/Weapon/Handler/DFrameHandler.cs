@@ -38,8 +38,15 @@ namespace David6.ShooterCore.Item.Weapon
         public int CurrentRounds => _currentRounds;
         public Action<bool, int> OnConsumeAmmo;
 
-        float _effectiveRange = 15f;
-        float _hitSphereRadius = 0.25f;
+        //float _effectiveRange = 15f;
+        float _hitSphereRadius = 0.5f;
+
+        float _accuracy = 0.0f; // 0 ~ 1
+
+        float _baseSpreed = 0.5f;
+        float _totalSpreed = 0.5f;
+        float _prevSpreed;
+        public Action<float> OnSpreedChanged;
 
         public void AttachMuzzle(DMuzzleModule module) => _muzzleModule = module;
         public void AttachMagazine(DMagazineModule module) => _magazineModule = module;
@@ -48,9 +55,12 @@ namespace David6.ShooterCore.Item.Weapon
             _context = context;
             _weaponData = gearData;
             _currentRounds = _weaponData.MagazineCapacity;
+
+            HitMask.value = 1;
+            Log.WhatHappend($"{HitMask}");
         }
 
-        public bool Shoot(Vector3 intendedPoint)
+        public bool Shoot(Vector3 intendedPoint, bool isAiming)
         {
             if (!_chamberLoaded)
             {
@@ -61,7 +71,9 @@ namespace David6.ShooterCore.Item.Weapon
 
             float travelDistance = Vector3.Distance(beginPoint, intendedPoint);
             float delay = travelDistance / _weaponData.ProjectileSpeed;
-            Vector3 targetPoint = CalculateSpreed(beginPoint, intendedPoint);
+            //Vector3 targetPoint = CalculateSpreed(beginPoint, intendedPoint, isAiming);
+            Vector3 targetPoint = CalculateTargetPoint(beginPoint, intendedPoint, isAiming);
+
             _context.ExecuteCoroutine(DelayedHit(beginPoint, targetPoint, delay));
             WeaponFireFX(targetPoint);
             ConsumeAmmo();
@@ -85,10 +97,51 @@ namespace David6.ShooterCore.Item.Weapon
                     damageable.Hit();
                 }
                 _context.SpawnParticle(_magazineModule.ImpactShardFX, hit.point, Quaternion.LookRotation(hit.normal));
+                //Log.WhatHappend($"Hit: {hit.collider.name}");
             }
         }
 
-        Vector3 CalculateSpreed(Vector3 beginePoint, Vector3 intendedPoint)
+        // spreed 계산
+
+        /// <summary>
+        /// 명중 범위 계산
+        /// </summary>
+        /// <param name="isAiming"></param>
+        /// <returns></returns>
+        float CalculateSpreedSize(bool isAiming)
+        {
+            // 기본 퍼짐값 1
+            _totalSpreed = _baseSpreed;
+
+            // 조준한 경우 퍼짐값 반감
+            if (isAiming)
+            {
+                _totalSpreed = _totalSpreed / 2f;
+            }
+
+            // 명중률 보정
+
+            _totalSpreed = _totalSpreed * (1f - _accuracy);
+
+            if (MathF.Abs(_prevSpreed - _totalSpreed) > 0.01f)
+            {
+                Log.WhatHappend($"Accuracy: {_accuracy}, Spreed: {_totalSpreed}");
+                OnSpreedChanged?.Invoke(_totalSpreed);
+            }
+
+            _prevSpreed = _totalSpreed;
+
+            return _totalSpreed;
+        }
+
+        // Range 계산
+        /// <summary>
+        /// 사격 방향 계산
+        /// </summary>
+        /// <param name="beginePoint"></param>
+        /// <param name="intendedPoint"></param>
+        /// <returns></returns>
+        Vector3 CalculateHitPoint(Vector3 beginePoint, Vector3 intendedPoint)
         {
             Vector3 forward = intendedPoint - beginePoint;
             float intendedDistance = forward.magnitude;
@@ -99,17 +152,37 @@ namespace David6.ShooterCore.Item.Weapon
             }
             forward.Normalize();
 
-            Vector3 sphereCenter = beginePoint + forward * Mathf.Min(intendedDistance, _effectiveRange);
+            Vector3 targetPoint = beginePoint + forward * Mathf.Min(intendedDistance, _weaponData.EffectiveRange);
 
-            Vector3 right = MuzzleTransform.right;
-            Vector3 up = MuzzleTransform.up;
-            Vector2 rand2D = UnityEngine.Random.insideUnitCircle * _hitSphereRadius;
-            Vector3 offset = right * rand2D.x + up * rand2D.y;
-
-            Vector3 finalPoint = sphereCenter + offset;
-
-            return finalPoint;
+            return targetPoint;
         }
+
+        // spreed 적용
+        /// <summary>
+        /// 탄퍼짐 적용
+        /// </summary>
+        /// <param name="spreed"></param>
+        /// <returns></returns>
+        Vector3 ApplySpreedOffset(float spreed)
+        {
+            Vector2 rand2D = UnityEngine.Random.insideUnitCircle * spreed;
+            Vector3 right = MuzzleTransform.right * rand2D.x;
+            Vector3 up = MuzzleTransform.up * rand2D.y;
+
+            return right + up;
+        }
+
+        Vector3 CalculateTargetPoint(Vector3 beginePoint, Vector3 intendedPoint, bool isAiming)
+        {
+            float spreed = CalculateSpreedSize(isAiming);
+            Vector3 hitPoint = CalculateHitPoint(beginePoint, intendedPoint);
+            Vector3 offset = ApplySpreedOffset(spreed);
+
+            return hitPoint + offset;
+        }
+
+
+
 
         void WeaponFireFX(Vector3 intendedPoint)
         {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using David6.ShooterCore.Item;
 using David6.ShooterCore.Item.Weapon;
-using David6.ShooterCore.Look;
 using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEngine;
@@ -32,8 +31,9 @@ namespace David6.ShooterCore.Combat
         #region Focus value
 
 
-        public event Action<bool, int> OnConsumeRounds;
+        public event Action<bool, int> OnCountingRounds;
         public event Action<int> OnCountingAmmunition;
+        public event Action<float> OnSpreedChanged;
 
         #endregion
 
@@ -61,6 +61,8 @@ namespace David6.ShooterCore.Combat
                 IsFocus = false;
                 OnFocusInactive?.Invoke();
             }
+
+
         }
 
         #region Focus Control
@@ -68,6 +70,7 @@ namespace David6.ShooterCore.Combat
         const float FOCUS_DURATION = 5.5f;
         public float GetFocusDuration => FOCUS_DURATION;
         public bool IsFocus { get; private set; } = false;
+        public bool IsAiming { get; private set; } = false;
         public event Action OnFocusActive;
         public event Action OnFocusInactive;
         public void RequestFocus()
@@ -89,6 +92,18 @@ namespace David6.ShooterCore.Combat
             IsFocus = false;
             _context.CooldownProvider.CancelCooldown(FOCUS_KEY);
             OnFocusInactive?.Invoke();
+        }
+
+        public void AimStart()
+        {
+            IsAiming = true;
+            RequestFocus();
+            LockFocus();
+        }
+        public void AimStop()
+        {
+            IsAiming = false;
+            UnlockFocus();
         }
         #endregion
 
@@ -117,13 +132,14 @@ namespace David6.ShooterCore.Combat
             // Anim Update
             CurrentFireRate = _activeWeapon.FrameHandler.WeaponData.FireRate;
             _context.AnimatorProvider.SetFireRate(CurrentFireRate);
-            _activeWeapon.FrameHandler.OnConsumeAmmo += OnConsumeRounds;
+            _activeWeapon.FrameHandler.OnConsumeAmmo += OnCountingRounds;
 
             // UI Update
-            OnConsumeRounds?.Invoke(IsChamberLoaded(), GetCurrentRounds());
+            OnCountingRounds?.Invoke(IsChamberLoaded(), GetCurrentRounds());
             int ammoCount = _context.AmmunitionCount(_activeWeapon.FrameHandler.WeaponData.AmmoType);
             OnCountingAmmunition?.Invoke(ammoCount);
-
+            _activeWeapon.FrameHandler.OnSpreedChanged += OnSpreedChanged;
+            Log.WhatHappend("Accuracy 바인딩함");
         }
         void EquipNewWeapon(EDGearSlot slot, DGear item)
         {
@@ -140,7 +156,7 @@ namespace David6.ShooterCore.Combat
             var instance = _weaponInstances[slot];
             if (instance.Prefab != null)
             {
-                instance.FrameHandler.OnConsumeAmmo -= OnConsumeRounds;
+                instance.FrameHandler.OnConsumeAmmo -= OnCountingRounds;
                 _context.DestroyPrefab(instance.Prefab);
             }
             BuildWeaponInstance(item, instance);
@@ -167,7 +183,7 @@ namespace David6.ShooterCore.Combat
             if (currentInstance?.Prefab != null)
             {
                 // 이벤트 해제
-                currentInstance.FrameHandler.OnConsumeAmmo -= OnConsumeRounds;
+                currentInstance.FrameHandler.OnConsumeAmmo -= OnCountingRounds;
                 currentInstance.Prefab.SetActive(false);
             }
         }
@@ -194,19 +210,6 @@ namespace David6.ShooterCore.Combat
             _context.AnimatorProvider.PlayFire();
         }
 
-        Vector3 CalculateIntendedPoint()
-        {
-            Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
-            Ray aimRay = _context.CameraHandlerProvider.LookCamera.ScreenPointToRay(screenCenter);
-
-            if (Physics.Raycast(aimRay, out var camHit, MAX_DISTANCE, _hitMask))
-            {
-                return camHit.point;
-            }
-
-            return aimRay.GetPoint(MAX_DISTANCE);
-        }
-
         public void OnEjectMagazine(AnimationEvent animationEvent)
         {
             var (success, currentWeapon) = TryGetWeaponHandler();
@@ -216,6 +219,8 @@ namespace David6.ShooterCore.Combat
             _context.StopRumble(0.25f);
 
             currentWeapon.EjectMagazine();
+            OnCountingRounds?.Invoke(IsChamberLoaded(), GetCurrentRounds());
+
         }
         public void OnInsertMagazine(AnimationEvent animationEvent)
         {
@@ -228,6 +233,7 @@ namespace David6.ShooterCore.Combat
             var weaponData = currentWeapon.WeaponData;
             currentWeapon.InsertMagazine(_context.ConsumeAmmunition(weaponData.AmmoType, weaponData.MagazineCapacity));
             OnCountingAmmunition?.Invoke(_context.AmmunitionCount(weaponData.AmmoType));
+            OnCountingRounds?.Invoke(IsChamberLoaded(), GetCurrentRounds());
         }
 
         public void OnChamberLoad(AnimationEvent animationEvent)
@@ -249,7 +255,7 @@ namespace David6.ShooterCore.Combat
 
             Vector3 intendedPoint = CalculateIntendedPoint();
 
-            if (currentWeapon.Shoot(intendedPoint))
+            if (currentWeapon.Shoot(intendedPoint, IsAiming))
             {
                 _context.FireRoundRumble();
             }
@@ -261,6 +267,19 @@ namespace David6.ShooterCore.Combat
             _context.StopRumble(0.1f);
         }
 
+        Vector3 CalculateIntendedPoint()
+        {
+            Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+            Ray aimRay = _context.CameraHandlerProvider.LookCamera.ScreenPointToRay(screenCenter);
+
+            if (Physics.Raycast(aimRay, out var camHit, MAX_DISTANCE, _hitMask))
+            {
+                return camHit.point;
+            }
+
+            return aimRay.GetPoint(MAX_DISTANCE);
+        }
+
         public bool IsChamberLoaded()
         {
             if (_activeWeapon == null) return false;
@@ -270,6 +289,17 @@ namespace David6.ShooterCore.Combat
         {
             if (_activeWeapon == null) return -1;
             return _activeWeapon.FrameHandler.CurrentRounds;
+        }
+
+        /// <summary>
+        /// 현재 무기 존재 여부 체크
+        /// </summary>
+        /// <returns></returns>
+        public bool EquippedWeapon()
+        {
+            var weapon = _weaponInstances[_activeSlot];
+
+            return (weapon == null) ? false : true;            
         }
 
         /// <summary>
@@ -299,6 +329,11 @@ namespace David6.ShooterCore.Combat
             }
             return (true, weapon);
         }
+
+        /// <summary>
+        /// 핸들러 반환버전
+        /// </summary>
+        /// <returns></returns>
         public (bool success, DFrameHandler handler) TryGetWeaponHandler()
         {
             var weapon = _weaponInstances[_activeSlot];

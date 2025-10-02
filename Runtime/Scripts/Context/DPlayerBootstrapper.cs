@@ -97,8 +97,10 @@ namespace David6.ShooterCore.Context
                 context.CombatHandler.OnFocusActive += focusUIController.HandleFocusOn;
                 context.CombatHandler.OnFocusInactive += focusUIController.HandleFocusOff;
 
-                context.CombatHandler.OnConsumeRounds += focusUIController.CountingRounds;
+                context.CombatHandler.OnCountingRounds += focusUIController.CountingRounds;
                 context.CombatHandler.OnCountingAmmunition += focusUIController.CountingAmmunition;
+
+                context.CombatHandler.OnSpreedChanged += focusUIController.AccuracyControl;
             }
             else
             {

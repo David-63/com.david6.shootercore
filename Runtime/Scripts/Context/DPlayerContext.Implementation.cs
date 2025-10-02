@@ -107,14 +107,13 @@ namespace David6.ShooterCore.Context
         public void HandleStartAimInput()
         {
             InputAim = true;
-            _combatHandler.RequestFocus();
-            _combatHandler.LockFocus();
+            _combatHandler.AimStart();
             _cameraHandler.SetLayerActive(EDCameraLayer.Aim, true);
         }
         public void HandleStopAimInput()
         {
             InputAim = false;
-            _combatHandler.UnlockFocus();
+            _combatHandler.AimStop();
             _cameraHandler.SetLayerActive(EDCameraLayer.Aim, false);
         }
         public void HandleStartFireInput() => InputFire = true;

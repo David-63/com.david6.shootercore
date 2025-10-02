@@ -19,5 +19,6 @@ MonoBehaviour:
   FireRate: 900
   Range: 60
   ProjectileSpeed: 100
-  MagazineCapacity: 25
+  EffectiveRange: 5
+  MagazineCapacity: 35
   AmmoType: 2

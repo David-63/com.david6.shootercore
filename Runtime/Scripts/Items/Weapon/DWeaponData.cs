@@ -9,6 +9,7 @@ namespace David6.ShooterCore.Item.Weapon
         public float FireRate = 450.0f;
         public float Range = 60.0f;
         public float ProjectileSpeed = 100.0f;
+        public float EffectiveRange = 15f;
         public int MagazineCapacity = 25;
         public EDAmmoType AmmoType = EDAmmoType.Compact;
     }

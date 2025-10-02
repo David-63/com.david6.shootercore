@@ -11,6 +11,7 @@ namespace David6.ShooterCore.UI.Focus
         // DAmmoView _ammoView;
         [SerializeField] DFocusView _focusPanelView;
         [SerializeField] DAmmoView _ammoPanelView;
+        [SerializeField] DCrossHairView _crosshairView;
 
         //public event Action<bool, int> OnConsumeAmmo;
 
@@ -34,6 +35,7 @@ namespace David6.ShooterCore.UI.Focus
         {
             _focusPanelView?.ShowPanel();
             _ammoPanelView?.ShowPanel();
+            _crosshairView?.ShowPanel();
         }
         public void HandleFocusOff()
         {
@@ -46,6 +48,12 @@ namespace David6.ShooterCore.UI.Focus
         public void CountingAmmunition(int ammo)
         {
             _ammoPanelView.ApplyCurrentStorage(ammo);
+        }
+
+        public void AccuracyControl(float size)
+        {
+            Log.WhatHappend("AccuracyControl 호출됨");
+            _crosshairView.AccuracyControl(size);
         }
     }
 
