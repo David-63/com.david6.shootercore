@@ -50,10 +50,9 @@ namespace David6.ShooterCore.UI.Focus
             _ammoPanelView.ApplyCurrentStorage(ammo);
         }
 
-        public void AccuracyControl(float size)
+        public void CrosshairControl(float pixelDiameter)
         {
-            Log.WhatHappend("AccuracyControl 호출됨");
-            _crosshairView.AccuracyControl(size);
+            _crosshairView.SetCrosshairSize(pixelDiameter);
         }
     }
 

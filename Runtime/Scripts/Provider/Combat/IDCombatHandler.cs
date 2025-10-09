@@ -15,10 +15,10 @@ namespace David6.ShooterCore.Provider
         event Action OnFocusInactive;
         event Action<bool, int> OnCountingRounds;
         event Action<int> OnCountingAmmunition;
-        public event Action<float> OnSpreedChanged;
+        public event Action<float> OnAccuracyChanged;
 
 
-        void OnUpdate();
+        void OnUpdate(float deltaTime);
 
         void RequestFocus();
         void LockFocus();

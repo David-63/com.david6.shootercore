@@ -136,7 +136,7 @@ namespace David6.ShooterCore.Context
         {
             GroundCheck();
 
-            _combatHandler.OnUpdate();
+            _combatHandler.OnUpdate(deltaTime);
             _locomotionStateMachine.OnUpdate(deltaTime);
             _actionStateMachine.OnUpdate(deltaTime);
 

@@ -100,7 +100,7 @@ namespace David6.ShooterCore.Context
                 context.CombatHandler.OnCountingRounds += focusUIController.CountingRounds;
                 context.CombatHandler.OnCountingAmmunition += focusUIController.CountingAmmunition;
 
-                context.CombatHandler.OnSpreedChanged += focusUIController.AccuracyControl;
+                context.CombatHandler.OnAccuracyChanged += focusUIController.CrosshairControl;
             }
             else
             {

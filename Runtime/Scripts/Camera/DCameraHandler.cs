@@ -45,7 +45,7 @@ namespace David6.ShooterCore.Look
         /// <summary>
         /// 카메라가 따라갈 GameObject
         /// </summary>
-        GameObject _targetCameraHolder;
+        [SerializeField] GameObject _targetCameraHolder;
 
         public Vector2 InputLook { get; private set; }
 
@@ -155,6 +155,11 @@ namespace David6.ShooterCore.Look
 
             _cameraYaw = ClampAngle(_cameraYaw, float.MinValue, float.MaxValue);
             _cameraPitch = ClampAngle(_cameraPitch, CameraLookProfile.BottomClamp, CameraLookProfile.TopClamp);
+
+            if (_targetCameraHolder == null)
+            {
+                Log.WhatHappend("없어");
+            }
 
             _targetCameraHolder.transform.rotation = Quaternion.Euler(_cameraPitch + CameraLookProfile.CameraAngleOverride, _cameraYaw, 0.0f);
         }

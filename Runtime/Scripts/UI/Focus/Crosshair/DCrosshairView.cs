@@ -24,10 +24,9 @@ namespace David6.ShooterCore.UI.Focus
             _layoutElement.ignoreLayout = true;
         }
 
-        public void AccuracyControl(float size)
+        public void SetCrosshairSize(float pixelSize)
         {
-            Log.WhatHappend(size);
-            _crosshair.rectTransform.sizeDelta = (Vector2.one * 100) * size * 2.0f;
+            _crosshair.rectTransform.sizeDelta = Vector2.one * pixelSize;
         }
 
     }
