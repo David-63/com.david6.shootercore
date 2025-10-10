@@ -5,6 +5,8 @@ using David6.ShooterCore.Provider;
 using David6.ShooterCore.Tools;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+using UnityEngine.SocialPlatforms;
 
 namespace David6.ShooterCore.Item.Weapon
 {
@@ -62,116 +64,56 @@ namespace David6.ShooterCore.Item.Weapon
         {
             if (!_chamberLoaded) return false;
 
-            // 시작 좌표
+            // 시작 좌표 및 거리와 지연시간
             Vector3 beginPoint = MuzzleTransform.position;
-            // 사격 거리 & 지연시간
             float travelDistance = Vector3.Distance(beginPoint, intendedPoint);
             float delay = travelDistance / _weaponData.ProjectileSpeed;
 
             // 방향 계산
-            Vector3 targetPoint = CalculateTargetPoint(beginPoint, intendedPoint, accuracy, travelDistance);
+            Vector3 targetPoint = CalculateTargetPoint(beginPoint, intendedPoint, accuracy);
 
-            // 실제 발사
+            // 발사 처리 로직
             _context.ExecuteCoroutine(DelayedHit(beginPoint, targetPoint, delay));
             WeaponFireFX(targetPoint);
             ConsumeAmmo();
+
             return true;
         }
         IEnumerator DelayedHit(Vector3 beginPoint, Vector3 targetPoint, float delay)
-        {
-            yield return new WaitForSeconds(delay);
 
-            Vector3 direction = targetPoint - beginPoint;
-            float maxDistance = direction.magnitude;
-            if (maxDistance <= 0.001f) yield break;
+        {            yield return new WaitForSeconds(delay);
 
-            direction.Normalize();
+            Vector3 direction = (targetPoint - beginPoint).normalized;
 
-            if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, MAX_DISTANCE, HitMask))
+            float travelDistance = Vector3.Distance(beginPoint, targetPoint);
+
+            if (Physics.Raycast(beginPoint, direction, out RaycastHit hit, travelDistance, HitMask))
             {
-                var damageable = hit.collider.GetComponent<IDDamageable>();
-                if (damageable != null)
+                if (hit.collider.TryGetComponent(out IDDamageable damageable))
                 {
                     damageable.Hit();
                 }
+
                 _context.SpawnParticle(_magazineModule.ImpactShardFX, hit.point, Quaternion.LookRotation(hit.normal));
-                //Log.WhatHappend($"Hit: {hit.collider.name}");
+
             }
         }
 
-
-        // Range 계산
         /// <summary>
-        /// 사격 방향 계산
+        /// 정확도에 맞게 타겟 방향 계산
         /// </summary>
-        /// <param name="beginePoint"></param>
-        /// <param name="intendedPoint"></param>
-        /// <returns></returns>
-        Vector3 CalculateHitPoint(Vector3 beginePoint, Vector3 intendedPoint)
-        {
-            Vector3 forward = intendedPoint - beginePoint;
-            float intendedDistance = forward.magnitude;
-            if (intendedDistance <= 0.001f)
-            {
-                forward = MuzzleTransform.forward;
-                intendedDistance = 1f;
-            }
-            forward.Normalize();
-
-            Vector3 targetPoint = beginePoint + forward * Mathf.Min(intendedDistance, _weaponData.EffectiveRange);
-
-            return targetPoint;
-        }
-
-        // spreed 적용
-        /// <summary>
-        /// 탄퍼짐 적용
-        /// </summary>
-        /// <param name="spreed"></param>
-        /// <returns></returns>
-        Vector3 ApplySpreedOffset(float spreed)
-        {
-            Vector2 rand2D = UnityEngine.Random.insideUnitCircle * spreed;
-            Vector3 right = MuzzleTransform.right * rand2D.x;
-            Vector3 up = MuzzleTransform.up * rand2D.y;
-
-            return right + up;
-        }
-
-        Vector3 CalculateTargetPoint(Vector3 beginPoint, Vector3 intendedPoint, float accuracy, float travelDistance)
+        Vector3 CalculateTargetPoint(Vector3 beginPoint, Vector3 intendedPoint, float accuracy)
         {
             // accuracy 클램핑
-            accuracy = Mathf.Clamp01(accuracy);
+            float normalizedAccuracy = Mathf.Clamp01(accuracy / 100);
 
             // accuracy -> spreadAngle 전환
-            float spreadAngleDeg = Mathf.Lerp(_minSpreadAngle, _maxSpreadAngle, 1f - accuracy);
+            float spreadAngleDeg = Mathf.Lerp(_minSpreadAngle, _maxSpreadAngle, 1f - normalizedAccuracy);
             // 기준 방향
             Vector3 forward = (intendedPoint - beginPoint).normalized;
+            Vector3 spreadDirection = SampleDirectionUniformCone(forward, spreadAngleDeg);
 
-            Vector3 totalDirection = SampleDirectionUniformCone(forward, spreadAngleDeg);
-            return beginPoint + totalDirection * travelDistance;
-
-            // float baseSpreadAngle = 2.0f;
-
-            // // 정확도가 클스록 각도는 작아짐
-            // float spreadAngle = baseSpreadAngle / Mathf.Max(accuracy, 0.01f);
-
-            // // 각도를 거리로 변환
-            // float spreadRadius = Mathf.Tan(spreadAngle * Mathf.Deg2Rad) * travelDistance;
-
-            // // 랜덤 오프셋 (거리 보정)
-            // Vector2 rand2D = UnityEngine.Random.insideUnitCircle * spreadRadius;
-
-            // Vector3 right, up;
-            // GetOrthonormalBasis(direction, out right, out up);
-
-            // Vector3 offset = right * rand2D.x + up * rand2D.y;
-
-            // // Vector3 hitPoint = CalculateHitPoint(beginPoint, intendedPoint);
-            // // Vector3 offset = ApplySpreedOffset(accuracy);
-            // //return hitPoint + offset;
-
-            // return beginPoint + direction * travelDistance + offset;
+            return beginPoint + spreadDirection * MAX_DISTANCE;
         }
 
         /// <summary>
@@ -191,30 +133,15 @@ namespace David6.ShooterCore.Item.Weapon
             // 균등한 면적 분포를 위해 cosTheta을 균등하게 샘플
             float cosTheta = Mathf.Lerp(cosMax, 1f, u); 
             float sinTheta = Mathf.Sqrt(1f - cosTheta * cosTheta);
-
             float phi = UnityEngine.Random.value * Mathf.PI * 2f;
 
             // local 방향 (z 축이 forward)
-            Vector3 local = new Vector3(Mathf.Cos(phi) * sinTheta, Mathf.Sin(phi) * sinTheta, cosTheta);
+            Vector3 local = new (Mathf.Cos(phi) * sinTheta, Mathf.Sin(phi) * sinTheta, cosTheta);
 
-            // 회전하여 forward 축에 맞춤
-            Quaternion rot = Quaternion.FromToRotation(Vector3.forward, forward.normalized);
-            return rot * local; // already normalized
+            DMathUtility.GetOrthonormalBasis(forward, out var right, out var up);            
+
+            return (local.x * right + local.y * up + local.z * forward.normalized).normalized; // already normalized
         }
-
-        void GetOrthonormalBasis(Vector3 forward, out Vector3 right, out Vector3 up)
-        {
-            // 안정적인 기준벡터 생성 (forward와 거의 평행한 world up 처리)
-            Vector3 worldUp = Vector3.up;
-            right = Vector3.Cross(worldUp, forward);
-            if (right.sqrMagnitude < 1e-6f)
-                right = Vector3.Cross(Vector3.forward, forward);
-            right.Normalize();
-            up = Vector3.Cross(forward, right).normalized;
-        }
-
-
-
 
         void WeaponFireFX(Vector3 intendedPoint)
         {

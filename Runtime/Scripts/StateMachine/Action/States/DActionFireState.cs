@@ -17,22 +17,27 @@ namespace David6.ShooterCore.StateMachine.Action
             // 무기 없으면 되돌아가기
             var (success, currentWeapon) = Context.CombatHandler.TryGetWeapon();
             if (!success) return;
-
-            DoFire();
             // 트리거 상태 갱신
             Context.IsTriggerReleased = false;
+
+
+            DoFire();
         }
 
         public override void UpdateSelf(float deltaTime)
         {
             CheckTransition();
 
-            DoFire();
+
 
             if (!Context.InputFire)
             {
                 Context.IsTriggerReleased = true;
             }
+
+            var (success, currentWeapon) = Context.CombatHandler.TryGetWeapon();
+            if (!success) return;
+            DoFire();
         }
 
         public override void ExitState()
@@ -51,12 +56,14 @@ namespace David6.ShooterCore.StateMachine.Action
 
         void DoFire()
         {
-            if (!Context.CooldownProvider.IsReady(FIRE_KEY)) return;
+            if (!Context.CooldownProvider.IsReady(FIRE_KEY))
+            {
+                Log.WhatHappend("Why Locked?");
+                return;
+            }
 
-            bool chamberLoad = Context.CombatHandler.IsChamberLoaded();
-            int currentRounds = Context.CombatHandler.GetCurrentRounds();
+            Log.WhatHappend("Do Fire");
 
-            //Log.WhatHappend($"남은 장탄: {currentRounds}. | 약실: {chamberLoad}");
             Context.CombatHandler.RequestFocus();
             Context.CombatHandler.TryShoot();
             Context.CooldownProvider.StartCooldown(FIRE_KEY, 60.0f / Context.CombatHandler.CurrentFireRate);

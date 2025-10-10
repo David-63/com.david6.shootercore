@@ -60,6 +60,11 @@ namespace David6.ShooterCore.Cooldown
 
             return false;
         }
+        public bool HasCooldown(string key)
+        {
+            return _cooldowns.ContainsKey(key);
+        }
+
         public void Tick(float deltaTime)
         {
             List<string> keys = _cooldowns.Keys.ToList();

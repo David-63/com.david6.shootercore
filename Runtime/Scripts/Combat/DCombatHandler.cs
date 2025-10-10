@@ -53,8 +53,8 @@ namespace David6.ShooterCore.Combat
         const float COOLING_DELAY = 0.2f;
         float _overheat;
         const float _overheatMax = 100;
-        float _dissipationRate = 75.0f;
-        float _accumulationPerShot = 4;
+        float _dissipationRate = 100.0f;
+        float _accumulationPerShot = 12;
 
         // AimBlend
 
@@ -62,11 +62,11 @@ namespace David6.ShooterCore.Combat
         const float AIM_BLEND_SPEED = 5f;
 
         float _moveBlend = 0f;
-        const float MOVE_BLEND_SPEED = 1f;
+        const float MOVE_BLEND_SPEED = 30f;
 
 
-        float _minSpreadAngle = 1f;
-        float _maxSpreadAngle = 10f;
+        float _minSpreadAngle = 1.2f;
+        float _maxSpreadAngle = 12f;
         
         #endregion
 
@@ -87,6 +87,19 @@ namespace David6.ShooterCore.Combat
 
         public void OnUpdate(float deltaTime)
         {
+            if (EquippedWeapon())
+            {
+                // 과열 제어
+                if (_overheat > 0)
+                {
+                    _overheat -= _dissipationRate * deltaTime;
+                    _overheat = Mathf.Clamp(_overheat, 0f, _overheatMax);
+                }
+                // 명중률 제어
+                CalculateAccuracy(deltaTime);
+                //Log.WhatHappend($"_overheat: {_overheat:F2}");
+            }
+
             if (!IsFocus) return;
 
             // 포커스 제어
@@ -96,19 +109,6 @@ namespace David6.ShooterCore.Combat
                 OnFocusInactive?.Invoke();
             }
 
-            // 과열 제어
-            if (_context.CooldownProvider.IsReady(WEAPONCOOLING_KEY))
-            {
-                _overheat -= _dissipationRate * deltaTime;
-                _overheat = Mathf.Clamp(_overheat, 0f, _overheatMax);
-            }
-
-            // 명중률 제어
-            if (EquippedWeapon())
-            {
-                CalculateAccuracy(deltaTime);
-            }
-
         }
 
         void CalculateAccuracy(float deltaTime)
@@ -116,121 +116,119 @@ namespace David6.ShooterCore.Combat
             _prevAccuracy = _currentAccuracy;
 
             // 임시 변수
-            float fireValue = 0;
-            float moveValue = 0;
-            float aimValue = 0;
+            float BaseAccuracy = 100;
+            float overheatFactor;
+            float aimFactor;
+            float moveValue;
 
-            /*
-                . 사격
+            // 곱연산 계수
+            aimFactor = CalculateAimBonus(deltaTime);                // 0.5 ~ 1
+            overheatFactor = CalculateOverheatAccuracy();               // 0.4 ~ 1
+            // 합연산 계수
+            moveValue = CalculateMovePenaltyAccuracy(deltaTime);       // (-) 5 ~ 10
 
-                - 과열 상태로 체크
-                - 과열은 0 ~ 100으로 나뉨
-            */
+            // 베이스 합연산
+            float baseAdjustedAccuracy = BaseAccuracy + moveValue;
 
-            fireValue = 1 - (_overheat / 100.0f);
+            // 베이스 결과 값 곱연산
+            float accuracyMultiplier = baseAdjustedAccuracy * overheatFactor * aimFactor;
 
-            float maxOverheat = 100;
-            float threshold = 30;
-            float minAccuracy = 0.5f;
-            float maxAccuracy = 1.0f;
+            // TODO: 이후 추가 보정
 
 
-            if (_overheat < threshold)
-            {
-                fireValue = maxAccuracy;
-            }
-            else if (_overheat >= maxOverheat)
-            {
-                fireValue = minAccuracy;
-            }
-            else
-            {
-                float normalized = Mathf.InverseLerp(threshold, maxOverheat, _overheat);
-                fireValue = Mathf.Lerp(maxAccuracy, minAccuracy, normalized);
-            }
+            // 결과
+            _currentAccuracy = Mathf.Clamp(accuracyMultiplier, 1f, 200f);
 
-            // 정확도 요소
 
-            /*
-                . 이동 (정확도 보단 안정성에 불이익)
+            Log.WhatHappend($"=================================");
+            Log.WhatHappend($"moveFactor: {moveValue:F2}");
+            Log.WhatHappend($"overheatFactor: {overheatFactor:F2}");
+            Log.WhatHappend($"aimFactor: {aimFactor:F2}");
+            Log.WhatHappend($"_currentAccuracy: {_currentAccuracy:F2}");
+            Log.WhatHappend($"=================================");
 
-                - 정지 상태 (zero)
-                - 6m/s 미만: (-0.1) 미묘하게 감소
-                - 6m/s 이상: (-0.3) 다소 감소
-            */
-            float speed = _context.HorizontalSpeed;
-            // = _context.HasMovementInput() ? -0.3f : 0f
-            float targetMove;
-            if (speed <= 0.01f || !_context.HasMovementInput())
-            {
-                targetMove = 0;
-            }
-            else if (speed < 2.5f)
-            {
-                targetMove = -0.1f;
-            }
-            else
-            {
-                targetMove = -0.3f;
-            }
 
-            _moveBlend = Mathf.MoveTowards(_moveBlend, targetMove, MOVE_BLEND_SPEED * deltaTime);
-            moveValue = _moveBlend;
-
-            
-
-            /*
-                . 조준
-
-                - 점진적으로 max(0.5) 수치까지 올라가야함
-                - 해제할때도 똑같이 되게 하고싶은데
-            */
-            // if (IsAiming)
+            // 업데이트
+            UpdateCrosshair();
+            // if (MathF.Abs(_prevAccuracy - _currentAccuracy) > 0.0001f)
             // {
-            //     aimValue += 0.5f;
+            //     UpdateCrosshair();
             // }
 
-            float targetAim = IsAiming ? 0.5f : 0f;
-            _aimBlend = Mathf.MoveTowards(_aimBlend, targetAim, AIM_BLEND_SPEED * deltaTime);
-            aimValue = _aimBlend;
+            /*
+                적당한 변수명
 
+                곱연산 종류
+                multiplicativeFactor    모든 곱연산을 통합한 배율
+                penaltyMultiplier       이동 반동 등으로 인한 감소율
+                bonusMultiplier         조준 상태 등으로 인한 향상 비율
 
-
-            // 예상
-            // Fire 계수 (1~0.5 베이스) + Move 계수 (- 합연산) + Aim 계수 (0~ 0.5) 
-            _currentAccuracy = Mathf.Clamp(fireValue + moveValue + aimValue, 0.01f, 3f);
-            // 업데이트
-            if (MathF.Abs(_prevAccuracy - _currentAccuracy) > 0.001f)
-            {
-
-                float spreadAngleDeg = Mathf.Lerp(_minSpreadAngle, _maxSpreadAngle, 1f - _currentAccuracy);
-
-                Vector3 begin = GetWeaponHandler().MuzzleTransform.position;
-                Camera lookCam = _context.CameraHandlerProvider.LookCamera;
-                Vector3 direction = lookCam.transform.forward;
-                float travelDistance = 100f;
-                float pixelRadius = CalculateCrosshairRadiusPixels(lookCam, begin, direction, travelDistance, spreadAngleDeg);
-                
-                OnAccuracyChanged?.Invoke(pixelRadius * 2f); // 지름
-            }
-
-
-            // Log.WhatHappend($"종합 명중률: {_currentAccuracy}");
-            // Log.WhatHappend($"fireValue: {fireValue:F2}, overheat: {_overheat:F2}");
-            // Log.WhatHappend($"speed: {speed:F2}, targetMove: {targetMove:F2}, moveBlend: {_moveBlend:F2}");
-            // Log.WhatHappend($"targetAim: {targetAim:F2}, aimBlend: {_aimBlend:F2}");
-            
+                합연산 종류
+                additiveBonus           버프 등으로 추가되는 고정 보너스
+                additivePenalty         고정 패널티
+                accuracyOffset          보정용 오프셋
+                baseAdditive            베이스에 더해지는 기본 합연산
+            */
         }
 
-        private float CalculateCrosshairRadiusPixels(Camera lookCam, Vector3 begin, Vector3 direction, float travelDistance, float spreadAngleDeg)
+        float CalculateMovePenaltyAccuracy(float deltaTime)
         {
-            Vector3 centerWorld = begin + direction * travelDistance;
+            float speed = _context.HorizontalSpeed;
+            float targetFactor = 0f;
 
-            Vector3 right, up;
-            GetOrthonormalBasis(direction, out right, out up);
+            // 속도가 낮고 입력이 없는 경우
+            if (_context.HasMovementInput())
+            {
+                targetFactor = (speed < 2.5f) ? -10f : -20f;
+            }
+
+            _moveBlend = Mathf.MoveTowards(_moveBlend, targetFactor, MOVE_BLEND_SPEED * deltaTime);
+            return _moveBlend;
+        }
+
+        float CalculateOverheatAccuracy()
+        {
+            float maxOverheat = 100;        // 일단 상수로 두기
+            float threshold = 1;
+            float minAccuracy = 0.8f;       // 무기 스텟으로 두기
+            float maxAccuracy = 1f;       // 무기 스텟으로 두기
+
+            if (_overheat < threshold) return maxAccuracy;
+            else if (_overheat >= maxOverheat) return minAccuracy;
+            
+            float normalized = Mathf.InverseLerp(threshold, maxOverheat, _overheat);
+            return Mathf.Lerp(maxAccuracy, minAccuracy, normalized);
+        }
+
+        float CalculateAimBonus(float deltaTime)
+        {
+            float targetAim = IsAiming ? 1f : 0.6f;
+            _aimBlend = Mathf.MoveTowards(_aimBlend, targetAim, AIM_BLEND_SPEED * deltaTime);
+            return _aimBlend;
+        }
+
+        void UpdateCrosshair()
+        {
+            float normalizedAccuracy = Mathf.Clamp01(_currentAccuracy / 100f);
+            float spreadAngleDeg = Mathf.Lerp(_minSpreadAngle, _maxSpreadAngle, 1f - normalizedAccuracy);
+
+            Camera lookCam = _context.CameraHandlerProvider.LookCamera;
+            Vector3 begin = GetWeaponHandler().MuzzleTransform.position;
+            Vector3 direction = lookCam.transform.forward;
+            float travelDistance = 100f;
+            float pixelRadius = CalculateCrosshairRadiusPixels(lookCam, begin, direction, travelDistance, spreadAngleDeg);
+
+            OnAccuracyChanged?.Invoke(pixelRadius * 2f); // 지름
+        }
+
+        float CalculateCrosshairRadiusPixels(Camera lookCam, Vector3 begin, Vector3 direction, float distance, float spreadAngleDeg)
+        {
+            Vector3 centerWorld = begin + direction * distance;
+
+            DMathUtility.GetOrthonormalBasis(direction, out Vector3 right, out _);
 
             float spreadRad = spreadAngleDeg * Mathf.Deg2Rad;
-            float spreadRadius = Mathf.Tan(spreadRad) * travelDistance;
+            float spreadRadius = Mathf.Tan(spreadRad) * distance;
 
             Vector3 offsetWorld = centerWorld + right * spreadRadius;
 
@@ -239,21 +237,6 @@ namespace David6.ShooterCore.Combat
 
             return (screenOffset - screenCenter).magnitude;
         }
-        void GetOrthonormalBasis(Vector3 forward, out Vector3 right, out Vector3 up)
-        {
-            // 안정적인 기준벡터 생성 (forward와 거의 평행한 world up 처리)
-            Vector3 worldUp = Vector3.up;
-            right = Vector3.Cross(worldUp, forward);
-
-            if (right.sqrMagnitude < 1e-6f)
-            {
-                right = Vector3.Cross(Vector3.forward, forward);
-            }
-
-            right.Normalize();
-            up = Vector3.Cross(forward, right).normalized;
-        }
-
         #region Focus Control
         const string FOCUS_KEY = "Focus";
         const float FOCUS_DURATION = 5.5f;

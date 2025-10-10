@@ -7,6 +7,7 @@ namespace David6.ShooterCore.Provider
         void UnlockCooldown(string key);
         void CancelCooldown(string key);
         bool IsReady(string key);
+        bool HasCooldown(string key);
 
         void Tick(float deltaTime);
     }
